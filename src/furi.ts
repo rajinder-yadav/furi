@@ -23,11 +23,9 @@ export class HttpRequest extends IncomingMessage {
 export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
-
-
 // Debug logging - comment our for production builds.
 // const LOG_DEBUG = ( ...s: any[] ) => console.log( ...s );
-const LOG_WARN = (...s: any[]) => console.log("WARNING!", ...s);
+const LOG_WARN = (...s: string[]) => console.log("WARNING!", ...s);
 /**
  * API Version.
  */
@@ -88,7 +86,6 @@ export class Furi {
   private readonly MAP_PATCH: UriMap = { named_param: null, uri_map: {} };
   private readonly MAP_DELETE: UriMap = { named_param: null, uri_map: {} };
 
-
   /**
    * Class static method. Create instance of Router object.
    * @returns Instance of class Furi.
@@ -117,12 +114,21 @@ export class Furi {
     return self;
   }
 
-  listen(port: number, cb?: any): Server {
+  // deno-lint(no-dupe-class-members)
+  listen(port?: number, cb?: () => void): Server {
     const server: Server = http.createServer(this.handler());
-    server.listen(port);
-    if (cb) { cb(); }
+    server.listen(port, cb);
+    // if (cb) { cb(); }
     return server;
   }
+
+  // listen(port?: number, hostname?: string, cb?: () => void): Server {
+  //   const server: Server = http.createServer(this.handler());
+  //   server.listen(port, hostname, cb);
+  //   // if (cb) { cb(); }
+  //   return server;
+  // }
+
   /**
    * Node requires a handler function for incoming HTTP request.
    * This handler function is usually passed to createServer().
@@ -139,7 +145,7 @@ export class Furi {
    * @param  uri URI with segment names.
    * @return Object with regex key and array with segment names.
    */
-  createPathRegExKeyWithSegments(uri: string): { segments: string[], key: string } {
+  private createPathRegExKeyWithSegments(uri: string): { segments: string[], key: string } {
 
     const tokens: string[] = uri.split("/");
     const segments: string[] = [];
@@ -169,7 +175,11 @@ export class Furi {
    * @return null If URI doesn't match Path Object.
    * @return param Object containing property and its value for each segment from Path object.
    */
-  getURIParams(uri: string, pk: { param: string[], key: string }, request: HttpRequest): boolean {
+  private getURIParams(
+    uri: string,
+    pk: { param: string[], key: string },
+    request: HttpRequest
+  ): boolean {
 
     const pat = RegExp(pk.key);
     const match = pat.exec(uri);
@@ -193,7 +203,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   get(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.assignRoute(this.MAP_GET, uri, fn);
+    return this.mapRoute(this.MAP_GET, uri, fn);
   }
 
   /**
@@ -203,7 +213,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   patch(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.assignRoute(this.MAP_PATCH, uri, fn);
+    return this.mapRoute(this.MAP_PATCH, uri, fn);
   }
 
   /**
@@ -213,7 +223,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   post(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.assignRoute(this.MAP_POST, uri, fn);
+    return this.mapRoute(this.MAP_POST, uri, fn);
   }
 
   /**
@@ -223,7 +233,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   put(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.assignRoute(this.MAP_PUT, uri, fn);
+    return this.mapRoute(this.MAP_PUT, uri, fn);
   }
 
   /**
@@ -233,7 +243,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   delete(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.assignRoute(this.MAP_DELETE, uri, fn);
+    return this.mapRoute(this.MAP_DELETE, uri, fn);
   }
 
   /**
@@ -243,9 +253,11 @@ export class Furi {
    * @param fn      Reference to callback function of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  assignRoute(method: UriMap,
+  private mapRoute(
+    method: UriMap,
     uri: string,
-    fn: RequestHandlerFunc[]): Furi {
+    fn: RequestHandlerFunc[]
+  ): Furi {
 
     // LOG_DEBUG(uri);
 
@@ -286,7 +298,7 @@ export class Furi {
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
    */
-  dispatch(request: HttpRequest, response: HttpResponse): void {
+  private dispatch(request: HttpRequest, response: HttpResponse): void {
 
     // LOG_DEBUG( request.method, request.url );
 
@@ -328,9 +340,11 @@ export class Furi {
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
    */
-  processHTTPMethod(method: UriMap,
+  private processHTTPMethod(
+    method: UriMap,
     request: HttpRequest,
-    response: HttpResponse) {
+    response: HttpResponse
+  ) {
 
     if (!request.url) { return; }
     let URL = request.url;
