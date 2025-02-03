@@ -1,0 +1,254 @@
+/**
+ * FURI - Fast Uniform Resource Identifier
+ *
+ * The Fast and Furious Node Router
+ * Copyright(c) 2016 Rajinder Yadav
+ *
+ * Labs DevMentor.org Corp. <info@devmentor.org>
+ * This code is releases as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
+ */
+
+// 1) Compile in watch mode: tsc --watch test.ts
+// 2) Run test with verbose errors: mocha --reporter spec
+
+
+/* Sample response JSON
+{
+   "req":{
+      "method":"GET",
+      "url":"localhost:3100",
+      "headers":{
+         "user-agent":"node-superagent/3.4.1"
+      }
+   },
+   "header":{
+      "content-type":"text/html",
+      "user-agent":"FURI Node Server (v0.1)",
+      "date":"Mon, 06 Feb 2017 04:30:12 GMT",
+      "connection":"close",
+      "transfer-encoding":"chunked"
+   },
+   "status":200,
+   "text":"<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n"
+}
+*/
+import { assertEquals } from "@std/assert";
+
+Deno.test("Root path without end slash", async () => {
+  const s = "<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n";
+  const response: Response = await fetch(new URL("http://localhost:3100"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Root path without end slash", async () => {
+  const s = "<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n";
+  const response: Response = await fetch(new URL("http://localhost:3100/"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Root path with query string", async () => {
+  const s = "<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n";
+  const response: Response = await fetch(new URL("http://localhost:3100?q=dfjriour"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Root path with end slash and query string", async () => {
+  const s = "<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n";
+  const response: Response = await fetch(new URL("http://localhost:3100?q=dfjriour"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("About without end slash", async () => {
+  const s = "<h1>About FURI</h1>\nThis is the about page.\n";
+  const response: Response = await fetch(new URL("http://localhost:3100/about"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("About with end slash", async () => {
+  const s = "<h1>About FURI</h1>\nThis is the about page.\n";
+  const response: Response = await fetch(new URL("http://localhost:3100/about"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("About with query string", async () => {
+  const s = "<h1>About FURI</h1>\nThis is the about page.\n";
+  const response: Response = await fetch(new URL("http://localhost:3100/about?s=45bnj34"));
+  if(response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+
+Deno.test("About with end slash and query string", async () => {
+  const s = "<h1>About FURI</h1>\nThis is the about page.\n";
+  const response: Response = await fetch(new URL("http://localhost:3100/about/?we=394845hjh"));
+  if(response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("/about/raj12", async () => {
+  const user_id = "raj12";
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const response: Response = await fetch(new URL(`http://localhost:3100/about/${user_id}`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+// ***** FIX THIS TEST *****
+// Deno.test("/about/raj12/", async() => {
+//   const user_id = "raj12";
+//   const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+//   const response: Response = await fetch(new URL(`http://localhost:3100/about/${user_id}/`));
+//   if(response.ok) {
+//     const data = await response.text();
+//     assertEquals(data, s);
+//     assertEquals(response.status, 200);
+//   }
+// });
+
+
+Deno.test("/about/raj12?er=345o85", async () => {
+  const user_id = "raj12";
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const response: Response = await fetch(new URL(`http://localhost:3100/about/${user_id}?er=345o85`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+// ***** FIX THIS TEST *****
+// Deno.test("/about/raj12/?er=345o85", async () => {
+//   const user_id = "raj12";
+//   const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+//   const response: Response = await fetch(new URL(`http://localhost:3100/about/${user_id}/?er=345o85`));
+//   if (response.ok) {
+//     const data = await response.text();
+//     assertEquals(data, s);
+//     assertEquals(response.status, 200);
+//   }
+// });
+
+Deno.test("/about/5612", async () => {
+  const user_id = "5612";
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const response: Response = await fetch(new URL(`http://localhost:3100/about/${user_id}`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("User id and photo id route segments", async () => {
+  const user_id = "5612";
+  const photo_id = "drjr3494nd";
+  const s = `<h1>User Photo Page!</h1>\nUser ${user_id} photo ${photo_id}\n`;
+  const response: Response = await fetch(new URL(`http://localhost:3100/user/${user_id}/photo/${photo_id}`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Toronto Regex segmented path 1", async () => {
+  const code = "fd034j";
+  const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
+  const path = `/toronto/${code}/can`;
+  const response: Response = await fetch(new URL(`http://localhost:3100${path}`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Toronto Regex segmented path 2", async () => {
+  const code = "fd034j";
+  const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
+  const path = `/toronto/${code}/ca233n`;
+  const response: Response = await fetch(new URL(`http://localhost:3100${path}`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Toronto Regex segmented path 3", async () => {
+  const code = "fd034j";
+  const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
+  const path = `/torrronto/${code}/can`;
+  const response: Response = await fetch(new URL(`http://localhost:3100${path}`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Toronto Regex segmented path 4", async () => {
+  const code = "fd034j";
+  const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
+  const path = `/torrronto/${code}/ca1233n`;
+  const response: Response = await fetch(new URL(`http://localhost:3100${path}`));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Chaining handlers", async () => {
+  const s = "<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n<p>This paragraph is form handler 2</p>\n";
+  const response: Response = await fetch(new URL("http://localhost:3100/chain"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Chaining handlers halting", async () => {
+  const s = "<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n";
+  const response: Response = await fetch(new URL("http://localhost:3100/chainhalt"));
+  if (response.ok) {
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});

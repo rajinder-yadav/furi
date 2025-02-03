@@ -1,0 +1,89 @@
+###
+GET http://localhost:3100/
+
+###
+GET http://localhost:3100/about
+
+###
+GET http://localhost:3100/about/
+
+###
+GET http://localhost:3100/about/12
+
+###
+GET http://localhost:3100/user/12/photo/33
+
+###
+GET http://localhost:3100/toronto/one/ca12n
+
+###
+GET http://localhost:3100/chain
+
+###
+GET http://localhost:3100/chainhalt
+
+###
+PATCH http://localhost:3100/comment
+
+###
+PATCH http://localhost:3100/comment/how-to
+
+###
+PATCH http://localhost:3100/comment/how
+
+{
+  "message": "hello world"
+}
+
+###
+POST http://localhost:3100/comment
+Content-Type: text/html
+
+<p>hello world</p>
+
+###
+POST http://localhost:3100/comment/how-to
+Content-Type: text/html
+
+<p>hello world</p>
+
+###
+POST http://localhost:3100/comment/how
+Content-Type: application/json
+
+{
+  "message": "hello world"
+}
+
+###
+PUT http://localhost:3100/comment
+Content-Type: text/html
+
+<p>hello world</p>
+
+###
+PUT http://localhost:3100/comment/how-to
+Content-Type: text/html
+
+<p>hello world</p>
+
+###
+PUT http://localhost:3100/comment/how
+Content-Type: text/html
+
+<p>hello world</p>
+
+###
+DELETE http://localhost:3100/comment
+
+###
+DELETE http://localhost:3100/comment/how-to
+
+###
+DELETE http://localhost:3100/comment/how
+
+###
+GET http://localhost:3100/about?s=45bnj34
+
+###
+GET http://localhost:3100/about/?we=394845hjh
