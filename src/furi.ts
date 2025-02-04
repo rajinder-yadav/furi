@@ -119,9 +119,30 @@ export class Furi {
    * @param self  Instance of class Furi.
    * @returns     Reference to self.
    */
-  setSelf(self: Furi): Furi {
+  private setSelf(self: Furi): Furi {
     this._self = self;
     return self;
+  }
+
+  /**
+   * Internal helper method, parses query parameters from a URL.
+   * @param query Query string to parse.
+   * @returns     Map of key value pairs representing parsed query parameters.
+   */
+  private parseQueryParameters(query: string | null | undefined): {[key: string]: string} {
+    if(!query || query.trim().length === 0) return {};
+
+    const tokens = query.split("&");
+    if(!tokens || tokens.length < 1) return {};
+
+    const returnValue: {[key: string]: string} = {}
+    for (const token of tokens) {
+      const [key, value] = token.split("=");
+      if(key && value && key.length > 0 && value.length > 0) {
+        returnValue[key] = value;
+      }
+    }
+    return returnValue;
   }
 
   // listen(port?: number, cb?: () => void): Server {
@@ -175,7 +196,7 @@ export class Furi {
    * This handler function is usually passed to createServer().
    * @returns Reference to request handler function.
    */
-  handler(): any {
+  private handler(): any {
     return this.dispatch.bind(this._self);
   }
 
@@ -439,7 +460,11 @@ export class Furi {
      */
     // const i = URL.search(/[;?]|\/$/);
     const queryIndex = URL.search(/[;?]/);
-    if (queryIndex > 0) { URL = URL.substring(0, queryIndex); }
+    if (queryIndex > 0) {
+      const query = URL.substring(queryIndex+1, URL.length);
+      request.query = this.parseQueryParameters(query);
+      URL = URL.substring(0, queryIndex);
+    }
     if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
 
     try {
