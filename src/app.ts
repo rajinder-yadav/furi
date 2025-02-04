@@ -17,6 +17,36 @@ const USER_AGENT: string = "FURI Node Server (v0.1)";
 
 // HTTP GET
 
+furi.use("/middleware", (req: HttpRequest, res: HttpResponse) => {
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+  res.write("About page Middleware 1\n");
+  // return false;
+});
+//
+furi.use("/middleware", (req: HttpRequest, res: HttpResponse) => {
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+  res.write("About page Middleware 2\n");
+  return false;
+});
+
+furi.get("/middleware", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end("<h1>About FURI</h1>\nThis is the about page.\n");
+
+});
+
+
 furi.get("/", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
