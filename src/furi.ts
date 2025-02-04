@@ -201,16 +201,15 @@ export class Furi {
   }
 
   /**
-   * Convert URI with Named Segments into a RegEx string to be matched against
-   * and collect segement names.
+   * Convert named segments path to a RegEx key and collect segment names.
    *
-   * URI ->/aa/:one/bb/cc/:two/e
-   * KEY ->/aa/(?:\w+)/bb/cc/(\w+)/e
-   * segments = ['one', 'two']
-   * { segments: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
+   * URI    => /aa/:one/bb/cc/:two/e
+   * KEY    => /aa/(\w+)/bb/cc/(\w+)/e
+   * params => ['one', 'two']
+   * return => { params: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
    *
    * @param  uri URI with segment names.
-   * @return Object with regex key and array with segment names.
+   * @return Object with regex key and array with param names.
    */
   private createPathRegExKeyWithSegments(uri: string): { params: string[], key: string } {
 
@@ -440,12 +439,12 @@ export class Furi {
   /**
    * This method calls the callbacks for the mapped URL if it exists.
    * If one does not exist a HTTP status error code is returned.
-   * @param method    The URI Map used to look up callbacks
+   * @param httpMap    The URI Map used to look up callbacks
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
    */
   private processHTTPMethod(
-    method: UriMap,
+    httpMap: UriMap,
     request: HttpRequest,
     response: HttpResponse,
     throwOnNotFound: boolean = true
@@ -468,9 +467,9 @@ export class Furi {
     if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
 
     try {
-      if (method.static_uri_map[URL]) {
+      if (httpMap.static_uri_map[URL]) {
         // Found direct match of static URI path
-        const callback_chain = method.static_uri_map[URL].callbacks;
+        const callback_chain = httpMap.static_uri_map[URL].callbacks;
         for (const callback of callback_chain) {
           const rv = callback(request, response);
           if (rv !== undefined && rv === false) {
@@ -479,7 +478,7 @@ export class Furi {
           }
         }
         return;
-      } else if (method.named_uri_map) {
+      } else if (httpMap.named_uri_map) {
         // Search for named parameter URI path match
         let bucket = 0;
         // Partition search
@@ -487,10 +486,10 @@ export class Furi {
           if (element === "/") { ++bucket; }
         }
 
-        if (method.named_uri_map[bucket]) {
+        if (httpMap.named_uri_map[bucket]) {
           if (!request.params) { request.params = {}; }
 
-          for (const segment of method.named_uri_map[bucket]) {
+          for (const segment of httpMap.named_uri_map[bucket]) {
             if (this.attachPathParamsToRequestIfExists(URL, segment, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
               for (const callback of segment.callbacks) {
