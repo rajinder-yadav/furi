@@ -75,7 +75,6 @@ furi.get("/tor+onto/:code/ca\\d*n$", (req: HttpRequest, res: HttpResponse) => {
 
 });
 
-
 // Handlers can be chained
 // call res.end() and return false to terminate the call chain at any point.
 furi.get("/chain", (req: HttpRequest, res: HttpResponse) => {
@@ -123,7 +122,7 @@ furi.patch("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -135,7 +134,7 @@ furi.patch("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -170,7 +169,7 @@ furi.post("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -182,7 +181,7 @@ furi.post("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -206,7 +205,7 @@ furi.post("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
   }).
     on("end", () => {
       text = Buffer.concat(body).toString();
-      const data = { message: "PATCH comment with id", id: req.params.id, text: text };
+      const data = { message: "POST comment with id", id: req.params.id, text: text };
       res.end(JSON.stringify(data));
 
     });
@@ -218,7 +217,7 @@ furi.put("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   })
 
@@ -230,7 +229,7 @@ furi.put("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -242,7 +241,7 @@ furi.put("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -255,7 +254,7 @@ furi.delete("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -267,7 +266,7 @@ furi.delete("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -279,7 +278,7 @@ furi.delete("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
-    "Content-Type": "text/html",
+    "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
 
@@ -287,8 +286,8 @@ furi.delete("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
 
 });
 
-// const server = http.createServer(furi.handler()).listen(3000);
-const SERVER_PORT = Number(Deno.env.get('SERVER_PORT')) || 3000;
-const server = furi.listen(SERVER_PORT, () => {
-  console.log(`Server is running on port ${SERVER_PORT}`);
-});
+// const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
+/**
+ * See Furi.listen for more details.
+ */
+furi.start();

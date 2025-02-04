@@ -23,6 +23,12 @@ export class HttpRequest extends IncomingMessage {
 export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
+export interface ServerConfig {
+  port?: number;
+  hostname?: string;
+  callback?: () => void;
+}
+
 // Debug logging - comment our for production builds.
 // const LOG_DEBUG = ( ...s: any[] ) => console.log( ...s );
 const LOG_WARN = (...s: string[]) => console.log("WARNING!", ...s);
@@ -44,33 +50,35 @@ const API_VERSION: string = "0.1.0";
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type RequestHandlerFunc = (request: HttpRequest, response: HttpResponse) => boolean | void;
+export type RequestCallback = (request: HttpRequest, response: HttpResponse) => boolean | void;
 
 /**
- * Named segments and the handler callback function for associated URI.
+ * Named segments and the handler callback functions for associated URI.
  */
-interface UriMapHandler {
-  callback: RequestHandlerFunc[];
+interface RequestHandler {
+  callbacks: RequestCallback[];
 }
 
 /**
- * Place holder: Route attributes, uri, list of named params, handler callback.
+ * Place holder: Route attributes, uri, list of named params, handler callbacks.
  * key is a regex string of path with named segments.
  */
-interface NamedParam {
+interface NamedRouteParam {
   key: string;        // RegEx URI string
-  param: string[];    // URI named segments
-  callback: RequestHandlerFunc[];
+  params: string[];    // URI named segments
+  callbacks: RequestCallback[];
 }
 
 /**
- * Maps URI to named params and handler callback function.
- * For URI with named segments, the callback will be found under named_param.
+ * Maps URI to named params and handler callback functions.
+ *
+ * Matching Rules:
  * For URI direct matches, the callbacks will be found in uri_map.
+ * For URI with named segments, the callbacks will be found under named_param.
  */
 interface UriMap {
-  named_param: { [key: string]: NamedParam[] } | null;
-  uri_map: { [key: string]: UriMapHandler };
+  static_uri_map: { [key: string]: RequestHandler };
+  named_uri_map: { [key: string]: NamedRouteParam[] } | null;
 }
 
 /**
@@ -80,11 +88,11 @@ export class Furi {
 
   private _self: Furi | null = null;
 
-  private readonly MAP_GET: UriMap = { named_param: null, uri_map: {} };
-  private readonly MAP_POST: UriMap = { named_param: null, uri_map: {} };
-  private readonly MAP_PUT: UriMap = { named_param: null, uri_map: {} };
-  private readonly MAP_PATCH: UriMap = { named_param: null, uri_map: {} };
-  private readonly MAP_DELETE: UriMap = { named_param: null, uri_map: {} };
+  private readonly MAP_GET: UriMap = { named_uri_map: null, static_uri_map: {} };
+  private readonly MAP_POST: UriMap = { named_uri_map: null, static_uri_map: {} };
+  private readonly MAP_PUT: UriMap = { named_uri_map: null, static_uri_map: {} };
+  private readonly MAP_PATCH: UriMap = { named_uri_map: null, static_uri_map: {} };
+  private readonly MAP_DELETE: UriMap = { named_uri_map: null, static_uri_map: {} };
 
   /**
    * Class static method. Create instance of Router object.
@@ -114,20 +122,51 @@ export class Furi {
     return self;
   }
 
-  // deno-lint(no-dupe-class-members)
-  listen(port?: number, cb?: () => void): Server {
-    const server: Server = http.createServer(this.handler());
-    server.listen(port, cb);
-    // if (cb) { cb(); }
-    return server;
-  }
-
-  // listen(port?: number, hostname?: string, cb?: () => void): Server {
+  // listen(port?: number, cb?: () => void): Server {
   //   const server: Server = http.createServer(this.handler());
-  //   server.listen(port, hostname, cb);
+  //   server.listen(port, cb);
   //   // if (cb) { cb(); }
   //   return server;
   // }
+
+  /**
+   * Start server with specified configuration.
+   * @param serverConfig  Configuration object for the server.
+   * @returns Instance of http.Server.
+   */
+  listen(serverConfig: ServerConfig): Server {
+    const { port, hostname, callback } = serverConfig;
+    const server: Server = http.createServer(this.handler());
+    if (port && hostname && callback) {
+      server.listen(port, hostname, callback);
+    } else if (port && callback) {
+      server.listen(port, callback);
+    } else if (port && hostname) {
+      server.listen(port, hostname);
+    } else {
+      server.listen(port);
+    }
+    return server;
+  }
+
+  /**
+   * Starts the Furi server with default or provided configuration.
+   * @returns Instance of http.Server.
+   */
+  start(_callback?: () => void): Server {
+    const SERVER_PORT = Number(Deno.env.get('SERVER_PORT')) || 3030;
+    const SERVER_HOSTNAME = Deno.env.get('SERVER_HOSTNAME') || '0.0.0.0';
+    const SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`
+
+    const callback = _callback ? _callback : () => { console.log(SERVER_MESSAGE); }
+
+    const serverInfo = {
+      port: SERVER_PORT,
+      hostname: SERVER_HOSTNAME,
+      callback
+    };
+    return this.listen(serverInfo);
+  }
 
   /**
    * Node requires a handler function for incoming HTTP request.
@@ -142,32 +181,35 @@ export class Furi {
    * Convert URI with Named Segments into a RegEx string to be matched against
    * and collect segement names.
    *
+   * URI ->/aa/:one/bb/cc/:two/e
+   * KEY ->/aa/(?:\w+)/bb/cc/(\w+)/e
+   * segments = ['one', 'two']
+   * { segments: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
+   *
    * @param  uri URI with segment names.
    * @return Object with regex key and array with segment names.
    */
-  private createPathRegExKeyWithSegments(uri: string): { segments: string[], key: string } {
+  private createPathRegExKeyWithSegments(uri: string): { params: string[], key: string } {
 
     const tokens: string[] = uri.split("/");
-    const segments: string[] = [];
+    const params: string[] = [];
     let key: string = "";
 
     tokens.forEach(tok => {
-
       if (tok.startsWith(":")) {
-        segments.push(tok.substring(1));
+        params.push(tok.substring(1));
         key = `${key}/(\\w+)`;
       } else {
         key = `${key}/${tok}`;
       }
-
     }); // forEach
 
-    return { segments: segments, key: key.substring(1) };
+    return { params: params, key: key.substring(1) };
   }
 
   /**
    * Match URI with named segments and return param object containing
-   * the property of each named segment and its value.
+   * the property of each named segment and its value on the request object.
    *
    * @param uri: string The URI to be matched.
    * @param {segments: string[], key: string} Path object with RegEx key and segments.
@@ -175,9 +217,9 @@ export class Furi {
    * @return null If URI doesn't match Path Object.
    * @return param Object containing property and its value for each segment from Path object.
    */
-  private getURIParams(
+  private attachPathParamsToRequestIfExists(
     uri: string,
-    pk: { param: string[], key: string },
+    pk: { params: string[], key: string },
     request: HttpRequest
   ): boolean {
 
@@ -186,7 +228,7 @@ export class Furi {
 
     if (match) {
       // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
-      pk.param.forEach((segment, i) => {
+      pk.params.forEach((segment, i) => {
         // LOG_DEBUG( "segment: " + segment );
         request.params[segment] = match[i + 1];
       });
@@ -199,93 +241,114 @@ export class Furi {
   /**
    * Assign a HTTP GET handler to the provided URI.
    * @param uri  String value of URI.
-   * @param fn   Reference to callback function of type RequestHandlerFunc.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  get(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.mapRoute(this.MAP_GET, uri, fn);
+  get(uri: string, ...fn: RequestCallback[]): Furi {
+    return this.buildRequestMap(this.MAP_GET, uri, fn);
   }
 
   /**
    * Assign a HTTP PATCH handler to the provided URI.
    * @param uri  String value of URI.
-   * @param fn   Reference to callback function of type RequestHandlerFunc.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  patch(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.mapRoute(this.MAP_PATCH, uri, fn);
+  patch(uri: string, ...fn: RequestCallback[]): Furi {
+    return this.buildRequestMap(this.MAP_PATCH, uri, fn);
   }
 
   /**
    * Assign a HTTP POST handler to the provided URI.
    * @param uri  String value of URI.
-   * @param fn   Reference to callback function of type RequestHandlerFunc.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  post(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.mapRoute(this.MAP_POST, uri, fn);
+  post(uri: string, ...fn: RequestCallback[]): Furi {
+    return this.buildRequestMap(this.MAP_POST, uri, fn);
   }
 
   /**
    * Assign a HTTP PUT handler to the provided URI.
    * @param uri  String value of URI.
-   * @param fn   Reference to callback function of type RequestHandlerFunc.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  put(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.mapRoute(this.MAP_PUT, uri, fn);
+  put(uri: string, ...fn: RequestCallback[]): Furi {
+    return this.buildRequestMap(this.MAP_PUT, uri, fn);
   }
 
   /**
    * Assign a HTTP DELETE handler to the provided URI.
    * @param uri  String value of URI.
-   * @param fn   Reference to callback function of type RequestHandlerFunc.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  delete(uri: string, ...fn: RequestHandlerFunc[]): Furi {
-    return this.mapRoute(this.MAP_DELETE, uri, fn);
+  delete(uri: string, ...fn: RequestCallback[]): Furi {
+    return this.buildRequestMap(this.MAP_DELETE, uri, fn);
   }
 
   /**
-   * Assign a HTTP GET handler to the provided URI.
-   * @param method  The URI Map used to look up callback
-   * @param uri     String value of URI.
-   * @param fn      Reference to callback function of type RequestHandlerFunc.
-   * @returns    Reference to self, allows method chaining.
+   * Build HTTP Request handler mappings and assign callback function
+   * @param httpMap   The URI Map used to look up callbacks
+   * @param uri       String value of URI.
+   * @param callbacks Reference to callback functions of type RequestHandlerFunc.
+   * @returns         Reference to self, allows method chaining.
    */
-  private mapRoute(
-    method: UriMap,
+  private buildRequestMap(
+    httpMap: UriMap,
     uri: string,
-    fn: RequestHandlerFunc[]
+    callbacks: RequestCallback[]
   ): Furi {
 
     // LOG_DEBUG(uri);
 
-    // https://tools.ietf.org/html/rfc3986
-    const re = /^\/?[a-zA-z]+([a-zA-Z0-9/.+\-_]*\w+)?$/;
+    /**
+     * https://tools.ietf.org/html/rfc3986
+     *
+     *
+     * reserved    = gen-delims / sub-delims
+     *
+     * gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+     *
+     * sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+     *             / "*" / "+" / "," / ";" / "="
+     *
+     * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+     *
+     */
+    const reCheckStaticURL = /^\/?[a-zA-z]+([a-zA-Z0-9/.+\-_~]*\w+)?$/;
 
     // Ignore query string and fragment. Ignore leading slash '/'
     // const i = uri.search( /[;?]|\/$/ );
     // if (i > 1) { uri = uri.substring(0, i); }
     // if ( uri.length > 1 && uri.endsWith( "/" ) ) { uri = uri.substring( 0, uri.length - 1 ); }
 
-    if (re.test(uri)) {
-      method.uri_map[uri] = { callback: fn };
+    /**
+     * Check URI does not contain named routes or query params
+     */
+    if (reCheckStaticURL.test(uri)) {
+      // We can use direct lookup, since URI is static
+      httpMap.static_uri_map[uri] = { callbacks };
     } else {
+      // Complex URI path with named parameters and query string
+      // Partition by "/" count, optimize lookup
       let bucket = 0;
       for (const ch of uri) {
         if (ch === "/") { ++bucket; }
       }
 
-      if (!method.named_param) {
-        method.named_param = {};
+      if (!httpMap.named_uri_map) {
+        // Initialize empty map
+        httpMap.named_uri_map = {};
       }
 
-      const rv = this.createPathRegExKeyWithSegments(uri);
-      if (!method.named_param[bucket]) {
-        method.named_param[bucket] = [{ key: rv.key, param: rv.segments, callback: fn }];
+      const { key, params } = this.createPathRegExKeyWithSegments(uri);
+
+      if (!httpMap.named_uri_map[bucket]) {
+        httpMap.named_uri_map[bucket] = [{ key, params, callbacks }];
       } else {
-        method?.named_param[bucket].push({ key: rv.key, param: rv.segments, callback: fn });
+        httpMap.named_uri_map[bucket].push({ key, params, callbacks });
       }
       // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
     }
@@ -334,9 +397,9 @@ export class Furi {
   }
 
   /**
-   * This method calls the callback for the mapped URL if it exists.
+   * This method calls the callbacks for the mapped URL if it exists.
    * If one does not exist a HTTP status error code is returned.
-   * @param method    The URI Map used to look up callback
+   * @param method    The URI Map used to look up callbacks
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
    */
@@ -349,34 +412,40 @@ export class Furi {
     if (!request.url) { return; }
     let URL = request.url;
 
-    // Ignore query string and fragment. Ignore leading slash '/'
+    /** URL strip rules:
+     * Remove trailing slash '/'
+     * Remove query string and fragment.
+     */
     const i = URL.search(/[;?]|\/$/);
     if (i > 1) { URL = URL.substring(0, i); }
     if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
 
     try {
-      if (method.uri_map[URL]) {
-        const callback_chain = method.uri_map[URL].callback;
+      if (method.static_uri_map[URL]) {
+        // Found direct match of static URI path
+        const callback_chain = method.static_uri_map[URL].callbacks;
         for (const callback of callback_chain) {
           const rv = callback(request, response);
           if (rv === false) { break; }
         }
       } else {
-        if (method.named_param) {
+        // Search for named parameter URI path match
+        if (method.named_uri_map) {
           let bucket = 0;
+          // Partition search
           for (const element of URL) {
             if (element === "/") { ++bucket; }
           }
 
-          if (method.named_param[bucket]) {
+          if (method.named_uri_map[bucket]) {
             if (!request.params) { request.params = {}; }
 
-            for (const segment of method.named_param[bucket]) {
-              if (this.getURIParams(URL, segment, request)) {
+            for (const segment of method.named_uri_map[bucket]) {
+              if (this.attachPathParamsToRequestIfExists(URL, segment, request)) {
                 // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
-                const callback_chain = segment.callback;
-                for (const callback of callback_chain) {
+                for (const callback of segment.callbacks) {
                   const rv = callback(request, response);
+                  // Check for early exit from callback chain.
                   if (rv === false) { break; }
                 }
                 return;
