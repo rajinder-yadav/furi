@@ -181,7 +181,7 @@ export class Furi {
     const SERVER_HOSTNAME = Deno.env.get('SERVER_HOSTNAME') || '0.0.0.0';
     const SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`
 
-    const callback = _callback ? _callback : () => { console.log(SERVER_MESSAGE); }
+    const callback = _callback || (() => { console.log(SERVER_MESSAGE); })
 
     const serverInfo = {
       port: SERVER_PORT,
