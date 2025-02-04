@@ -615,3 +615,51 @@ Deno.test("Middleware end processing early", async () => {
     assertEquals(response.status, 200);
   }
 });
+
+Deno.test("Query paramter check 1", async () => {
+  const request = new Request("http://localhost:3100/query-check?q=dfjriour", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = '{"q":"dfjriour"}';
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Query paramter check 2", async () => {
+  const request = new Request("http://localhost:3100/query-check/?aa=12&&bb&&c=33", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = '{"aa":"12","c":"33"}';
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Query paramter check 3", async () => {
+  const request = new Request("http://localhost:3100/query-check/?12=aa", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = '{"12":"aa"}';
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
