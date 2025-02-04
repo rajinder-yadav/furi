@@ -18,6 +18,7 @@ import { IncomingMessage, ServerResponse, Server } from "node:http";
 
 export class HttpRequest extends IncomingMessage {
   public params: { [key: string]: string | number } = {};
+  public query: { [key: string]: string | number } = {};
 }
 
 export class HttpResponse extends ServerResponse<HttpRequest> {
@@ -88,6 +89,7 @@ export class Furi {
 
   private _self: Furi | null = null;
 
+  private readonly MAP_USE: UriMap = { named_uri_map: null, static_uri_map: {} };
   private readonly MAP_GET: UriMap = { named_uri_map: null, static_uri_map: {} };
   private readonly MAP_POST: UriMap = { named_uri_map: null, static_uri_map: {} };
   private readonly MAP_PUT: UriMap = { named_uri_map: null, static_uri_map: {} };
@@ -239,6 +241,16 @@ export class Furi {
   }
 
   /**
+   * Assign a Middleware to the provided URI.
+   * @param uri  String value of URI.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
+   * @returns    Reference to self, allows method chaining.
+   */
+  use(uri: string, ...fn: RequestCallback[]): Furi {
+    return this.buildRequestMap(this.MAP_GET, uri, fn);
+  }
+
+  /**
    * Assign a HTTP GET handler to the provided URI.
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
@@ -317,7 +329,7 @@ export class Furi {
      * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
      *
      */
-    const reCheckStaticURL = /^\/?[a-zA-z]+([a-zA-Z0-9/.+\-_~]*\w+)?$/;
+    const reCheckStaticURL = /^\/?[a-zA-z]*([a-zA-Z0-9/.+\-_~]*\w+)?$/;
 
     // Ignore query string and fragment. Ignore leading slash '/'
     // const i = uri.search( /[;?]|\/$/ );
@@ -329,7 +341,14 @@ export class Furi {
      */
     if (reCheckStaticURL.test(uri)) {
       // We can use direct lookup, since URI is static
-      httpMap.static_uri_map[uri] = { callbacks };
+      if (!httpMap.static_uri_map[uri]) {
+        httpMap.static_uri_map[uri] = { callbacks };
+      } else {
+        // chain callbacks for same URI path
+        for (const cb of callbacks) {
+          httpMap.static_uri_map[uri].callbacks.push(cb);
+        }
+      }
     } else {
       // Complex URI path with named parameters and query string
       // Partition by "/" count, optimize lookup
@@ -364,6 +383,7 @@ export class Furi {
   private dispatch(request: HttpRequest, response: HttpResponse): void {
 
     // LOG_DEBUG( request.method, request.url );
+    this.processHTTPMethod(this.MAP_USE, request, response, false);
 
     switch (request.method) {
       case "GET":
@@ -406,7 +426,8 @@ export class Furi {
   private processHTTPMethod(
     method: UriMap,
     request: HttpRequest,
-    response: HttpResponse
+    response: HttpResponse,
+    throwOnNotFound: boolean = true
   ) {
 
     if (!request.url) { return; }
@@ -416,8 +437,9 @@ export class Furi {
      * Remove trailing slash '/'
      * Remove query string and fragment.
      */
-    const i = URL.search(/[;?]|\/$/);
-    if (i > 1) { URL = URL.substring(0, i); }
+    // const i = URL.search(/[;?]|\/$/);
+    const queryIndex = URL.search(/[;?]/);
+    if (queryIndex > 0) { URL = URL.substring(0, queryIndex); }
     if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
 
     try {
@@ -426,34 +448,40 @@ export class Furi {
         const callback_chain = method.static_uri_map[URL].callbacks;
         for (const callback of callback_chain) {
           const rv = callback(request, response);
-          if (rv === false) { break; }
+          if (rv !== undefined && rv === false) {
+            response.end();
+            break;
+          }
         }
-      } else {
+        return;
+      } else if (method.named_uri_map) {
         // Search for named parameter URI path match
-        if (method.named_uri_map) {
-          let bucket = 0;
-          // Partition search
-          for (const element of URL) {
-            if (element === "/") { ++bucket; }
-          }
-
-          if (method.named_uri_map[bucket]) {
-            if (!request.params) { request.params = {}; }
-
-            for (const segment of method.named_uri_map[bucket]) {
-              if (this.attachPathParamsToRequestIfExists(URL, segment, request)) {
-                // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
-                for (const callback of segment.callbacks) {
-                  const rv = callback(request, response);
-                  // Check for early exit from callback chain.
-                  if (rv === false) { break; }
-                }
-                return;
-              }
-            } // for
-          }
+        let bucket = 0;
+        // Partition search
+        for (const element of URL) {
+          if (element === "/") { ++bucket; }
         }
-        throw new Error("URI Not Found!");
+
+        if (method.named_uri_map[bucket]) {
+          if (!request.params) { request.params = {}; }
+
+          for (const segment of method.named_uri_map[bucket]) {
+            if (this.attachPathParamsToRequestIfExists(URL, segment, request)) {
+              // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
+              for (const callback of segment.callbacks) {
+                const rv = callback(request, response);
+                // Check for early exit from callback chain.
+                if (rv !== undefined && rv === false) {
+                  response.end();
+                  break;
+                }
+              }
+              return;
+            }
+          } // for
+        } else if (throwOnNotFound) {
+          throw new Error(`Route not found for ${URL}`);
+        }
       }
     } catch (_ex) {
       LOG_WARN("URI Not Found.");
@@ -463,6 +491,10 @@ export class Furi {
       });
       response.end();
     }
+    if (throwOnNotFound) {
+      throw new Error(`Route not found for ${URL}`);
+    }
   }
+
 }
 
