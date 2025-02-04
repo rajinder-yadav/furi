@@ -46,6 +46,17 @@ furi.get("/middleware", (req: HttpRequest, res: HttpResponse) => {
 
 });
 
+furi.get("/query-check", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "application/json",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end(JSON.stringify(req.query));
+
+});
+
 
 furi.get("/", (req: HttpRequest, res: HttpResponse) => {
 
