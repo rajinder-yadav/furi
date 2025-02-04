@@ -1,4 +1,7 @@
 ###
+GET http://localhost:3100/sdfert
+
+###
 GET http://localhost:3100/
 
 ###
@@ -83,7 +86,22 @@ DELETE http://localhost:3100/comment/how-to
 DELETE http://localhost:3100/comment/how
 
 ###
+GET http://localhost:3100/middleware
+
+###
 GET http://localhost:3100/about?s=45bnj34
 
 ###
 GET http://localhost:3100/about/?we=394845hjh
+
+###
+GET http://localhost:3100?q=dfjriour
+
+###
+GET http://localhost:3100/query-check?q=dfjriour
+
+###
+GET http://localhost:3100/query-check/?aa=12&&bb&&c=33
+
+###
+GET http://localhost:3100/query-check/?12=aa
