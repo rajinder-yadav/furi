@@ -235,7 +235,7 @@ Deno.test("Root path with query string", async () => {
 });
 
 Deno.test("Root path with end slash and query string", async () => {
-  const request = new Request("http://localhost:3100?q=dfjriour", {
+  const request = new Request("http://localhost:3100/?q=dfjriour", {
     method: "GET",
     headers: {
       "content-type": "text/html",
@@ -594,6 +594,22 @@ Deno.test("Comment route without end slash", async () => {
   const response: Response = await fetch(request);
   if (response.ok) {
     const s = "DELETE comment with id: how";
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("Middleware end processing early", async () => {
+  const request = new Request("http://localhost:3100/middleware", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "About page Middleware 1\nAbout page Middleware 2\n";
     const data = await response.text();
     assertEquals(data, s);
     assertEquals(response.status, 200);
