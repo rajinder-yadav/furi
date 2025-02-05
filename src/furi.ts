@@ -129,16 +129,16 @@ export class Furi {
    * @param query Query string to parse.
    * @returns     Map of key value pairs representing parsed query parameters.
    */
-  private parseQueryParameters(query: string | null | undefined): {[key: string]: string} {
-    if(!query || query.trim().length === 0) return {};
+  private parseQueryParameters(query: string | null | undefined): { [key: string]: string } {
+    if (!query || query.trim().length === 0) return {};
 
     const tokens = query.split("&");
-    if(!tokens || tokens.length < 1) return {};
+    if (!tokens || tokens.length < 1) return {};
 
-    const returnValue: {[key: string]: string} = {}
+    const returnValue: { [key: string]: string } = {}
     for (const token of tokens) {
       const [key, value] = token.split("=");
-      if(key && value && key.length > 0 && value.length > 0) {
+      if (key && value && key.length > 0 && value.length > 0) {
         returnValue[key] = value;
       }
     }
@@ -357,10 +357,10 @@ export class Furi {
     // if ( uri.length > 1 && uri.endsWith( "/" ) ) { uri = uri.substring( 0, uri.length - 1 ); }
 
     /**
-     * Check URI does not contain named routes or query params
+     * Check URI for named routes or query params
      */
     if (reCheckStaticURL.test(uri)) {
-      // We can use direct lookup, since URI is static
+      // Static path, we can use direct lookup
       if (!httpMap.static_uri_map[uri]) {
         httpMap.static_uri_map[uri] = { callbacks };
       } else {
@@ -370,7 +370,7 @@ export class Furi {
         }
       }
     } else {
-      // Complex URI path with named parameters and query string
+      // Dynamic path with named parameters and query string
       // Partition by "/" count, optimize lookup
       let bucket = 0;
       for (const ch of uri) {
@@ -460,7 +460,7 @@ export class Furi {
     // const i = URL.search(/[;?]|\/$/);
     const queryIndex = URL.search(/[;?]/);
     if (queryIndex > 0) {
-      const query = URL.substring(queryIndex+1, URL.length);
+      const query = URL.substring(queryIndex + 1, URL.length);
       request.query = this.parseQueryParameters(query);
       URL = URL.substring(0, queryIndex);
     }

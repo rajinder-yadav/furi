@@ -14,7 +14,7 @@ import { Buffer } from 'node:buffer';
 const furi = Furi.create();
 const USER_AGENT: string = "FURI Node Server (v0.1)";
 
-furi.get("/", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
     "Content-Type": "text/html",
@@ -27,7 +27,7 @@ furi.get("/", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.get("/about", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/about", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
     "Content-Type": "text/html",
@@ -38,43 +38,43 @@ furi.get("/about", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.get("/about/:user_id", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/about/:user_id", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
     "Content-Type": "text/html",
     "User-Agent": USER_AGENT
   });
 
-  res.end(`<h1>About User Page!</h1>\nUser page for: ${_req.params.user_id}\n`);
+  res.end(`<h1>About User Page!</h1>\nUser page for: ${req.params.user_id}\n`);
 
 });
 
-furi.get("/user/:user_id/photo/:photo_id", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/user/:user_id/photo/:photo_id", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
     "Content-Type": "text/html",
     "User-Agent": USER_AGENT
   });
 
-  res.end(`<h1>User Photo Page!</h1>\nUser ${_req.params.user_id} photo ${_req.params.photo_id}\n`);
+  res.end(`<h1>User Photo Page!</h1>\nUser ${req.params.user_id} photo ${req.params.photo_id}\n`);
 
 });
 
 
-furi.get("/tor+onto/:code/ca\\d*n$", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/tor+onto/:code/ca\\d*n$", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
     "Content-Type": "text/html",
     "User-Agent": USER_AGENT
   });
 
-  res.end(`<h1>Toronto Canada</h1>\nCode is ${_req.params.code}\n`);
+  res.end(`<h1>Toronto Canada</h1>\nCode is ${req.params.code}\n`);
 
 });
 
 // Handlers can be chained
 // call res.end() and return false to terminate the call chain at any point.
-furi.get("/chain", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/chain", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -87,7 +87,7 @@ furi.get("/chain", (_req: HttpRequest, res: HttpResponse) => {
   // res.end();
   // return false;
 
-}, (_req: HttpRequest, res: HttpResponse) => {
+}, (req: HttpRequest, res: HttpResponse) => {
 
   res.end("<p>This paragraph is form handler 2</p>\n");
 
@@ -95,7 +95,7 @@ furi.get("/chain", (_req: HttpRequest, res: HttpResponse) => {
 
 // Handlers can be chained
 // call res.end() and return false to terminate the call chain at any point.
-furi.get("/chainhalt", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/chainhalt", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -108,14 +108,14 @@ furi.get("/chainhalt", (_req: HttpRequest, res: HttpResponse) => {
   res.end();
   return false;
 
-}, (_req: HttpRequest, res: HttpResponse) => {
+}, (req: HttpRequest, res: HttpResponse) => {
 
   res.end("<p>This paragraph is form handler 2</p>\n");
 
 });
 
 // HTTP PATCH
-furi.patch("/comment", (_req: HttpRequest, res: HttpResponse) => {
+furi.patch("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -127,7 +127,7 @@ furi.patch("/comment", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.patch("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
+furi.patch("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -139,7 +139,7 @@ furi.patch("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.patch("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
+furi.patch("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -150,19 +150,19 @@ furi.patch("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
   const body: Uint8Array[] = [];
   let text: string;
 
-  _req.on("data", chunk => {
+  req.on("data", chunk => {
     body.push(chunk);
   }).
     on("end", () => {
       text = Buffer.concat(body).toString();
-      const data = { message: "PATCH comment with id", id: _req.params.id, text: text };
+      const data = { message: "PATCH comment with id", id: req.params.id, text: text };
       res.end(JSON.stringify(data));
     });
 
 });
 
 // HTTP POST
-furi.post("/comment", (_req: HttpRequest, res: HttpResponse) => {
+furi.post("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -174,7 +174,7 @@ furi.post("/comment", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.post("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
+furi.post("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -186,7 +186,7 @@ furi.post("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.post("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
+furi.post("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -197,12 +197,12 @@ furi.post("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
   const body: Uint8Array[] = [];
   let text: string;
 
-  _req.on("data", chunk => {
+  req.on("data", chunk => {
     body.push(chunk);
   }).
     on("end", () => {
       text = Buffer.concat(body).toString();
-      const data = { message: "POST comment with id", id: _req.params.id, text: text };
+      const data = { message: "POST comment with id", id: req.params.id, text: text };
       res.end(JSON.stringify(data));
 
     });
@@ -210,7 +210,7 @@ furi.post("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
 });
 
 // HTTP PUT
-furi.put("/comment", (_req: HttpRequest, res: HttpResponse) => {
+furi.put("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -222,7 +222,7 @@ furi.put("/comment", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.put("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
+furi.put("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -234,7 +234,7 @@ furi.put("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.put("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
+furi.put("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -242,12 +242,12 @@ furi.put("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
     "User-Agent": USER_AGENT
   });
 
-  res.end(`PUT comment with id: ${_req.params.id}`);
+  res.end(`PUT comment with id: ${req.params.id}`);
 
 });
 
 // HTTP DELETE
-furi.delete("/comment", (_req: HttpRequest, res: HttpResponse) => {
+furi.delete("/comment", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -259,7 +259,7 @@ furi.delete("/comment", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.delete("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
+furi.delete("/comment/how-to", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -271,7 +271,7 @@ furi.delete("/comment/how-to", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.delete("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
+furi.delete("/comment/:id", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
   res.writeHead(200, {
@@ -279,11 +279,11 @@ furi.delete("/comment/:id", (_req: HttpRequest, res: HttpResponse) => {
     "User-Agent": USER_AGENT
   });
 
-  res.end(`DELETE comment with id: ${_req.params.id}`);
+  res.end(`DELETE comment with id: ${req.params.id}`);
 
 });
 
-furi.use("/middleware", (_req: HttpRequest, res: HttpResponse) => {
+furi.use("/middleware", (req: HttpRequest, res: HttpResponse) => {
   res.writeHead(200, {
     "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
@@ -291,7 +291,7 @@ furi.use("/middleware", (_req: HttpRequest, res: HttpResponse) => {
   res.write("About page Middleware 1\n");
 });
 //
-furi.use("/middleware", (_req: HttpRequest, res: HttpResponse) => {
+furi.use("/middleware", (req: HttpRequest, res: HttpResponse) => {
   res.writeHead(200, {
     "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
@@ -300,7 +300,7 @@ furi.use("/middleware", (_req: HttpRequest, res: HttpResponse) => {
   return false;
 });
 
-furi.get("/middleware", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/middleware", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
     "Content-Type": "text/html",
@@ -311,14 +311,14 @@ furi.get("/middleware", (_req: HttpRequest, res: HttpResponse) => {
 
 });
 
-furi.get("/query-check", (_req: HttpRequest, res: HttpResponse) => {
+furi.get("/query-check", (req: HttpRequest, res: HttpResponse) => {
 
   res.writeHead(200, {
     "Content-Type": "application/json",
     "User-Agent": USER_AGENT
   });
 
-  res.end(JSON.stringify(_req.query));
+  res.end(JSON.stringify(req.query));
 
 });
 
