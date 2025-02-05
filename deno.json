@@ -1,6 +1,7 @@
 {
   "tasks": {
     "dev": "deno run --watch --allow-all --env-file ./src/app.ts",
+    "play": "deno run --watch --allow-all --env-file ./sandbox/play.ts",
     "debug": "deno run --inspect --watch --allow-all --env-file ./src/app.ts",
     "break": "deno run --inspect-brk --watch --allow-all --env-file ./src/app.ts",
     "test": "deno test --allow-all",
