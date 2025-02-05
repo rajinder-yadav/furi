@@ -1,8 +1,8 @@
 /**
- * FURI - Fast Uniform Resource Identifier
+ * FURI - Fast Uniform Resource Identifier.
  *
- * The Fast and Furious Node Router
- * Copyright(c) 2016 Rajinder Yadav
+ * The Fast and Furious Node Router.
+ * Copyright(c) 2016 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
@@ -39,13 +39,11 @@ const LOG_WARN = (...s: string[]) => console.log("WARNING!", ...s);
 const API_VERSION: string = "0.1.0";
 
 /**
- * Function prototype for Request Handler
- *
- * This is pretty much the same function signature as http.Server, that is returned by http.createServer()
+ * Function prototype for Request Handler.
+ * This is pretty much the same function signature as http.Server, that is returned by http.createServer().
  *
  * @param request: HttpRequest
  * @param response: HttpResponse
- *
  * @return boolean | void - return false to cancel remaining handlers.
  *
  * When multiple request handlers are passed in as an array,
@@ -57,17 +55,19 @@ export type RequestCallback = (request: HttpRequest, response: HttpResponse) => 
  * Named segments and the handler callback functions for associated URI.
  */
 interface RequestHandler {
-  callbacks: RequestCallback[];
+  callbacks: RequestCallback[]; // Handler callback functions for associated URI.
 }
 
 /**
  * Place holder: Route attributes, uri, list of named params, handler callbacks.
  * key is a regex string of path with named segments.
- */
+*/
 interface NamedRouteParam {
-  key: string;        // RegEx URI string
-  params: string[];    // URI named segments
-  callbacks: RequestCallback[];
+  useRegex: boolean;            // Use regex for path matching.
+  keyNames: string[];           // Named segments.
+  key: string;                  // RegEx URI string.
+  params: string[];             // URI named segments.
+  callbacks: RequestCallback[]; // Handler callback functions for associated URI.
 }
 
 /**
@@ -220,7 +220,7 @@ export class Furi {
     tokens.forEach(tok => {
       if (tok.startsWith(":")) {
         params.push(tok.substring(1));
-        key = `${key}/(\\w+)`;
+        key = `${key}/([\\w-.~]+)`;
       } else {
         key = `${key}/${tok}`;
       }
@@ -235,7 +235,6 @@ export class Furi {
    *
    * @param uri: string The URI to be matched.
    * @param {segments: string[], key: string} Path object with RegEx key and segments.
-   *
    * @return null If URI doesn't match Path Object.
    * @return param Object containing property and its value for each segment from Path object.
    */
@@ -349,29 +348,31 @@ export class Furi {
      * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
      *
      */
-    const reCheckStaticURL = /^\/?[a-zA-z]*([a-zA-Z0-9/.+\-_~]*\w+)?$/;
+    const regexCheckStaticURL = /^\/?[a-zA-z]*([a-zA-Z0-9/.+\-_~]*\w+)?$/;
 
     // Ignore query string and fragment. Ignore leading slash '/'
     // const i = uri.search( /[;?]|\/$/ );
     // if (i > 1) { uri = uri.substring(0, i); }
     // if ( uri.length > 1 && uri.endsWith( "/" ) ) { uri = uri.substring( 0, uri.length - 1 ); }
 
+    const useRegex = /[*+.?{,}]/.test(uri);
+
     /**
-     * Check URI for named routes or query params
+     * Check URI for named routes.
      */
-    if (reCheckStaticURL.test(uri)) {
-      // Static path, we can use direct lookup
+    if (regexCheckStaticURL.test(uri) && !useRegex) {
+      // Static path, we can use direct lookup.
       if (!httpMap.static_uri_map[uri]) {
         httpMap.static_uri_map[uri] = { callbacks };
       } else {
-        // chain callbacks for same URI path
+        // chain callbacks for same URI path.
         for (const cb of callbacks) {
           httpMap.static_uri_map[uri].callbacks.push(cb);
         }
       }
     } else {
-      // Dynamic path with named parameters and query string
-      // Partition by "/" count, optimize lookup
+      // Dynamic path with named parameters.
+      // Partition by "/" count, optimize lookup.
       let bucket = 0;
       for (const ch of uri) {
         if (ch === "/") { ++bucket; }
@@ -382,12 +383,14 @@ export class Furi {
         httpMap.named_uri_map = {};
       }
 
+      const keyNames = uri.split("/");
       const { key, params } = this.createPathRegExKeyWithSegments(uri);
+      // console.log('regex>', useRegex, '\tpathNames>', keyNames);
 
       if (!httpMap.named_uri_map[bucket]) {
-        httpMap.named_uri_map[bucket] = [{ key, params, callbacks }];
+        httpMap.named_uri_map[bucket] = [{ key, params, callbacks, keyNames, useRegex }];
       } else {
-        httpMap.named_uri_map[bucket].push({ key, params, callbacks });
+        httpMap.named_uri_map[bucket].push({ key, params, callbacks, keyNames, useRegex });
       }
       // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
     }
@@ -437,6 +440,41 @@ export class Furi {
   }
 
   /**
+   * Check if each path token matches its ordinal key values,
+   * named path segments always match and are saved to request.params.
+   * @param pathNames Array of path segments.
+   * @param keyName   Array of key names.
+   * @param request  HttpRequest object.
+   * @returns boolean True if all tokens match, otherwise false.
+   */
+  private fastPathMatch(
+    pathNames: string[],
+    keyName: string[],
+    request: HttpRequest
+  ): boolean {
+    // console.log('pathNames>', pathNames);
+    // console.log('keyName>  ', keyName);
+
+    let didMatch: boolean = true;
+    if (keyName.length === pathNames.length) {
+      // console.log('Equal tokens');
+      for (let i = pathNames.length - 1; i > 0; i--) {
+        if (pathNames[i] !== keyName[i] && keyName[i][0] !== ':') {
+          didMatch = false;
+          break;
+        } else if (keyName[i][0] === ':') {
+          const key = keyName[i].substring(1); // remove ':' from start of string.
+          request.params[key] = pathNames[i];
+          // console.log(`param ${keyName[i]}=${pathNames[i]}`);
+        }
+      }
+    } else {
+      didMatch = false;
+    }
+    return didMatch;
+  }
+
+  /**
    * This method calls the callbacks for the mapped URL if it exists.
    * If one does not exist a HTTP status error code is returned.
    * @param httpMap    The URI Map used to look up callbacks
@@ -466,9 +504,12 @@ export class Furi {
     }
     if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
 
+    const pathNames = URL.split("/");
+    // console.log('pathNames>', pathNames);
+
     try {
       if (httpMap.static_uri_map[URL]) {
-        // Found direct match of static URI path
+        // Found direct match of static URI path.
         const callback_chain = httpMap.static_uri_map[URL].callbacks;
         for (const callback of callback_chain) {
           const rv = callback(request, response);
@@ -479,9 +520,9 @@ export class Furi {
         }
         return;
       } else if (httpMap.named_uri_map) {
-        // Search for named parameter URI path match
+        // Search for named parameter URI path match.
         let bucket = 0;
-        // Partition search
+        // Partition search.
         for (const element of URL) {
           if (element === "/") { ++bucket; }
         }
@@ -489,10 +530,11 @@ export class Furi {
         if (httpMap.named_uri_map[bucket]) {
           if (!request.params) { request.params = {}; }
 
-          for (const segment of httpMap.named_uri_map[bucket]) {
-            if (this.attachPathParamsToRequestIfExists(URL, segment, request)) {
+          for (const namedRouteParam of httpMap.named_uri_map[bucket]) {
+            if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
+              namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
-              for (const callback of segment.callbacks) {
+              for (const callback of namedRouteParam.callbacks) {
                 const rv = callback(request, response);
                 // Check for early exit from callback chain.
                 if (rv !== undefined && rv === false) {
