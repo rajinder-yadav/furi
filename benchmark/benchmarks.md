@@ -1,5 +1,177 @@
 # Benchmark tests
 
+### Deno Furi tests
+
+$ ab -n 10000 -c 1 http://localhost:3000/benchmark1
+This is ApacheBench, Version 2.3 <$Revision: 1913912 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 1000 requests
+Completed 2000 requests
+Completed 3000 requests
+Completed 4000 requests
+Completed 5000 requests
+Completed 6000 requests
+Completed 7000 requests
+Completed 8000 requests
+Completed 9000 requests
+Completed 10000 requests
+Finished 10000 requests
+
+
+Server Software:
+Server Hostname:        localhost
+Server Port:            3000
+
+Document Path:          /benchmark1
+Document Length:        56 bytes
+
+Concurrency Level:      1
+Time taken for tests:   1.367 seconds
+Complete requests:      10000
+Failed requests:        0
+Total transferred:      1350000 bytes
+HTML transferred:       560000 bytes
+Requests per second:    7314.05 [#/sec] (mean)
+Time per request:       0.137 [ms] (mean)
+Time per request:       0.137 [ms] (mean, across all concurrent requests)
+Transfer rate:          964.26 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.0      0       0
+Processing:     0    0   0.1      0       4
+Waiting:        0    0   0.1      0       4
+Total:          0    0   0.1      0       4
+
+Percentage of the requests served within a certain time (ms)
+  50%      0
+  66%      0
+  75%      0
+  80%      0
+  90%      0
+  95%      0
+  98%      0
+  99%      0
+ 100%      4 (longest request)
+
+======
+
+$ ab -n 10000 -c 100 http://localhost:3000/benchmark1
+This is ApacheBench, Version 2.3 <$Revision: 1913912 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 1000 requests
+Completed 2000 requests
+Completed 3000 requests
+Completed 4000 requests
+Completed 5000 requests
+Completed 6000 requests
+Completed 7000 requests
+Completed 8000 requests
+Completed 9000 requests
+Completed 10000 requests
+Finished 10000 requests
+
+
+Server Software:
+Server Hostname:        localhost
+Server Port:            3000
+
+Document Path:          /benchmark1
+Document Length:        56 bytes
+
+Concurrency Level:      100
+Time taken for tests:   0.581 seconds
+Complete requests:      10000
+Failed requests:        0
+Total transferred:      1350000 bytes
+HTML transferred:       560000 bytes
+Requests per second:    17206.17 [#/sec] (mean)
+Time per request:       5.812 [ms] (mean)
+Time per request:       0.058 [ms] (mean, across all concurrent requests)
+Transfer rate:          2268.39 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    2   0.6      2       3
+Processing:     1    4   2.5      3      30
+Waiting:        1    3   2.6      3      30
+Total:          3    6   2.3      5      31
+
+Percentage of the requests served within a certain time (ms)
+  50%      5
+  66%      6
+  75%      6
+  80%      6
+  90%      6
+  95%      6
+  98%      7
+  99%     24
+ 100%     31 (longest request)
+
+======
+
+$ ab -n 100000 -c 100 http://localhost:3000/benchmark2/profile/yadav/post/25
+This is ApacheBench, Version 2.3 <$Revision: 1913912 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 10000 requests
+Completed 20000 requests
+Completed 30000 requests
+Completed 40000 requests
+Completed 50000 requests
+Completed 60000 requests
+Completed 70000 requests
+Completed 80000 requests
+Completed 90000 requests
+Completed 100000 requests
+Finished 100000 requests
+
+
+Server Software:
+Server Hostname:        localhost
+Server Port:            3000
+
+Document Path:          /benchmark2/profile/yadav/post/25
+Document Length:        44 bytes
+
+Concurrency Level:      100
+Time taken for tests:   5.466 seconds
+Complete requests:      100000
+Failed requests:        0
+Total transferred:      12300000 bytes
+HTML transferred:       4400000 bytes
+Requests per second:    18296.04 [#/sec] (mean)
+Time per request:       5.466 [ms] (mean)
+Time per request:       0.055 [ms] (mean, across all concurrent requests)
+Transfer rate:          2197.67 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    2   0.3      2       3
+Processing:     1    3   0.5      3       9
+Waiting:        1    3   0.6      3       9
+Total:          3    5   0.2      5      10
+
+Percentage of the requests served within a certain time (ms)
+  50%      5
+  66%      6
+  75%      6
+  80%      6
+  90%      6
+  95%      6
+  98%      6
+  99%      6
+ 100%     10 (longest request)
+
+### Older test using Node.js
 Make sure to reduce the TIME_WAIT period to 1 sec (default is 15000).
 
 ```sh
