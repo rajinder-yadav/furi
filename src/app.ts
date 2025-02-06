@@ -350,6 +350,92 @@ furi.get("/regex/\\d?to*ronto", (req: HttpRequest, res: HttpResponse) => {
 
 });
 
+/**
+ * This test and the next, are to make sure that
+ * Static routes are matched before Named routes.
+ */
+furi.get("/foo/:bar", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end(`Foo ${req.params.bar}`);
+
+});
+
+furi.get("/foo/bar", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end("Foo Bar");
+
+});
+
+
+/**
+ * This test and the next, are to make sure that
+ * Static routes are matched before Named routes.
+ */
+furi.get("/foo/:bar/bar1", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end(`Foo ${req.params.bar} bar1`);
+
+});
+
+/**
+ * This test and the next, are to make sure that
+ * Static routes are matched before Named routes.
+ */
+furi.get("/foo/:bar/bar2/bar", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end(`Foo ${req.params.bar} bar2 bar`);
+
+});
+
+/**
+ * This test and the next, are to make sure that
+ * Static routes are matched before Named routes.
+ */
+furi.get("/foo/:bar/bar2", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end(`Foo ${req.params.bar} bar2`);
+
+});
+
+/**
+ * This test and the next, are to make sure that
+ * Static routes are matched before Named routes.
+ */
+furi.get("/foo/:bar/bar2/car", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end(`Foo ${req.params.bar} bar2 car`);
+
+});
 
 // const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
 /**

@@ -120,3 +120,24 @@ GET http://localhost:3100/regex/tronto
 
 ###
 GET http://localhost:3100/regex/5toronto
+
+### Test static route before named route
+GET http://localhost:3100/foo/bar
+
+### Test static route before named route
+GET http://localhost:3100/foo/boo
+
+### Test static route before named route
+GET http://localhost:3100/foo/boo/bar1
+
+### Test static route before named route
+GET http://localhost:3100/foo/boo/bar2
+
+### Test static route before named route
+GET http://localhost:3100/foo/boo/bar2/bar
+
+### Test static route before named route
+GET http://localhost:3100/foo/boo/bar2/car
+
+### Test static route before named route
+GET http://localhost:3100/foo/moo/bar2/bar

@@ -787,3 +787,108 @@ Deno.test("RegEx path match for toronto", async () => {
     assertEquals(data, s);
   }
 });
+
+Deno.test("Test Static route match before Named routes 1", async () => {
+  const request = new Request("http://localhost:3100/foo/bar", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "Foo Bar";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("Test Static route match before Named routes 2", async () => {
+  const request = new Request("http://localhost:3100/foo/boo", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "Foo boo";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("Test Static route match before Named routes 3", async () => {
+  const request = new Request("http://localhost:3100/foo/boo/bar1", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "Foo boo bar1";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+Deno.test("Test Static route match before Named routes 4", async () => {
+  const request = new Request("http://localhost:3100/foo/boo/bar2", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "Foo boo bar2";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("Test Static route match before Named routes 5", async () => {
+  const request = new Request("http://localhost:3100/foo/boo/bar2/bar", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "Foo boo bar2 bar";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("Test Static route match before Named routes 6", async () => {
+  const request = new Request("http://localhost:3100/foo/boo/bar2/car", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "Foo boo bar2 car";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("Test Static route match before Named routes 7", async () => {
+  const request = new Request("http://localhost:3100/foo/moo/bar2/bar", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "Foo moo bar2 bar";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
