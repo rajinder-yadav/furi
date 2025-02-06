@@ -31,8 +31,9 @@ export interface ServerConfig {
 }
 
 // Debug logging - comment our for production builds.
-// const LOG_DEBUG = ( ...s: any[] ) => console.log( ...s );
-const LOG_WARN = (...s: string[]) => console.log("WARNING!", ...s);
+const LOG_DEBUG = ( ...s: any[] ) => console.log("DEBUG> ", ...s );
+const LOG_WARN = (...s: string[]) => console.log("WARNING> ", ...s);
+const LOG_ERROR = (...s: string[]) => console.log("ERROR> ", ...s);
 /**
  * API Version.
  */
@@ -336,25 +337,8 @@ export class Furi {
 
     /**
      * https://tools.ietf.org/html/rfc3986
-     *
-     *
-     * reserved    = gen-delims / sub-delims
-     *
-     * gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
-     *
-     * sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
-     *             / "*" / "+" / "," / ";" / "="
-     *
-     * unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-     *
      */
-    const regexCheckStaticURL = /^\/?[a-zA-z]*([a-zA-Z0-9/.+\-_~]*\w+)?$/;
-
-    // Ignore query string and fragment. Ignore leading slash '/'
-    // const i = uri.search( /[;?]|\/$/ );
-    // if (i > 1) { uri = uri.substring(0, i); }
-    // if ( uri.length > 1 && uri.endsWith( "/" ) ) { uri = uri.substring( 0, uri.length - 1 ); }
-
+    const regexCheckStaticURL = /^\/?([a-zA-Z0-9/.+\-_~]*\w+)?$/;
     const useRegex = /[*+.?{,}]/.test(uri);
 
     /**
@@ -383,9 +367,9 @@ export class Furi {
         httpMap.named_uri_map = {};
       }
 
-      const keyNames = uri.split("/");
+      const keyNames = useRegex ? [] : uri.split("/");
       const { key, params } = this.createPathRegExKeyWithSegments(uri);
-      // console.log('regex>', useRegex, '\tpathNames>', keyNames);
+      // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', keyNames);
 
       if (!httpMap.named_uri_map[bucket]) {
         httpMap.named_uri_map[bucket] = [{ key, params, callbacks, keyNames, useRegex }];
@@ -452,12 +436,12 @@ export class Furi {
     keyName: string[],
     request: HttpRequest
   ): boolean {
-    // console.log('pathNames>', pathNames);
-    // console.log('keyName>  ', keyName);
+    // LOG_DEBUG(('pathNames>', pathNames);
+    // LOG_DEBUG(('keyName>  ', keyName);
 
     let didMatch: boolean = true;
     if (keyName.length === pathNames.length) {
-      // console.log('Equal tokens');
+      // LOG_DEBUG(('Equal token count');
       for (let i = pathNames.length - 1; i > 0; i--) {
         if (pathNames[i] !== keyName[i] && keyName[i][0] !== ':') {
           didMatch = false;
@@ -465,7 +449,7 @@ export class Furi {
         } else if (keyName[i][0] === ':') {
           const key = keyName[i].substring(1); // remove ':' from start of string.
           request.params[key] = pathNames[i];
-          // console.log(`param ${keyName[i]}=${pathNames[i]}`);
+          // LOG_DEBUG((`param ${keyName[i]}=${pathNames[i]}`);
         }
       }
     } else {
@@ -505,7 +489,7 @@ export class Furi {
     if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
 
     const pathNames = URL.split("/");
-    // console.log('pathNames>', pathNames);
+    // LOG_DEBUG(('pathNames>', pathNames);
 
     try {
       if (httpMap.static_uri_map[URL]) {
@@ -520,7 +504,7 @@ export class Furi {
         }
         return;
       } else if (httpMap.named_uri_map) {
-        // Search for named parameter URI path match.
+        // Search for named parameter URI or Redex path match.
         let bucket = 0;
         // Partition search.
         for (const element of URL) {
@@ -546,19 +530,33 @@ export class Furi {
             }
           } // for
         } else if (throwOnNotFound) {
-          throw new Error(`Route not found for ${URL}`);
+          // throw new Error(`Route not found for ${URL}`);
+          LOG_WARN(`Route not found for ${URL}`);
+          response.writeHead(404, {
+            "Content-Type": "text/plain",
+            "User-Agent": Furi.getApiVersion(),
+          });
+          response.end("Route not found");
         }
       }
     } catch (_ex) {
-      LOG_WARN("URI Not Found.");
-      response.writeHead(404, "Not Found", {
+      LOG_ERROR("URI Not Found.");
+      response.writeHead(404, {
         "Content-Type": "text/plain",
-        "User-Agent": Furi.getApiVersion()
+        "User-Agent": Furi.getApiVersion(),
       });
-      response.end();
+      response.end("Route not found");
     }
     if (throwOnNotFound) {
-      throw new Error(`Route not found for ${URL}`);
+      // throw new Error(`Route not found for ${URL}`);
+      LOG_WARN(`Route not found for ${URL}`);
+      // response.statusCode = 404;
+      // response.statusMessage = "Route not found";
+      response.writeHead(404, {
+        "Content-Type": "text/plain",
+        "User-Agent": Furi.getApiVersion(),
+      });
+      response.end("Route not found");
     }
   }
 
