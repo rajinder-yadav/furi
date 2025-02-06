@@ -267,7 +267,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   use(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.MAP_GET, uri, fn);
+    return this.buildRequestMap(this.MAP_USE, uri, fn);
   }
 
   /**
@@ -392,6 +392,9 @@ export class Furi {
     // LOG_DEBUG( request.method, request.url );
     this.processHTTPMethod(this.MAP_USE, request, response, false);
 
+    // Exit is response.end() was called by a middleware.
+    if(response.writableEnded) { return; }
+
     switch (request.method) {
       case "GET":
         this.processHTTPMethod(this.MAP_GET, request, response);
@@ -513,6 +516,8 @@ export class Furi {
 
         if (httpMap.named_uri_map[bucket]) {
           if (!request.params) { request.params = {}; }
+
+          const pathNames = URL.split("/");
 
           for (const namedRouteParam of httpMap.named_uri_map[bucket]) {
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
