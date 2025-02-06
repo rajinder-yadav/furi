@@ -417,11 +417,11 @@ export class Furi {
         break;
 
       default:
-        response.writeHead(501, "Not Implemented", {
+        response.writeHead(501, "HTTP Dispatch method not implemented", {
           "Content-Type": "text/plain",
           "User-Agent": Furi.getApiVersion()
         });
-        console.error("HTTP method is not supported.");
+        console.error(`HTTP method ${request.method} is not supported.`);
         response.end();
     } // switch
   }
