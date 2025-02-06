@@ -105,3 +105,18 @@ GET http://localhost:3100/query-check/?aa=12&&bb&&c=33
 
 ###
 GET http://localhost:3100/query-check/?12=aa
+
+###
+GET http://localhost:3100/regex/12345/dept
+
+###
+GET http://localhost:3100/regex/toronto
+
+###
+GET http://localhost:3100/regex/tooronto
+
+###
+GET http://localhost:3100/regex/tronto
+
+###
+GET http://localhost:3100/regex/5toronto

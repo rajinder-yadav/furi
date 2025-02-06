@@ -1,12 +1,14 @@
 /**
  * FURI - Fast Uniform Resource Identifier
  * The Fast and Furious Node Router
- *
- * Copyright(c) 2016 Rajinder Yadav
- *
- * Labs DevMentor.org Corp. <info@devmentor.org>
- * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
- */
+*
+* Copyright(c) 2016 Rajinder Yadav
+*
+* Labs DevMentor.org Corp. <info@devmentor.org>
+* This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
+*/
+
+// deno-lint-ignore-file no-unused-vars
 
 import { Furi, HttpRequest, HttpResponse } from "./furi.ts";
 import { Buffer } from 'node:buffer';
@@ -321,6 +323,33 @@ furi.get("/query-check", (req: HttpRequest, res: HttpResponse) => {
   res.end(JSON.stringify(req.query));
 
 });
+
+// HTTP GET RegEx path
+furi.get("/regex/:id/dept\\d+", (req: HttpRequest, res: HttpResponse) => {
+
+  // Header can only be set once!
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  })
+
+  res.end("RegEx path matched.");
+
+});
+
+// HTTP GET RegEx path
+furi.get("/regex/\\d?to*ronto", (req: HttpRequest, res: HttpResponse) => {
+
+  // Header can only be set once!
+  res.writeHead(200, {
+    "Content-Type": "text/plain",
+    "User-Agent": USER_AGENT
+  })
+
+  res.end("RegEx for path toronto matched.");
+
+});
+
 
 // const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
 /**

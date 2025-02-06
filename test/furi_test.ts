@@ -117,7 +117,7 @@ Deno.test("/about/raj12", async () => {
   }
 });
 
-Deno.test("/about/raj12/", async() => {
+Deno.test("/about/raj12/", async () => {
   const user_id = "raj12";
   const request = new Request(`http://localhost:3100/about/${user_id}/`, {
     method: "GET",
@@ -126,7 +126,7 @@ Deno.test("/about/raj12/", async() => {
     },
   });
   const response: Response = await fetch(request);
-  if(response.ok) {
+  if (response.ok) {
     const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
     const data = await response.text();
     assertEquals(data, s);
@@ -159,7 +159,7 @@ Deno.test("About with query string", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if(response.ok) {
+  if (response.ok) {
     const s = "<h1>About FURI</h1>\nThis is the about page.\n";
     const data = await response.text();
     assertEquals(data, s);
@@ -175,7 +175,7 @@ Deno.test("About with end slash and query string", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if(response.ok) {
+  if (response.ok) {
     const s = "<h1>About FURI</h1>\nThis is the about page.\n";
     const data = await response.text();
     assertEquals(data, s);
@@ -661,5 +661,129 @@ Deno.test("Query paramter check 3", async () => {
     const data = await response.text();
     assertEquals(data, s);
     assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("RegEx path match", async () => {
+  const request = new Request("http://localhost:3100/regex/123/dept12345", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "RegEx path matched.";
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("RegEx path match", async () => {
+  const request = new Request("http://localhost:3100/regex/123/dept1", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "RegEx path matched.";
+    const data = await response.text();
+    assertEquals(data, s);
+    assertEquals(response.status, 200);
+  }
+});
+
+Deno.test("RegEx path match fail", async () => {
+  const request = new Request("http://localhost:3100/regex/123/dept", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  assertEquals(response.status, 404);
+  assertEquals(response.statusText, "Not Found");
+  if (response.status === 404) {
+    const s = "Route not found";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("RegEx path match for toronto", async () => {
+  const request = new Request("http://localhost:3100/regex/toronto", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "RegEx for path toronto matched.";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("RegEx path match for toronto", async () => {
+  const request = new Request("http://localhost:3100/regex/tooronto", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "RegEx for path toronto matched.";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("RegEx path match for toronto", async () => {
+  const request = new Request("http://localhost:3100/regex/tronto", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "RegEx for path toronto matched.";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("RegEx path match for toronto", async () => {
+  const request = new Request("http://localhost:3100/regex/5tronto", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "RegEx for path toronto matched.";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
+
+Deno.test("RegEx path match for toronto", async () => {
+  const request = new Request("http://localhost:3100/regex/5toooooronto", {
+    method: "GET",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "RegEx for path toronto matched.";
+    const data = await response.text();
+    assertEquals(data, s);
   }
 });
