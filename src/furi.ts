@@ -401,18 +401,22 @@ export class Furi {
         break;
 
       case "PATCH":
+      case "patch":
         this.processHTTPMethod(this.MAP_PATCH, request, response);
         break;
 
       case "POST":
+      case "post":
         this.processHTTPMethod(this.MAP_POST, request, response);
         break;
 
       case "PUT":
+      case "put":
         this.processHTTPMethod(this.MAP_PUT, request, response);
         break;
 
       case "DELETE":
+      case "delete":
         this.processHTTPMethod(this.MAP_DELETE, request, response);
         break;
 
@@ -424,6 +428,7 @@ export class Furi {
         console.error(`HTTP method ${request.method} is not supported.`);
         response.end();
     } // switch
+
   }
 
   /**
@@ -542,6 +547,7 @@ export class Furi {
             "User-Agent": Furi.getApiVersion(),
           });
           response.end("Route not found");
+          return;
         }
       }
     } catch (_ex) {
@@ -551,6 +557,7 @@ export class Furi {
         "User-Agent": Furi.getApiVersion(),
       });
       response.end("Route not found");
+      return;
     }
     if (throwOnNotFound) {
       // throw new Error(`Route not found for ${URL}`);
