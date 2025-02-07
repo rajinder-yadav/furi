@@ -31,7 +31,7 @@ export interface ServerConfig {
 }
 
 // Debug logging - comment our for production builds.
-const LOG_DEBUG = ( ...s: any[] ) => console.log("DEBUG> ", ...s );
+const LOG_DEBUG = (...s: any[]) => console.log("DEBUG> ", ...s);
 const LOG_WARN = (...s: string[]) => console.log("WARNING> ", ...s);
 const LOG_ERROR = (...s: string[]) => console.log("ERROR> ", ...s);
 /**
@@ -183,9 +183,22 @@ export class Furi {
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
-    const SERVER_PORT = Number(Deno.env.get('SERVER_PORT')) || 3030;
-    const SERVER_HOSTNAME = Deno.env.get('SERVER_HOSTNAME') || '0.0.0.0';
-    const SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`
+    let SERVER_PORT = 3030;
+    let SERVER_HOSTNAME = '0.0.0.0';
+    let SERVER_MESSAGE = `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`;
+
+    if (Deno?.version.deno) {
+      // LOG_DEBUG('Running under Deno');
+
+      SERVER_PORT = Number(Deno.env.get('SERVER_PORT')) || 3030;
+      SERVER_HOSTNAME = Deno.env.get('SERVER_HOSTNAME') || '0.0.0.0';
+      SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`
+    } else {
+      // LOG_DEBUG('Running under Node.js');
+      SERVER_PORT = Number(process.env.SERVER_PORT) || 3030;
+      SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || '0.0.0.0';
+      SERVER_MESSAGE = process.env.SERVER_MESSAGE || `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`
+    }
 
     const callback = _callback || (() => { console.log(SERVER_MESSAGE); })
 
@@ -398,7 +411,7 @@ export class Furi {
     this.processHTTPMethod(this.MAP_USE, request, response, false);
 
     // Exit is response.end() was called by a middleware.
-    if(response.writableEnded) { return; }
+    if (response.writableEnded) { return; }
 
     switch (request.method) {
       case "GET":
