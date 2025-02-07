@@ -75,7 +75,7 @@ furi.get("/tor+onto/:code/ca\\d*n$", (req: HttpRequest, res: HttpResponse) => {
 });
 
 // Handlers can be chained
-// call res.end() and return false to terminate the call chain at any point.
+// return true to terminate the call chain at any point.
 furi.get("/chain", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
@@ -85,9 +85,8 @@ furi.get("/chain", (req: HttpRequest, res: HttpResponse) => {
   });
 
   res.write("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
-  // Uncomment next 2 lines to stop here!
-  // res.end();
-  // return false;
+  // Uncomment next line to stop here!
+  // return true;
 
 }, (req: HttpRequest, res: HttpResponse) => {
 
@@ -96,7 +95,7 @@ furi.get("/chain", (req: HttpRequest, res: HttpResponse) => {
 });
 
 // Handlers can be chained
-// call res.end() and return false to terminate the call chain at any point.
+// return true to terminate the call chain at any point.
 furi.get("/chainhalt", (req: HttpRequest, res: HttpResponse) => {
 
   // Header can only be set once!
@@ -107,8 +106,7 @@ furi.get("/chainhalt", (req: HttpRequest, res: HttpResponse) => {
 
   res.write("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
   // Uncomment next 2 lines to stop here!
-  res.end();
-  return false;
+  return true;
 
 }, (req: HttpRequest, res: HttpResponse) => {
 
@@ -299,7 +297,7 @@ furi.use("/middleware", (req: HttpRequest, res: HttpResponse) => {
     "User-Agent": USER_AGENT
   });
   res.write("About page Middleware 2\n");
-  return false;
+  return true;
 });
 
 furi.get("/middleware", (req: HttpRequest, res: HttpResponse) => {
@@ -310,6 +308,7 @@ furi.get("/middleware", (req: HttpRequest, res: HttpResponse) => {
   });
 
   res.write("<h1>About FURI</h1>\nThis is the about page.\n");
+  res.end();
 
 });
 

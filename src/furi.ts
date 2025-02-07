@@ -83,6 +83,11 @@ interface UriMap {
   named_uri_map: { [key: string]: NamedRouteParam[] } | null;
 }
 
+interface HttpHandlers {
+  request: HttpRequest;
+  response: HttpResponse;
+}
+
 /**
  * Router Class, matches URI for fast dispatch to handler.
  */
@@ -505,7 +510,7 @@ export class Furi {
         const callback_chain = httpMap.static_uri_map[URL].callbacks;
         for (const callback of callback_chain) {
           const rv = callback(request, response);
-          if (rv !== undefined && rv === false) {
+          if (rv !== undefined && rv === true) {
             response.end();
             break;
           }
@@ -531,7 +536,7 @@ export class Furi {
               for (const callback of namedRouteParam.callbacks) {
                 const rv = callback(request, response);
                 // Check for early exit from callback chain.
-                if (rv !== undefined && rv === false) {
+                if (rv !== undefined && rv === true) {
                   response.end();
                   break;
                 }
