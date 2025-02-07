@@ -309,7 +309,42 @@ furi.get("/middleware", (req: HttpRequest, res: HttpResponse) => {
     "User-Agent": USER_AGENT
   });
 
-  res.end("<h1>About FURI</h1>\nThis is the about page.\n");
+  res.write("<h1>About FURI</h1>\nThis is the about page.\n");
+
+});
+
+/**
+ * The next three test cases are for testing, pre, main, post requests.
+ * The chained requires act like a stacked middlewares.
+ */
+furi.get("/middleware2", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    "User-Agent": USER_AGENT
+  });
+
+  res.write("<p>Middleware 2 pre</p>\n");
+
+});
+furi.get("/middleware2", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    "User-Agent": USER_AGENT
+  });
+
+  res.write("<p>Middleware 2 GET </p>\n");
+
+});
+furi.get("/middleware2", (req: HttpRequest, res: HttpResponse) => {
+
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end("<p>Middleware 2 post </p>\n");
 
 });
 
