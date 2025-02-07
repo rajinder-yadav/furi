@@ -908,3 +908,14 @@ Deno.test("GET: Test Static route match before Named routes 7", async () => {
   }
 });
 
+Deno.test("HEAD: Unsupported method", async () => {
+  const request = new Request("http://localhost:3100/mox", {
+    method: "HEAD",
+    headers: {
+      "content-type": "text/plain",
+    },
+  });
+  const response: Response = await fetch(request);
+  assertEquals(response.status, 501);
+});
+

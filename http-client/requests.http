@@ -33,6 +33,7 @@ PATCH http://localhost:3100/comment/how-to
 
 ###
 PATCH http://localhost:3100/comment/how
+Content-Type: application/json
 
 {
   "message": "hello world"
@@ -89,6 +90,9 @@ DELETE http://localhost:3100/comment/how
 GET http://localhost:3100/middleware
 
 ###
+GET http://localhost:3100/middleware2
+
+###
 GET http://localhost:3100/about?s=45bnj34
 
 ###
@@ -141,3 +145,7 @@ GET http://localhost:3100/foo/boo/bar2/car
 
 ### Test static route before named route
 GET http://localhost:3100/foo/moo/bar2/bar
+
+### Test for unsupported method
+POST
+HEAD http://localhost:3100/mox
