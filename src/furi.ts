@@ -235,9 +235,8 @@ export class Furi {
    * @param  uri URI with segment names.
    * @return Object with regex key and array with param names.
    */
-  private createPathRegExKeyWithSegments(uri: string): { params: string[], key: string } {
+  private createPathRegExKeyWithSegments(tokens: string[]): { params: string[], key: string } {
 
-    const tokens: string[] = uri.split("/");
     const params: string[] = [];
     let key: string = "";
 
@@ -394,8 +393,9 @@ export class Furi {
       httpMap.named_uri_map = {};
     }
 
-    const keyNames = useRegex ? [] : uri.split("/");
-    const { key, params } = this.createPathRegExKeyWithSegments(uri);
+    const tokens: string[] = uri.split("/");
+    const keyNames = useRegex ? [] : tokens;
+    const { key, params } = this.createPathRegExKeyWithSegments(tokens);
     // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', keyNames);
 
     if (!httpMap.named_uri_map[bucket]) {
@@ -520,7 +520,7 @@ export class Furi {
       request.query = this.parseQueryParameters(query);
       URL = URL.substring(0, queryIndex);
     }
-    if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
+    if (URL.length > 1 && URL[URL.length-1] === "/") { URL = URL.substring(0, URL.length - 1); }
 
     try {
       if (httpMap.static_uri_map[URL]) {
@@ -535,18 +535,16 @@ export class Furi {
         }
         return;
       } else if (httpMap.named_uri_map) {
-        // Search for named parameter URI or Redex path match.
-        let bucket = 0;
-        // Partition search.
-        for (let i = 0; i < URL.length; ++i) {
-          if (URL[i] === "/") { ++bucket; }
-        }
+        // Search for named parameter URI or RegEx path match.
+
+        const pathNames = URL.split("/");
+        // Partition index.
+        const bucket = pathNames.length-1;
+        // LOG_DEBUG(('pathNames>', pathNames);
+        // LOG_DEBUG(('bucket>', bucket);
 
         if (httpMap.named_uri_map[bucket]) {
           if (!request.params) { request.params = {}; }
-
-          const pathNames = URL.split("/");
-          // LOG_DEBUG(('pathNames>', pathNames);
 
           const namedRouteParams = httpMap.named_uri_map[bucket];
 
