@@ -552,8 +552,7 @@ export class Furi {
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
               for(let i=0; i < namedRouteParam.callbacks.length; ++i) {
-                const callback = namedRouteParam.callbacks[i];
-                const rv = callback(request, response);
+                const rv = namedRouteParam.callbacks[i](request, response);
                 // Check for early exit from callback chain.
                 if (rv !== undefined && rv === true) {
                   response.end();
