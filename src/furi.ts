@@ -142,9 +142,9 @@ export class Furi {
     if (!tokens || tokens.length < 1) return {};
 
     const returnValue: { [key: string]: string } = {}
-    for (const token of tokens) {
-      const [key, value] = token.split("=");
-      if (key && value && key.length > 0 && value.length > 0) {
+    for (let i = 0; i < tokens.length; ++i) {
+      const [key, value] = tokens[i].split("=");
+      if (key?.length > 0 && value?.length > 0) {
         returnValue[key] = value;
       }
     }
@@ -236,14 +236,15 @@ export class Furi {
     const params: string[] = [];
     let key: string = "";
 
-    tokens.forEach(tok => {
+    for (let i = 0; i < tokens.length; ++i) {
+      const tok = tokens[i];
       if (tok.startsWith(":")) {
         params.push(tok.substring(1));
         key = `${key}/([\\w-.~]+)`;
       } else {
         key = `${key}/${tok}`;
       }
-    }); // forEach
+    }
 
     return { params: params, key: key.substring(1) };
   }
@@ -268,10 +269,11 @@ export class Furi {
 
     if (match) {
       // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
-      pk.params.forEach((segment, i) => {
+      for (let i = 0; i < pk.params.length; i++) {
+        const segment = pk.params[i];
         // LOG_DEBUG( "segment: " + segment );
         request.params[segment] = match[i + 1];
-      });
+      }
       // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
       return true;
     }
@@ -350,7 +352,6 @@ export class Furi {
     uri: string,
     callbacks: RequestCallback[]
   ): Furi {
-
     // LOG_DEBUG(uri);
 
     /**
@@ -360,7 +361,7 @@ export class Furi {
     const useRegex = /[*+.?{,}]/.test(uri);
 
     /**
-     * Check URI for named routes.
+     * Check URI is a static path.
      */
     if (regexCheckStaticURL.test(uri) && !useRegex) {
       // Static path, we can use direct lookup.
@@ -368,34 +369,35 @@ export class Furi {
         httpMap.static_uri_map[uri] = { callbacks };
       } else {
         // chain callbacks for same URI path.
-        for (const cb of callbacks) {
-          httpMap.static_uri_map[uri].callbacks.push(cb);
+        for (let i = 0; i < callbacks.length; ++i) {
+          httpMap.static_uri_map[uri].callbacks.push(callbacks[i]);
         }
       }
-    } else {
-      // Dynamic path with named parameters.
-      // Partition by "/" count, optimize lookup.
-      let bucket = 0;
-      for (const ch of uri) {
-        if (ch === "/") { ++bucket; }
-      }
-
-      if (!httpMap.named_uri_map) {
-        // Initialize empty map
-        httpMap.named_uri_map = {};
-      }
-
-      const keyNames = useRegex ? [] : uri.split("/");
-      const { key, params } = this.createPathRegExKeyWithSegments(uri);
-      // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', keyNames);
-
-      if (!httpMap.named_uri_map[bucket]) {
-        httpMap.named_uri_map[bucket] = [{ key, params, callbacks, keyNames, useRegex }];
-      } else {
-        httpMap.named_uri_map[bucket].push({ key, params, callbacks, keyNames, useRegex });
-      }
-      // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
+      return this;
     }
+
+    // Dynamic path with named parameters or Regex.
+    // Partition by "/" count, optimize lookup.
+    let bucket = 0;
+    for (let i = 0; i < uri.length; ++i) {
+      if (uri[i] === "/") { ++bucket; }
+    }
+
+    if (!httpMap.named_uri_map) {
+      // Initialize empty map
+      httpMap.named_uri_map = {};
+    }
+
+    const keyNames = useRegex ? [] : uri.split("/");
+    const { key, params } = this.createPathRegExKeyWithSegments(uri);
+    // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', keyNames);
+
+    if (!httpMap.named_uri_map[bucket]) {
+      httpMap.named_uri_map[bucket] = [{ key, params, callbacks, keyNames, useRegex }];
+    } else {
+      httpMap.named_uri_map[bucket].push({ key, params, callbacks, keyNames, useRegex });
+    }
+    // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
     return this;
   }
 
@@ -521,8 +523,8 @@ export class Furi {
       if (httpMap.static_uri_map[URL]) {
         // Found direct match of static URI path.
         const callback_chain = httpMap.static_uri_map[URL].callbacks;
-        for (const callback of callback_chain) {
-          const rv = callback(request, response);
+        for (let i = 0; i < callback_chain.length; ++i) {
+          const rv = callback_chain[i](request, response);
           if (rv !== undefined && rv === true) {
             response.end();
             break;
@@ -533,8 +535,8 @@ export class Furi {
         // Search for named parameter URI or Redex path match.
         let bucket = 0;
         // Partition search.
-        for (const element of URL) {
-          if (element === "/") { ++bucket; }
+        for (let i = 0; i < URL.length; ++i) {
+          if (URL[i] === "/") { ++bucket; }
         }
 
         if (httpMap.named_uri_map[bucket]) {
@@ -542,11 +544,15 @@ export class Furi {
 
           const pathNames = URL.split("/");
 
-          for (const namedRouteParam of httpMap.named_uri_map[bucket]) {
+          const namedRouteParams = httpMap.named_uri_map[bucket];
+
+          for (let i = 0; i < namedRouteParams.length; ++i) {
+            const namedRouteParam = namedRouteParams[i];
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
-              for (const callback of namedRouteParam.callbacks) {
+              for(let i=0; i < namedRouteParam.callbacks.length; ++i) {
+                const callback = namedRouteParam.callbacks[i];
                 const rv = callback(request, response);
                 // Check for early exit from callback chain.
                 if (rv !== undefined && rv === true) {
