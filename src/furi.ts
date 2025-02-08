@@ -1,12 +1,15 @@
 /**
  * FURI - Fast Uniform Resource Identifier.
- *
- * The Fast and Furious Node Router.
- * Copyright(c) 2016 Rajinder Yadav.
- *
- * Labs DevMentor.org Corp. <info@devmentor.org>
- * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
- */
+*
+* The Fast and Furious Node Router.
+* Copyright(c) 2016 Rajinder Yadav.
+*
+* Labs DevMentor.org Corp. <info@devmentor.org>
+* This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
+*/
+
+// deno-lint-ignore-file no-process-globals
+
 import * as http from "node:http";
 import { IncomingMessage, ServerResponse, Server } from "node:http";
 
@@ -31,7 +34,7 @@ export interface ServerConfig {
 }
 
 // Debug logging - comment our for production builds.
-const LOG_DEBUG = (...s: any[]) => console.log("DEBUG> ", ...s);
+const LOG_DEBUG = (...s: string[]) => console.log("DEBUG> ", ...s);
 const LOG_WARN = (...s: string[]) => console.log("WARNING> ", ...s);
 const LOG_ERROR = (...s: string[]) => console.log("ERROR> ", ...s);
 /**
@@ -358,7 +361,7 @@ export class Furi {
      * https://tools.ietf.org/html/rfc3986
      * Static URI characters
      */
-    const regexCheckStaticURL = /^\/?([\w/~\-]+)?$/;
+    const regexCheckStaticURL = /^\/?([~\w/-]+)?$/;
     const useRegex = /[*+.?{,}]/.test(uri);
 
     /**
@@ -517,9 +520,6 @@ export class Furi {
     }
     if (URL.length > 1 && URL.endsWith("/")) { URL = URL.substring(0, URL.length - 1); }
 
-    const pathNames = URL.split("/");
-    // LOG_DEBUG(('pathNames>', pathNames);
-
     try {
       if (httpMap.static_uri_map[URL]) {
         // Found direct match of static URI path.
@@ -544,6 +544,7 @@ export class Furi {
           if (!request.params) { request.params = {}; }
 
           const pathNames = URL.split("/");
+          // LOG_DEBUG(('pathNames>', pathNames);
 
           const namedRouteParams = httpMap.named_uri_map[bucket];
 
