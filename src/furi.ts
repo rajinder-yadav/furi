@@ -34,6 +34,7 @@ export interface ServerConfig {
 }
 
 // Debug logging - comment our for production builds.
+// deno-lint-ignore no-unused-vars
 const LOG_DEBUG = (...s: string[]) => console.log("DEBUG> ", ...s);
 const LOG_WARN = (...s: string[]) => console.log("WARNING> ", ...s);
 const LOG_ERROR = (...s: string[]) => console.log("ERROR> ", ...s);
@@ -218,6 +219,7 @@ export class Furi {
    * This handler function is usually passed to createServer().
    * @returns Reference to request handler function.
    */
+  // deno-lint-ignore no-explicit-any
   private handler(): any {
     return this.dispatch.bind(this._self);
   }
