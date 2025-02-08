@@ -356,8 +356,9 @@ export class Furi {
 
     /**
      * https://tools.ietf.org/html/rfc3986
+     * Static URI characters
      */
-    const regexCheckStaticURL = /^\/?([a-zA-Z0-9/.+\-_~]*\w+)?$/;
+    const regexCheckStaticURL = /^\/?([\w/~\-]+)?$/;
     const useRegex = /[*+.?{,}]/.test(uri);
 
     /**
