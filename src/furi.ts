@@ -93,18 +93,34 @@ interface HttpHandlers {
 }
 
 /**
+ * Enumerated keys for HTTP Maps.
+ */
+const HttpMapKeys = {
+  MIDDLEWARE: 0,
+  GET: 1,
+  POST: 2,
+  PUT: 3,
+  PATCH: 4,
+  DELETE: 5
+}
+
+
+/**
  * Router Class, matches URI for fast dispatch to handler.
  */
 export class Furi {
 
   private _self: Furi | null = null;
 
-  private readonly MAP_USE: UriMap = { named_uri_map: null, static_uri_map: {} };
-  private readonly MAP_GET: UriMap = { named_uri_map: null, static_uri_map: {} };
-  private readonly MAP_POST: UriMap = { named_uri_map: null, static_uri_map: {} };
-  private readonly MAP_PUT: UriMap = { named_uri_map: null, static_uri_map: {} };
-  private readonly MAP_PATCH: UriMap = { named_uri_map: null, static_uri_map: {} };
-  private readonly MAP_DELETE: UriMap = { named_uri_map: null, static_uri_map: {} };
+  private readonly httpMaps: UriMap[] = [];
+
+  constructor() {
+    // Initialize HTTP Router lookup maps.
+    const count = Object.keys(HttpMapKeys).length;
+    for (let key = 0; key < count; ++key) {
+      this.httpMaps.push({ named_uri_map: null, static_uri_map: {} })
+    }
+  }
 
   /**
    * Class static method. Create instance of Router object.
@@ -285,63 +301,78 @@ export class Furi {
   }
 
   /**
-   * Assign a Middleware to the provided URI.
+   * Assign a Middleware to the provided URI lookup map.
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
   use(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.MAP_USE, uri, fn);
+    return this.buildRequestMap(this.httpMaps[HttpMapKeys.MIDDLEWARE], uri, fn);
   }
 
   /**
-   * Assign a HTTP GET handler to the provided URI.
+   * Assign Request handler to all HTTP lookup maps.
+   * @param uri  String value of URI.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
+   * @returns    Reference to self, allows method chaining.
+   */
+  all(uri: string, ...fn: RequestCallback[]): Furi {
+    // Skip Middleware Map.
+    const count = Object.keys(HttpMapKeys).length;
+    for (let key = 1; key < count; ++key) {
+      this.buildRequestMap(this.httpMaps[key], uri, fn);
+    }
+    return this;
+  }
+
+  /**
+   * Assign a HTTP GET handler to the provided URI lookup map.
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
   get(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.MAP_GET, uri, fn);
+    return this.buildRequestMap(this.httpMaps[HttpMapKeys.GET], uri, fn);
   }
 
   /**
-   * Assign a HTTP PATCH handler to the provided URI.
+   * Assign a HTTP PATCH handler to the provided URI lookup map.
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
   patch(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.MAP_PATCH, uri, fn);
+    return this.buildRequestMap(this.httpMaps[HttpMapKeys.PATCH], uri, fn);
   }
 
   /**
-   * Assign a HTTP POST handler to the provided URI.
+   * Assign a HTTP POST handler to the provided URI lookup map.
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
   post(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.MAP_POST, uri, fn);
+    return this.buildRequestMap(this.httpMaps[HttpMapKeys.POST], uri, fn);
   }
 
   /**
-   * Assign a HTTP PUT handler to the provided URI.
+   * Assign a HTTP PUT handler to the provided URI lookup map.
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
   put(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.MAP_PUT, uri, fn);
+    return this.buildRequestMap(this.httpMaps[HttpMapKeys.PUT], uri, fn);
   }
 
   /**
-   * Assign a HTTP DELETE handler to the provided URI.
+   * Assign a HTTP DELETE handler to the provided URI lookup map.
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
   delete(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.MAP_DELETE, uri, fn);
+    return this.buildRequestMap(this.httpMaps[HttpMapKeys.DELETE], uri, fn);
   }
 
   /**
@@ -416,34 +447,35 @@ export class Furi {
   private dispatch(request: HttpRequest, response: HttpResponse): void {
 
     // LOG_DEBUG( request.method, request.url );
-    this.processHTTPMethod(this.MAP_USE, request, response, false);
+    this.processHTTPMethod(this.httpMaps[HttpMapKeys.MIDDLEWARE], request, response, false);
 
     // Exit is response.end() was called by a middleware.
     if (response.writableEnded) { return; }
 
     switch (request.method) {
       case "GET":
-        this.processHTTPMethod(this.MAP_GET, request, response);
-        break;
-
-      case "PATCH":
-      case "patch":
-        this.processHTTPMethod(this.MAP_PATCH, request, response);
+      case "get":
+        this.processHTTPMethod(this.httpMaps[HttpMapKeys.GET], request, response);
         break;
 
       case "POST":
       case "post":
-        this.processHTTPMethod(this.MAP_POST, request, response);
+        this.processHTTPMethod(this.httpMaps[HttpMapKeys.POST], request, response);
         break;
 
       case "PUT":
       case "put":
-        this.processHTTPMethod(this.MAP_PUT, request, response);
+        this.processHTTPMethod(this.httpMaps[HttpMapKeys.PUT], request, response);
+        break;
+
+      case "PATCH":
+      case "patch":
+        this.processHTTPMethod(this.httpMaps[HttpMapKeys.PATCH], request, response);
         break;
 
       case "DELETE":
       case "delete":
-        this.processHTTPMethod(this.MAP_DELETE, request, response);
+        this.processHTTPMethod(this.httpMaps[HttpMapKeys.DELETE], request, response);
         break;
 
       default:
@@ -513,14 +545,13 @@ export class Furi {
      * Remove trailing slash '/'
      * Remove query string and fragment.
      */
-    // const i = URL.search(/[;?]|\/$/);
     const queryIndex = URL.search(/[;?]/);
     if (queryIndex > 0) {
       const query = URL.substring(queryIndex + 1, URL.length);
       request.query = this.parseQueryParameters(query);
       URL = URL.substring(0, queryIndex);
     }
-    if (URL.length > 1 && URL[URL.length-1] === "/") { URL = URL.substring(0, URL.length - 1); }
+    if (URL.length > 1 && URL[URL.length - 1] === "/") { URL = URL.substring(0, URL.length - 1); }
 
     try {
       if (httpMap.static_uri_map[URL]) {
@@ -539,7 +570,7 @@ export class Furi {
 
         const pathNames = URL.split("/");
         // Partition index.
-        const bucket = pathNames.length-1;
+        const bucket = pathNames.length - 1;
         // LOG_DEBUG(('pathNames>', pathNames);
         // LOG_DEBUG(('bucket>', bucket);
 
@@ -553,7 +584,7 @@ export class Furi {
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
-              for(let i=0; i < namedRouteParam.callbacks.length; ++i) {
+              for (let i = 0; i < namedRouteParam.callbacks.length; ++i) {
                 const rv = namedRouteParam.callbacks[i](request, response);
                 // Check for early exit from callback chain.
                 if (rv !== undefined && rv === true) {
