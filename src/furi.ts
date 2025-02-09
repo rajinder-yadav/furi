@@ -18,11 +18,16 @@ import { IncomingMessage, ServerResponse, Server } from "node:http";
 
 // type Request  = typeof IncomingMessage;
 // type Response = typeof ServerResponse<InstanceType<Request>>;
+
 type ANY = object | string | number | boolean | null | undefined | bigint | symbol | Function;
+type MapOfString = { [key: string]: string };
+type MapOfStringNumber = { [key: string]: string | number };
+type MapOfANY = { [key: string]: ANY }
+
 export class HttpRequest extends IncomingMessage {
-  public params: { [key: string]: string | number } = {};
-  public query: { [key: string]: string | number } = {};
-  public sessionData?: { [key: string]: ANY } = {};
+  public params: MapOfStringNumber = {};
+  public query: MapOfStringNumber = {};
+  public sessionData?: MapOfANY
 }
 
 export class HttpResponse extends ServerResponse<HttpRequest> {
@@ -83,9 +88,11 @@ interface NamedRouteParam {
  * For URI direct matches, the callbacks will be found in uri_map.
  * For URI with named segments, the callbacks will be found under named_param.
  */
+type MapOfRequestHandler = { [key: string]: RequestHandler };
+type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
 interface UriMap {
-  static_uri_map: { [key: string]: RequestHandler };
-  named_uri_map: { [key: string]: NamedRouteParam[] } | null;
+  static_uri_map: MapOfRequestHandler;
+  named_uri_map: MapOfNamedRouteParam | null;
 }
 
 interface HttpHandlers {
@@ -156,13 +163,13 @@ export class Furi {
    * @param query Query string to parse.
    * @returns     Map of key value pairs representing parsed query parameters.
    */
-  private parseQueryParameters(query: string | null | undefined): { [key: string]: string } {
+  private parseQueryParameters(query: string | null | undefined): MapOfString {
     if (!query || query.trim().length === 0) return {};
 
     const tokens = query.split("&");
     if (!tokens || tokens.length < 1) return {};
 
-    const returnValue: { [key: string]: string } = {}
+    const returnValue: MapOfString = {}
     for (let i = 0; i < tokens.length; ++i) {
       const [key, value] = tokens[i].split("=");
       if (key?.length > 0 && value?.length > 0) {
@@ -302,13 +309,15 @@ export class Furi {
   }
 
   /**
-  * Assign a Middleware to the provided URI lookup map.
-  * There are two function call formats:
-  * use(...fn: RequestCallback[]): Furi;
-  * use(uri: string, ...fn: RequestCallback[]): Furi;
+  * Assign a middleware to the provided URI lookup map.
+  * There are two overloaded functions:
+  * 1. Application level middleware registration.
+  *     use(...fn: RequestCallback[]): Furi;
+  * 2. Route level middleware registration.
+  *     use(uri: string, ...fn: RequestCallback[]): Furi;
   *
-  * When called without a path, the middleware is to middleware map.
-  * When called with a path, the middleware is added to the URI lookup map.
+  * When called without a path, the middleware is added to application level middleware.
+  * When called with a path, the middleware is added to the route level.
   *
   * Middlewares without a path will be called in order of registration,
   * before other all routes, irrespective of their path. Otherwise the
