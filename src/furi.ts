@@ -121,6 +121,7 @@ export class Furi {
   private _self: Furi | null = null;
 
   private readonly httpMaps: UriMap[] = [];
+  private store: MapOfANY = {};
 
   constructor() {
     // Initialize HTTP Router lookup maps.
@@ -146,6 +147,26 @@ export class Furi {
    */
   static getApiVersion(): string {
     return `FURI (v${API_VERSION})`;
+  }
+
+  /**
+   * Read data from the application store.
+   * @param key Property name of data to read.
+   * @returns Value of the property if found, otherwise undefined.
+  */
+  // deno-lint-ignore no-explicit-any
+  readStoreData(key: string): any {
+    return this.store[key];
+  }
+
+  /**
+   * Save data to the application store.
+   * @param key Property name of data to read.
+   * @param value Value to save.
+   */
+  // deno-lint-ignore no-explicit-any
+  saveStoreData(key: string, value: any): void {
+    this.store[key] = value;
   }
 
   /**
