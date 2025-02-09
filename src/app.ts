@@ -495,6 +495,21 @@ furi.get('/all', (req: HttpRequest, res: HttpResponse) => {
 
 });
 
+/**
+ * Set middleware request session data.
+ */
+furi.use( (req: HttpRequest, res: HttpResponse) => {
+  console.log('Root Middleware - pre');
+});
+furi.use( (req: HttpRequest, res: HttpResponse) => {
+  if(req.sessionData) {
+    req.sessionData.message = "Root middleware session data";
+  }
+  // console.log('Middleware');
+});
+furi.use( (req: HttpRequest, res: HttpResponse) => {
+  console.log(`${req.sessionData?.message as string} - post`);
+});
 
 // const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
 /**
