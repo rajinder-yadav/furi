@@ -170,44 +170,6 @@ export class Furi {
   }
 
   /**
-   * Internal helper method, saves reference to self for binding methods.
-   * @param self  Instance of class Furi.
-   * @returns     Reference to self.
-   */
-  private setSelf(self: Furi): Furi {
-    this._self = self;
-    return self;
-  }
-
-  /**
-   * Internal helper method, parses query parameters from a URL.
-   * @param query Query string to parse.
-   * @returns     Map of key value pairs representing parsed query parameters.
-   */
-  private parseQueryParameters(query: string | null | undefined): MapOfString {
-    if (!query || query.trim().length === 0) return {};
-
-    const tokens = query.split("&");
-    if (!tokens || tokens.length < 1) return {};
-
-    const returnValue: MapOfString = {}
-    for (let i = 0; i < tokens.length; ++i) {
-      const [key, value] = tokens[i].split("=");
-      if (key?.length > 0 && value?.length > 0) {
-        returnValue[key] = value;
-      }
-    }
-    return returnValue;
-  }
-
-  // listen(port?: number, cb?: () => void): Server {
-  //   const server: Server = http.createServer(this.handler());
-  //   server.listen(port, cb);
-  //   // if (cb) { cb(); }
-  //   return server;
-  // }
-
-  /**
    * Start server with specified configuration.
    * @param serverConfig  Configuration object for the server.
    * @returns Instance of http.Server.
@@ -257,76 +219,6 @@ export class Furi {
       callback
     };
     return this.listen(serverInfo);
-  }
-
-  /**
-   * Node requires a handler function for incoming HTTP request.
-   * This handler function is usually passed to createServer().
-   * @returns Reference to request handler function.
-   */
-  // deno-lint-ignore no-explicit-any
-  private handler(): any {
-    return this.dispatch.bind(this._self);
-  }
-
-  /**
-   * Convert named segments path to a RegEx key and collect segment names.
-   *
-   * URI    => /aa/:one/bb/cc/:two/e
-   * KEY    => /aa/(\w+)/bb/cc/(\w+)/e
-   * params => ['one', 'two']
-   * return => { params: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
-   *
-   * @param  uri URI with segment names.
-   * @return Object with regex key and array with param names.
-   */
-  private createPathRegExKeyWithSegments(tokens: string[]): { params: string[], key: string } {
-
-    const params: string[] = [];
-    let key: string = "";
-
-    for (let i = 0; i < tokens.length; ++i) {
-      const tok = tokens[i];
-      if (tok.startsWith(":")) {
-        params.push(tok.substring(1));
-        key = `${key}/([\\w-.~]+)`;
-      } else {
-        key = `${key}/${tok}`;
-      }
-    }
-
-    return { params: params, key: key.substring(1) };
-  }
-
-  /**
-   * Match URI with named segments and return param object containing
-   * the property of each named segment and its value on the request object.
-   *
-   * @param uri: string The URI to be matched.
-   * @param {segments: string[], key: string} Path object with RegEx key and segments.
-   * @return null If URI doesn't match Path Object.
-   * @return param Object containing property and its value for each segment from Path object.
-   */
-  private attachPathParamsToRequestIfExists(
-    uri: string,
-    pk: { params: string[], key: string },
-    request: HttpRequest
-  ): boolean {
-
-    const pat = RegExp(pk.key);
-    const match = pat.exec(uri);
-
-    if (match) {
-      // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
-      for (let i = 0; i < pk.params.length; i++) {
-        const segment = pk.params[i];
-        // LOG_DEBUG( "segment: " + segment );
-        request.params[segment] = match[i + 1];
-      }
-      // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
-      return true;
-    }
-    return false;
   }
 
   /**
@@ -441,6 +333,108 @@ export class Furi {
   }
 
   /**
+   * Internal helper method, saves reference to self for binding methods.
+   * @param self  Instance of class Furi.
+   * @returns     Reference to self.
+   */
+  private setSelf(self: Furi): Furi {
+    this._self = self;
+    return self;
+  }
+
+  /**
+   * Internal helper method, parses query parameters from a URL.
+   * @param query Query string to parse.
+   * @returns     Map of key value pairs representing parsed query parameters.
+   */
+  private parseQueryParameters(query: string | null | undefined): MapOfString {
+    if (!query || query.trim().length === 0) return {};
+
+    const tokens = query.split("&");
+    if (!tokens || tokens.length < 1) return {};
+
+    const returnValue: MapOfString = {}
+    for (let i = 0; i < tokens.length; ++i) {
+      const [key, value] = tokens[i].split("=");
+      if (key?.length > 0 && value?.length > 0) {
+        returnValue[key] = value;
+      }
+    }
+    return returnValue;
+  }
+
+  /**
+   * Node requires a handler function for incoming HTTP request.
+   * This handler function is usually passed to createServer().
+   * @returns Reference to request handler function.
+   */
+  // deno-lint-ignore no-explicit-any
+  private handler(): any {
+    return this.dispatch.bind(this._self);
+  }
+
+  /**
+   * Convert named segments path to a RegEx key and collect segment names.
+   *
+   * URI    => /aa/:one/bb/cc/:two/e
+   * KEY    => /aa/(\w+)/bb/cc/(\w+)/e
+   * params => ['one', 'two']
+   * return => { params: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
+   *
+   * @param  uri URI with segment names.
+   * @return Object with regex key and array with param names.
+   */
+  private createPathRegExKeyWithSegments(tokens: string[]): { params: string[], key: string } {
+
+    const params: string[] = [];
+    let key: string = "";
+
+    for (let i = 0; i < tokens.length; ++i) {
+      const tok = tokens[i];
+      if (tok.startsWith(":")) {
+        params.push(tok.substring(1));
+        key = `${key}/([\\w-.~]+)`;
+      } else {
+        key = `${key}/${tok}`;
+      }
+    }
+
+    return { params: params, key: key.substring(1) };
+  }
+
+  /**
+   * Match URI with named segments and return param object containing
+   * the property of each named segment and its value on the request object.
+   *
+   * @param uri: string The URI to be matched.
+   * @param {segments: string[], key: string} Path object with RegEx key and segments.
+   * @return null If URI doesn't match Path Object.
+   * @return param Object containing property and its value for each segment from Path object.
+   */
+  private attachPathParamsToRequestIfExists(
+    uri: string,
+    pk: { params: string[], key: string },
+    request: HttpRequest
+  ): boolean {
+
+    const pat = RegExp(pk.key);
+    const match = pat.exec(uri);
+
+    if (match) {
+      // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
+      for (let i = 0; i < pk.params.length; i++) {
+        const segment = pk.params[i];
+        // LOG_DEBUG( "segment: " + segment );
+        request.params[segment] = match[i + 1];
+      }
+      // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
+      return true;
+    }
+    return false;
+  }
+
+
+  /**
    * Build HTTP Request handler mappings and assign callback function
    * @param mapIndex  The URI Map used to look up callbacks.
    * @param uri       String value of URI.
@@ -507,7 +501,7 @@ export class Furi {
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
    */
-  executeMiddlewareCallback(
+  private executeMiddlewareCallback(
     request: HttpRequest,
     response: HttpResponse,
   ): void {
