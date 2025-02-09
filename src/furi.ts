@@ -18,7 +18,7 @@ import { IncomingMessage, ServerResponse, Server } from "node:http";
 
 // type Request  = typeof IncomingMessage;
 // type Response = typeof ServerResponse<InstanceType<Request>>;
-type ANY = object | string | number| boolean | null | undefined | bigint | symbol | Function;
+type ANY = object | string | number | boolean | null | undefined | bigint | symbol | Function;
 export class HttpRequest extends IncomingMessage {
   public params: { [key: string]: string | number } = {};
   public query: { [key: string]: string | number } = {};
@@ -318,6 +318,8 @@ export class Furi {
   * @param fn   Reference to callback functions of type RequestHandlerFunc.
   * @returns    Reference to self, allows method chaining.
   */
+  use(...fn: RequestCallback[]): Furi;
+  use(uri: string, ...fn: RequestCallback[]): Furi;
   use(): Furi {
     let uri = '/';
     let fn: RequestCallback[];
@@ -470,6 +472,21 @@ export class Furi {
   }
 
   /**
+   * Execute all application level middlewares.
+   * @param request   Reference to Node request object (IncomingMessage).
+   * @param response  Reference to Node response object (ServerResponse).
+   */
+  executeMiddlewareCallback(
+    request: HttpRequest,
+    response: HttpResponse,
+  ): void {
+    const middlewareMap = this.httpMaps[HttpMapKeys.MIDDLEWARE];
+    const middleware_chain = middlewareMap.static_uri_map['/'].callbacks;
+    for (let i = 0; i < middleware_chain.length; ++i) {
+      middleware_chain[i](request, response);
+    }
+  }
+  /**
    * This method routes HTTP request to an assigned handler.
    * If one does not exist a HTTP status error code is returned.
    * @param request   Reference to Node request object (IncomingMessage).
@@ -479,18 +496,13 @@ export class Furi {
 
     // LOG_DEBUG( request.method, request.url );
 
-    // All middlewares are mounted on the root path '/'.
-    const uri = request.url;
-    request.url = '/';
 
     // Request session data property to pass session data for life of request.
     Object.defineProperty(request, 'sessionData', {
       writable: true,
       value: {}
     });
-    this.processHTTPMethod(this.httpMaps[HttpMapKeys.MIDDLEWARE], request, response, false);
-    request.url = uri;
-
+    // this.processHTTPMethod(this.httpMaps[HttpMapKeys.MIDDLEWARE], request, response, false);
 
     // Exit is response.end() was called by a middleware.
     if (response.writableEnded) { return; }
@@ -599,6 +611,8 @@ export class Furi {
     try {
       if (httpMap.static_uri_map[URL]) {
         // Found direct match of static URI path.
+        this.executeMiddlewareCallback(request, response);
+        // Execute path callback chain.
         const callback_chain = httpMap.static_uri_map[URL].callbacks;
         for (let i = 0; i < callback_chain.length; ++i) {
           const rv = callback_chain[i](request, response);
@@ -627,6 +641,8 @@ export class Furi {
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
+              this.executeMiddlewareCallback(request, response);
+              // Execure path callback chain.
               for (let i = 0; i < namedRouteParam.callbacks.length; ++i) {
                 const rv = namedRouteParam.callbacks[i](request, response);
                 // Check for early exit from callback chain.
