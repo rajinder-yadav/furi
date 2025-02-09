@@ -471,6 +471,31 @@ furi.get("/foo/:bar/bar2/car", (req: HttpRequest, res: HttpResponse) => {
 
 });
 
+
+/**
+ * Next 2 test the ALL and GET request handling.
+ */
+furi.all('/all', (req: HttpRequest, res: HttpResponse) => {
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    "User-Agent": USER_AGENT
+  });
+
+  res.write("<h1>All Page</h1>\n");
+
+});
+
+furi.get('/all', (req: HttpRequest, res: HttpResponse) => {
+  res.writeHead(200, {
+    "Content-Type": "text/html",
+    "User-Agent": USER_AGENT
+  });
+
+  res.end("<p>A paragraph all about nothing.\n");
+
+});
+
+
 // const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
 /**
  * See Furi.listen for more details.

@@ -919,3 +919,17 @@ Deno.test("HEAD: Unsupported method", async () => {
   assertEquals(response.status, 501);
 });
 
+Deno.test("ALL: Testing All with GET", async () => {
+  const request = new Request("http://localhost:3100/all", {
+    method: "GET",
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = "<h1>All Page</h1>\n<p>A paragraph all about nothing.\n";
+    const data = await response.text();
+    assertEquals(data, s);
+  }
+});
