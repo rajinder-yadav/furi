@@ -8,7 +8,7 @@
 * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
 */
 
-// deno-lint-ignore-file no-process-globals
+// deno-lint-ignore-file no-process-globals ban-types
 
 import * as http from "node:http";
 import { IncomingMessage, ServerResponse, Server } from "node:http";
@@ -18,10 +18,11 @@ import { IncomingMessage, ServerResponse, Server } from "node:http";
 
 // type Request  = typeof IncomingMessage;
 // type Response = typeof ServerResponse<InstanceType<Request>>;
-
+type ANY = object | string | number| boolean | null | undefined | bigint | symbol | Function;
 export class HttpRequest extends IncomingMessage {
   public params: { [key: string]: string | number } = {};
   public query: { [key: string]: string | number } = {};
+  public sessionData?: { [key: string]: ANY } = {};
 }
 
 export class HttpResponse extends ServerResponse<HttpRequest> {
@@ -301,13 +302,40 @@ export class Furi {
   }
 
   /**
-   * Assign a Middleware to the provided URI lookup map.
-   * @param uri  String value of URI.
-   * @param fn   Reference to callback functions of type RequestHandlerFunc.
-   * @returns    Reference to self, allows method chaining.
-   */
-  use(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.httpMaps[HttpMapKeys.MIDDLEWARE], uri, fn);
+  * Assign a Middleware to the provided URI lookup map.
+  * There are two function call formats:
+  * use(...fn: RequestCallback[]): Furi;
+  * use(uri: string, ...fn: RequestCallback[]): Furi;
+  *
+  * When called without a path, the middleware is to middleware map.
+  * When called with a path, the middleware is added to the URI lookup map.
+  *
+  * Middlewares without a path will be called in order of registration,
+  * before other all routes, irrespective of their path. Otherwise the
+  * middleware will be called in the order of registration for each route.
+  *
+  * @param uri  Optional String value of URI.
+  * @param fn   Reference to callback functions of type RequestHandlerFunc.
+  * @returns    Reference to self, allows method chaining.
+  */
+  use(): Furi {
+    let uri = '/';
+    let fn: RequestCallback[];
+    if (typeof arguments[0] === 'string') {
+      uri = arguments[0];
+      fn = Array.from(arguments).slice(1);
+      if (fn.length === 0) {
+        throw new Error('No middleware callback function provided');
+      }
+      return this.all(uri, ...fn);
+    }
+    fn = Array.from(arguments);
+    if (fn.length === 0) {
+      throw new Error('No Middleware callback function provided');
+    }
+
+    this.buildRequestMap(this.httpMaps[HttpMapKeys.MIDDLEWARE], uri, fn);
+    return this;
   }
 
   /**
@@ -332,7 +360,8 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   get(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.httpMaps[HttpMapKeys.GET], uri, fn);
+    this.buildRequestMap(this.httpMaps[HttpMapKeys.GET], uri, fn);
+    return this;
   }
 
   /**
@@ -342,7 +371,8 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   patch(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.httpMaps[HttpMapKeys.PATCH], uri, fn);
+    this.buildRequestMap(this.httpMaps[HttpMapKeys.PATCH], uri, fn);
+    return this;
   }
 
   /**
@@ -352,7 +382,8 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   post(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.httpMaps[HttpMapKeys.POST], uri, fn);
+    this.buildRequestMap(this.httpMaps[HttpMapKeys.POST], uri, fn);
+    return this;
   }
 
   /**
@@ -362,7 +393,8 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   put(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.httpMaps[HttpMapKeys.PUT], uri, fn);
+    this.buildRequestMap(this.httpMaps[HttpMapKeys.PUT], uri, fn);
+    return this;
   }
 
   /**
@@ -372,7 +404,8 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   delete(uri: string, ...fn: RequestCallback[]): Furi {
-    return this.buildRequestMap(this.httpMaps[HttpMapKeys.DELETE], uri, fn);
+    this.buildRequestMap(this.httpMaps[HttpMapKeys.DELETE], uri, fn);
+    return this;
   }
 
   /**
@@ -386,7 +419,7 @@ export class Furi {
     httpMap: UriMap,
     uri: string,
     callbacks: RequestCallback[]
-  ): Furi {
+  ): void {
     // LOG_DEBUG(uri);
 
     /**
@@ -409,7 +442,6 @@ export class Furi {
           httpMap.static_uri_map[uri].callbacks.push(callbacks[i]);
         }
       }
-      return this;
     }
 
     // Dynamic path with named parameters or Regex.
@@ -435,7 +467,6 @@ export class Furi {
       httpMap.named_uri_map[bucket].push({ key, params, callbacks, keyNames, useRegex });
     }
     // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
-    return this;
   }
 
   /**
@@ -447,7 +478,19 @@ export class Furi {
   private dispatch(request: HttpRequest, response: HttpResponse): void {
 
     // LOG_DEBUG( request.method, request.url );
+
+    // All middlewares are mounted on the root path '/'.
+    const uri = request.url;
+    request.url = '/';
+
+    // Request session data property to pass session data for life of request.
+    Object.defineProperty(request, 'sessionData', {
+      writable: true,
+      value: {}
+    });
     this.processHTTPMethod(this.httpMaps[HttpMapKeys.MIDDLEWARE], request, response, false);
+    request.url = uri;
+
 
     // Exit is response.end() was called by a middleware.
     if (response.writableEnded) { return; }
@@ -536,7 +579,7 @@ export class Furi {
     request: HttpRequest,
     response: HttpResponse,
     throwOnNotFound: boolean = true
-  ) {
+  ): void {
 
     if (!request.url) { return; }
     let URL = request.url;
