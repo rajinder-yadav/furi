@@ -503,14 +503,22 @@ export class Furi {
    * @param response  Reference to Node response object (ServerResponse).
    */
   private dispatch(request: HttpRequest, response: HttpResponse): void {
-
     // LOG_DEBUG( request.method, request.url );
 
-
-    // Request session data property to pass session data for life of request.
-    Object.defineProperty(request, 'sessionData', {
-      writable: true,
-      value: {}
+    // Add request session properties.
+    Object.defineProperties(request, {
+      'sessionData': {
+        writable: true,
+        value: {}
+      },
+      'params': {
+        writable: true,
+        value: {}
+      },
+      'query': {
+        writable: true,
+        value: {}
+      }
     });
 
     // Exit if response.end() was called by a middleware.
