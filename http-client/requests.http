@@ -1,4 +1,4 @@
-###
+### Path does not exist
 GET http://localhost:3100/sdfert
 
 ###
@@ -147,5 +147,7 @@ GET http://localhost:3100/foo/boo/bar2/car
 GET http://localhost:3100/foo/moo/bar2/bar
 
 ### Test for unsupported method
-POST
 HEAD http://localhost:3100/mox
+
+### Test path does not exist
+GET http://localhost:3100/regex/123/dept
