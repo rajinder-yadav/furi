@@ -103,7 +103,7 @@ interface HttpHandlers {
 /**
  * Enumerated keys for HTTP Maps.
  */
-const HttpMapKeys = {
+const HttpMapIndex = {
   MIDDLEWARE: 0,
   GET: 1,
   POST: 2,
@@ -124,7 +124,7 @@ export class Furi {
 
   constructor() {
     // Initialize HTTP Router lookup maps.
-    const count = Object.keys(HttpMapKeys).length;
+    const count = Object.keys(HttpMapIndex).length;
     for (let key = 0; key < count; ++key) {
       this.httpMaps.push({ named_uri_map: null, static_uri_map: {} })
     }
@@ -345,7 +345,7 @@ export class Furi {
       throw new Error('No Middleware callback function provided');
     }
 
-    this.buildRequestMap(this.httpMaps[HttpMapKeys.MIDDLEWARE], uri, fn);
+    this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, fn);
     return this;
   }
 
@@ -357,9 +357,9 @@ export class Furi {
    */
   all(uri: string, ...fn: RequestCallback[]): Furi {
     // Skip Middleware Map.
-    const count = Object.keys(HttpMapKeys).length;
-    for (let key = 1; key < count; ++key) {
-      this.buildRequestMap(this.httpMaps[key], uri, fn);
+    const count = Object.keys(HttpMapIndex).length;
+    for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
+      this.buildRequestMap(mapIndex, uri, fn);
     }
     return this;
   }
@@ -371,7 +371,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   get(uri: string, ...fn: RequestCallback[]): Furi {
-    this.buildRequestMap(this.httpMaps[HttpMapKeys.GET], uri, fn);
+    this.buildRequestMap(HttpMapIndex.GET, uri, fn);
     return this;
   }
 
@@ -382,7 +382,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   patch(uri: string, ...fn: RequestCallback[]): Furi {
-    this.buildRequestMap(this.httpMaps[HttpMapKeys.PATCH], uri, fn);
+    this.buildRequestMap(HttpMapIndex.PATCH, uri, fn);
     return this;
   }
 
@@ -393,7 +393,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   post(uri: string, ...fn: RequestCallback[]): Furi {
-    this.buildRequestMap(this.httpMaps[HttpMapKeys.POST], uri, fn);
+    this.buildRequestMap(HttpMapIndex.POST, uri, fn);
     return this;
   }
 
@@ -404,7 +404,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   put(uri: string, ...fn: RequestCallback[]): Furi {
-    this.buildRequestMap(this.httpMaps[HttpMapKeys.PUT], uri, fn);
+    this.buildRequestMap(HttpMapIndex.PUT, uri, fn);
     return this;
   }
 
@@ -415,24 +415,25 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   delete(uri: string, ...fn: RequestCallback[]): Furi {
-    this.buildRequestMap(this.httpMaps[HttpMapKeys.DELETE], uri, fn);
+    this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
     return this;
   }
 
   /**
    * Build HTTP Request handler mappings and assign callback function
-   * @param httpMap   The URI Map used to look up callbacks
+   * @param mapIndex  The URI Map used to look up callbacks.
    * @param uri       String value of URI.
    * @param callbacks Reference to callback functions of type RequestHandlerFunc.
    * @returns         Reference to self, allows method chaining.
    */
   private buildRequestMap(
-    httpMap: UriMap,
+    mapIndex: number,
     uri: string,
     callbacks: RequestCallback[]
   ): void {
     // LOG_DEBUG(uri);
 
+    const httpMap: UriMap = this.httpMaps[mapIndex];
     /**
      * https://tools.ietf.org/html/rfc3986
      * Static URI characters
@@ -489,7 +490,7 @@ export class Furi {
     request: HttpRequest,
     response: HttpResponse,
   ): void {
-    const middlewareMap = this.httpMaps[HttpMapKeys.MIDDLEWARE];
+    const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
     const middleware_chain = middlewareMap.static_uri_map['/'].callbacks;
     for (let i = 0; i < middleware_chain.length; ++i) {
       middleware_chain[i](request, response);
@@ -511,35 +512,34 @@ export class Furi {
       writable: true,
       value: {}
     });
-    // this.processHTTPMethod(this.httpMaps[HttpMapKeys.MIDDLEWARE], request, response, false);
 
-    // Exit is response.end() was called by a middleware.
+    // Exit if response.end() was called by a middleware.
     if (response.writableEnded) { return; }
 
     switch (request.method) {
       case "GET":
       case "get":
-        this.processHTTPMethod(this.httpMaps[HttpMapKeys.GET], request, response);
+        this.processHTTPMethod(HttpMapIndex.GET, request, response);
         break;
 
       case "POST":
       case "post":
-        this.processHTTPMethod(this.httpMaps[HttpMapKeys.POST], request, response);
+        this.processHTTPMethod(HttpMapIndex.POST, request, response);
         break;
 
       case "PUT":
       case "put":
-        this.processHTTPMethod(this.httpMaps[HttpMapKeys.PUT], request, response);
+        this.processHTTPMethod(HttpMapIndex.PUT, request, response);
         break;
 
       case "PATCH":
       case "patch":
-        this.processHTTPMethod(this.httpMaps[HttpMapKeys.PATCH], request, response);
+        this.processHTTPMethod(HttpMapIndex.PATCH, request, response);
         break;
 
       case "DELETE":
       case "delete":
-        this.processHTTPMethod(this.httpMaps[HttpMapKeys.DELETE], request, response);
+        this.processHTTPMethod(HttpMapIndex.DELETE, request, response);
         break;
 
       default:
@@ -591,16 +591,18 @@ export class Furi {
   /**
    * This method calls the callbacks for the mapped URL if it exists.
    * If one does not exist a HTTP status error code is returned.
-   * @param httpMap    The URI Map used to look up callbacks
+   * @param mapIndex  The URI Map used to look up callbacks.
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
    */
   private processHTTPMethod(
-    httpMap: UriMap,
+    mapIndex: number,
     request: HttpRequest,
     response: HttpResponse,
     throwOnNotFound: boolean = true
   ): void {
+
+    const httpMap: UriMap = this.httpMaps[mapIndex];
 
     if (!request.url) { return; }
     let URL = request.url;
