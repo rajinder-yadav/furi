@@ -69,7 +69,13 @@ const API_VERSION: string = "0.1.0";
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type RequestCallback = (request: HttpRequest, response: HttpResponse) => boolean | void;
+export type ApplicationContext = {
+  app: Furi;
+  request: HttpRequest;
+  response: HttpResponse;
+};
+
+export type RequestCallback = (ctx: ApplicationContext) => boolean | void;
 
 /**
  * Named segments and the handler callback functions for associated URI.
@@ -537,7 +543,7 @@ export class Furi {
     const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
     if (middleware_chain?.length === 0) { return; }
     for (const callback of middleware_chain) {
-      callback(request, response);
+      callback({app: this, request, response});
     }
   }
   /**
@@ -698,7 +704,7 @@ export class Furi {
         const callback_chain = httpMap.static_uri_map[URL]?.callbacks;
         if (callback_chain?.length === 0) { return; }
         for (const callback of callback_chain) {
-          const rv = callback(request, response);
+          const rv = callback({app: this, request, response});
           if (rv !== undefined && rv === true) {
             response.end();
             break;
@@ -727,7 +733,7 @@ export class Furi {
               // Execute path callback chain.
               if (namedRouteParam?.callbacks.length > 0) {
                 for (const callback of namedRouteParam.callbacks) {
-                  const rv = callback(request, response);
+                  const rv = callback({app: this, request, response});
                   // Check for early exit from callback chain.
                   if (rv !== undefined && rv === true) {
                     response.end();
