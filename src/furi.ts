@@ -27,7 +27,16 @@ type MapOfANY = { [key: string]: ANY }
 export class HttpRequest extends IncomingMessage {
   public params: MapOfStringNumber = {};
   public query: MapOfStringNumber = {};
-  public sessionData?: MapOfANY
+  public sessionData?: MapOfANY;
+  public app: Furi | null = null;
+
+  /**
+   * Placeholder functions.
+   */
+  // deno-lint-ignore no-unused-vars no-explicit-any
+  public loadStoreData: Function = (key: string): any => { };
+  // deno-lint-ignore no-unused-vars no-explicit-any
+  public saveStoreData: Function = (key: string, value: any): void => { };
 }
 
 export class HttpResponse extends ServerResponse<HttpRequest> {
@@ -155,7 +164,7 @@ export class Furi {
    * @returns Value of the property if found, otherwise undefined.
   */
   // deno-lint-ignore no-explicit-any
-  readStoreData(key: string): any {
+  loadStoreData(key: string): any {
     return this.store[key];
   }
 
@@ -243,8 +252,14 @@ export class Furi {
   use(...fn: RequestCallback[]): Furi;
   use(uri: string, ...fn: RequestCallback[]): Furi;
   use(): Furi {
+
+    if (arguments.length === 0) {
+      throw new Error('No Middleware callback function provided');
+    }
+
     let uri = '/';
     let fn: RequestCallback[];
+
     if (typeof arguments[0] === 'string') {
       uri = arguments[0];
       fn = Array.from(arguments).slice(1);
@@ -253,12 +268,7 @@ export class Furi {
       }
       return this.all(uri, ...fn);
     }
-    fn = Array.from(arguments);
-    if (fn.length === 0) {
-      throw new Error('No Middleware callback function provided');
-    }
-
-    this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, fn);
+    this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, Array.from(arguments));
     return this;
   }
 
@@ -270,6 +280,9 @@ export class Furi {
    */
   all(uri: string, ...fn: RequestCallback[]): Furi {
     // Skip Middleware Map.
+    if(fn.length === 0) {
+      throw new Error('No callback function provided');
+    }
     const count = Object.keys(HttpMapIndex).length;
     for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
       this.buildRequestMap(mapIndex, uri, fn);
@@ -284,6 +297,9 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   get(uri: string, ...fn: RequestCallback[]): Furi {
+    if(fn.length === 0) {
+      throw new Error('No callback function provided');
+    }
     this.buildRequestMap(HttpMapIndex.GET, uri, fn);
     return this;
   }
@@ -295,6 +311,9 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   patch(uri: string, ...fn: RequestCallback[]): Furi {
+    if(fn.length === 0) {
+      throw new Error('No callback function provided');
+    }
     this.buildRequestMap(HttpMapIndex.PATCH, uri, fn);
     return this;
   }
@@ -306,6 +325,9 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   post(uri: string, ...fn: RequestCallback[]): Furi {
+    if(fn.length === 0) {
+      throw new Error('No callback function provided');
+    }
     this.buildRequestMap(HttpMapIndex.POST, uri, fn);
     return this;
   }
@@ -317,6 +339,9 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   put(uri: string, ...fn: RequestCallback[]): Furi {
+    if(fn.length === 0) {
+      throw new Error('No callback function provided');
+    }
     this.buildRequestMap(HttpMapIndex.PUT, uri, fn);
     return this;
   }
@@ -328,6 +353,9 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   delete(uri: string, ...fn: RequestCallback[]): Furi {
+    if(fn.length === 0) {
+      throw new Error('No callback function provided');
+    }
     this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
     return this;
   }
@@ -433,7 +461,6 @@ export class Furi {
     return false;
   }
 
-
   /**
    * Build HTTP Request handler mappings and assign callback function
    * @param mapIndex  The URI Map used to look up callbacks.
@@ -506,7 +533,8 @@ export class Furi {
     response: HttpResponse,
   ): void {
     const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
-    const middleware_chain = middlewareMap.static_uri_map['/'].callbacks;
+    const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
+    if (!middleware_chain) { return; }
     for (let i = 0; i < middleware_chain.length; ++i) {
       middleware_chain[i](request, response);
     }
@@ -517,7 +545,10 @@ export class Furi {
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
    */
-  private dispatch(request: HttpRequest, response: HttpResponse): void {
+  private dispatch(
+    request: HttpRequest,
+    response: HttpResponse
+  ): void {
     // LOG_DEBUG( request.method, request.url );
 
     // Add request session properties.
@@ -533,6 +564,22 @@ export class Furi {
       'query': {
         writable: true,
         value: {}
+      },
+      'app': {
+        writable: true,
+        value: this
+      },
+      'saveStoreData': {
+        // deno-lint-ignore no-explicit-any
+        value: (key: string, value: any): void => {
+          this.saveStoreData(key, value);
+        }
+      },
+      'loadStoreData': {
+        // deno-lint-ignore no-explicit-any
+        value: (key: string): any => {
+          return this.loadStoreData(key);
+        }
       }
     });
 
