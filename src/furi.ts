@@ -39,7 +39,7 @@ type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
 //
 export class HttpRequest extends IncomingMessage {
   public params: MapOfStringNumber = {};
-  public query: MapOfStringNumber = {};
+  public query: URLSearchParams | null = null;
   public sessionData?: MapOfANY;
   public app: Furi | null = null;
 
@@ -368,27 +368,6 @@ export class Furi {
   }
 
   /**
-   * Internal helper method, parses query parameters from a URL.
-   * @param query Query string to parse.
-   * @returns     Map of key value pairs representing parsed query parameters.
-   */
-  private parseQueryParameters(query: string | null | undefined): MapOfString {
-    if (!query || query.length === 0) return {};
-
-    const tokens = query.split("&");
-    if (!tokens || tokens.length < 1) return {};
-
-    const returnValue: MapOfString = {}
-    for (const token of tokens) {
-      const [key, value] = token.split("=");
-      if (key?.length > 0 && value?.length > 0) {
-        returnValue[key] = value;
-      }
-    }
-    return returnValue;
-  }
-
-  /**
    * Node requires a handler function for incoming HTTP request.
    * This handler function is usually passed to createServer().
    * @returns Reference to request handler function.
@@ -410,7 +389,7 @@ export class Furi {
    */
   private createPathRegExKeyWithSegments(tokens: string[]): { params: string[], key: string } {
 
-    if(!tokens || tokens?.length === 0) {
+    if (!tokens || tokens?.length === 0) {
       return { params: [], key: '' };
     }
 
@@ -534,7 +513,7 @@ export class Furi {
     const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
     if (!middleware_chain || middleware_chain?.length === 0) { return; }
     for (const callback of middleware_chain) {
-      callback({app: this, request, response});
+      callback({ app: this, request, response });
     }
   }
   /**
@@ -561,7 +540,7 @@ export class Furi {
       },
       'query': {
         writable: true,
-        value: {}
+        value: null,
       },
       'app': {
         writable: true,
@@ -677,14 +656,15 @@ export class Furi {
 
     /** URL strip rules:
      * Remove trailing slash '/'
-     * Remove query string and fragment.
+     * Parse query string and fragment.
      */
-    const queryIndex = URL.search(/[;?]/);
-    if (queryIndex > 0) {
-      const query = URL.substring(queryIndex + 1, URL.length);
-      request.query = this.parseQueryParameters(query);
-      URL = URL.substring(0, queryIndex);
+    const urlQuery: string[] = URL.split('?');
+    if (urlQuery.length > 1 && urlQuery[1].length > 0) {
+      request.query = new URLSearchParams(urlQuery[1]);
     }
+
+    URL = urlQuery[0];
+    // Remove trailing slash '/' from URL.
     if (URL.length > 1 && URL[URL.length - 1] === "/") { URL = URL.substring(0, URL.length - 1); }
 
     try {
@@ -695,7 +675,7 @@ export class Furi {
         const callback_chain = httpMap.static_uri_map[URL]?.callbacks;
         if (!callback_chain || callback_chain?.length === 0) { return; }
         for (const callback of callback_chain) {
-          const rv = callback({app: this, request, response});
+          const rv = callback({ app: this, request, response });
           if (rv !== undefined && rv === true) {
             response.end();
             break;
@@ -724,7 +704,7 @@ export class Furi {
               // Execute path callback chain.
               if (namedRouteParam?.callbacks.length > 0) {
                 for (const callback of namedRouteParam.callbacks) {
-                  const rv = callback({app: this, request, response});
+                  const rv = callback({ app: this, request, response });
                   // Check for early exit from callback chain.
                   if (rv !== undefined && rv === true) {
                     response.end();
