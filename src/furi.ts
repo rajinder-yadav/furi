@@ -138,8 +138,6 @@ const HttpMapIndex = {
  */
 export class Furi {
 
-  private _self: Furi | null = null;
-
   private readonly httpMaps: UriMap[] = [];
   private store: MapOfANY = {};
 
@@ -156,8 +154,7 @@ export class Furi {
    */
   static create(): Furi {
     // LOG_DEBUG(Furi.getApiVersion());
-    const furi = new Furi();
-    return furi.setSelf(furi);
+    return new Furi();
   }
 
   /**
@@ -371,16 +368,6 @@ export class Furi {
   }
 
   /**
-   * Internal helper method, saves reference to self for binding methods.
-   * @param self  Instance of class Furi.
-   * @returns     Reference to self.
-   */
-  private setSelf(self: Furi): Furi {
-    this._self = self;
-    return self;
-  }
-
-  /**
    * Internal helper method, parses query parameters from a URL.
    * @param query Query string to parse.
    * @returns     Map of key value pairs representing parsed query parameters.
@@ -406,9 +393,8 @@ export class Furi {
    * This handler function is usually passed to createServer().
    * @returns Reference to request handler function.
    */
-  // deno-lint-ignore no-explicit-any
-  private handler(): any {
-    return this.dispatch.bind(this._self);
+  private handler(): Function {
+    return this.dispatch.bind(this);
   }
 
   /**
