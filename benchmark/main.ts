@@ -9,16 +9,17 @@
  */
 
 // deno-lint-ignore-file no-unused-vars
-// deno -A ./benchmark/main.ts
+// deno -A --env-file ./benchmark/main.ts
+// deno --inspect -A --env-file ./benchmark/main.ts
 
-import { Furi, HttpRequest, HttpResponse } from "../src/furi.ts";
+import { Furi, ApplicationContext } from "../src/furi.ts";
 const furi = Furi.create();
 
-furi.get("/", (req: HttpRequest, res: HttpResponse) => {
-  res.writeHead(200, {
-    "Content-Type": "text/plain"
+furi.get("/", (ctx: ApplicationContext) => {
+  ctx.response.writeHead(200, {
+    "Content-Type": "application/json"
   });
-    res.end('Hello world');
+    ctx.response.end(JSON.stringify({hello: 'world'}));
 });
 
-const server = furi.start();
+furi.start();
