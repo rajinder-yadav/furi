@@ -386,7 +386,7 @@ export class Furi {
    * @returns     Map of key value pairs representing parsed query parameters.
    */
   private parseQueryParameters(query: string | null | undefined): MapOfString {
-    if (!query || query.trim().length === 0) return {};
+    if (!query || query.length === 0) return {};
 
     const tokens = query.split("&");
     if (!tokens || tokens.length < 1) return {};
@@ -424,7 +424,7 @@ export class Furi {
    */
   private createPathRegExKeyWithSegments(tokens: string[]): { params: string[], key: string } {
 
-    if(tokens?.length === 0) {
+    if(!tokens || tokens?.length === 0) {
       return { params: [], key: '' };
     }
 
@@ -546,7 +546,7 @@ export class Furi {
   ): void {
     const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
     const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
-    if (middleware_chain?.length === 0) { return; }
+    if (!middleware_chain || middleware_chain?.length === 0) { return; }
     for (const callback of middleware_chain) {
       callback({app: this, request, response});
     }
@@ -707,7 +707,7 @@ export class Furi {
         this.executeMiddlewareCallback(request, response);
         // Execute path callback chain.
         const callback_chain = httpMap.static_uri_map[URL]?.callbacks;
-        if (callback_chain?.length === 0) { return; }
+        if (!callback_chain || callback_chain?.length === 0) { return; }
         for (const callback of callback_chain) {
           const rv = callback({app: this, request, response});
           if (rv !== undefined && rv === true) {
@@ -729,7 +729,7 @@ export class Furi {
           if (!request.params) { request.params = {}; }
 
           const namedRouteParams = httpMap.named_uri_map[bucket];
-          if (namedRouteParams?.length === 0) { return; }
+          if (!namedRouteParams || namedRouteParams?.length === 0) { return; }
           for (const namedRouteParam of namedRouteParams) {
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
