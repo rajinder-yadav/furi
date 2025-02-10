@@ -13,17 +13,30 @@
 import * as http from "node:http";
 import { IncomingMessage, ServerResponse, Server } from "node:http";
 
-// Type definitions for request and response objects.
-// Obtained from http.d.ts
+/**
+ * API Version.
+ */
+const API_VERSION: string = "0.1.0";
 
-// type Request  = typeof IncomingMessage;
-// type Response = typeof ServerResponse<InstanceType<Request>>;
+// Debug logging - comment our for production builds.
+// deno-lint-ignore no-unused-vars
+const LOG_DEBUG = (...s: string[]) => console.log("DEBUG> ", ...s);
+const LOG_WARN = (...s: string[]) => console.log("WARNING> ", ...s);
+const LOG_ERROR = (...s: string[]) => console.log("ERROR> ", ...s);
 
 type ANY = object | string | number | boolean | null | undefined | bigint | symbol | Function;
 type MapOfString = { [key: string]: string };
 type MapOfStringNumber = { [key: string]: string | number };
 type MapOfANY = { [key: string]: ANY }
+type MapOfRequestHandler = { [key: string]: RequestHandler };
+type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
 
+// Type definitions for request and response objects.
+// Obtained from http.d.ts
+//
+// type Request  = typeof IncomingMessage;
+// type Response = typeof ServerResponse<InstanceType<Request>>;
+//
 export class HttpRequest extends IncomingMessage {
   public params: MapOfStringNumber = {};
   public query: MapOfStringNumber = {};
@@ -48,15 +61,14 @@ export interface ServerConfig {
   callback?: () => void;
 }
 
-// Debug logging - comment our for production builds.
-// deno-lint-ignore no-unused-vars
-const LOG_DEBUG = (...s: string[]) => console.log("DEBUG> ", ...s);
-const LOG_WARN = (...s: string[]) => console.log("WARNING> ", ...s);
-const LOG_ERROR = (...s: string[]) => console.log("ERROR> ", ...s);
 /**
- * API Version.
+ * Application Context
  */
-const API_VERSION: string = "0.1.0";
+export interface ApplicationContext {
+  app: Furi;                // Application object.
+  request: HttpRequest;     // HTTP Request object.
+  response: HttpResponse;   // HTTP Response object.
+};
 
 /**
  * Function prototype for Request Handler.
@@ -69,16 +81,11 @@ const API_VERSION: string = "0.1.0";
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type ApplicationContext = {
-  app: Furi;
-  request: HttpRequest;
-  response: HttpResponse;
-};
-
 export type RequestCallback = (ctx: ApplicationContext) => boolean | void;
 
 /**
  * Named segments and the handler callback functions for associated URI.
+ * @property {array} callbacks - Handler callback functions.
  */
 interface RequestHandler {
   callbacks: RequestCallback[]; // Handler callback functions for associated URI.
@@ -103,8 +110,6 @@ interface NamedRouteParam {
  * For URI direct matches, the callbacks will be found in uri_map.
  * For URI with named segments, the callbacks will be found under named_param.
  */
-type MapOfRequestHandler = { [key: string]: RequestHandler };
-type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
 interface UriMap {
   static_uri_map: MapOfRequestHandler;
   named_uri_map: MapOfNamedRouteParam | null;
