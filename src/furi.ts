@@ -134,10 +134,9 @@ export class Furi {
 
   constructor() {
     // Initialize HTTP Router lookup maps.
-    const count = Object.keys(HttpMapIndex).length;
-    for (let key = 0; key < count; ++key) {
+    Object.keys(HttpMapIndex).forEach(() => {
       this.httpMaps.push({ named_uri_map: null, static_uri_map: {} })
-    }
+    });
   }
 
   /**
@@ -280,7 +279,7 @@ export class Furi {
    */
   all(uri: string, ...fn: RequestCallback[]): Furi {
     // Skip Middleware Map.
-    if(fn.length === 0) {
+    if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
     const count = Object.keys(HttpMapIndex).length;
@@ -297,7 +296,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   get(uri: string, ...fn: RequestCallback[]): Furi {
-    if(fn.length === 0) {
+    if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
     this.buildRequestMap(HttpMapIndex.GET, uri, fn);
@@ -311,7 +310,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   patch(uri: string, ...fn: RequestCallback[]): Furi {
-    if(fn.length === 0) {
+    if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
     this.buildRequestMap(HttpMapIndex.PATCH, uri, fn);
@@ -325,7 +324,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   post(uri: string, ...fn: RequestCallback[]): Furi {
-    if(fn.length === 0) {
+    if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
     this.buildRequestMap(HttpMapIndex.POST, uri, fn);
@@ -339,7 +338,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   put(uri: string, ...fn: RequestCallback[]): Furi {
-    if(fn.length === 0) {
+    if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
     this.buildRequestMap(HttpMapIndex.PUT, uri, fn);
@@ -353,7 +352,7 @@ export class Furi {
    * @returns    Reference to self, allows method chaining.
    */
   delete(uri: string, ...fn: RequestCallback[]): Furi {
-    if(fn.length === 0) {
+    if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
     this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
@@ -382,8 +381,8 @@ export class Furi {
     if (!tokens || tokens.length < 1) return {};
 
     const returnValue: MapOfString = {}
-    for (let i = 0; i < tokens.length; ++i) {
-      const [key, value] = tokens[i].split("=");
+    for (const token of tokens) {
+      const [key, value] = token.split("=");
       if (key?.length > 0 && value?.length > 0) {
         returnValue[key] = value;
       }
@@ -414,16 +413,19 @@ export class Furi {
    */
   private createPathRegExKeyWithSegments(tokens: string[]): { params: string[], key: string } {
 
+    if(tokens?.length === 0) {
+      return { params: [], key: '' };
+    }
+
     const params: string[] = [];
     let key: string = "";
 
-    for (let i = 0; i < tokens.length; ++i) {
-      const tok = tokens[i];
-      if (tok.startsWith(":")) {
-        params.push(tok.substring(1));
+    for (const token of tokens) {
+      if (token.startsWith(":")) {
+        params.push(token.substring(1));
         key = `${key}/([\\w-.~]+)`;
       } else {
-        key = `${key}/${tok}`;
+        key = `${key}/${token}`;
       }
     }
 
@@ -445,13 +447,16 @@ export class Furi {
     request: HttpRequest
   ): boolean {
 
+    if (!pk.params || !pk.key) {
+      return false;
+    }
+
     const pat = RegExp(pk.key);
     const match = pat.exec(uri);
 
     if (match) {
       // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
-      for (let i = 0; i < pk.params.length; i++) {
-        const segment = pk.params[i];
+      for (const [i, segment] of pk.params.entries()) {
         // LOG_DEBUG( "segment: " + segment );
         request.params[segment] = match[i + 1];
       }
@@ -492,25 +497,21 @@ export class Furi {
         httpMap.static_uri_map[uri] = { callbacks };
       } else {
         // chain callbacks for same URI path.
-        for (let i = 0; i < callbacks.length; ++i) {
-          httpMap.static_uri_map[uri].callbacks.push(callbacks[i]);
+        for (const callback of callbacks) {
+          httpMap.static_uri_map[uri].callbacks.push(callback);
         }
       }
     }
 
     // Dynamic path with named parameters or Regex.
-    // Partition by "/" count, optimize lookup.
-    let bucket = 0;
-    for (let i = 0; i < uri.length; ++i) {
-      if (uri[i] === "/") { ++bucket; }
-    }
-
     if (!httpMap.named_uri_map) {
       // Initialize empty map
       httpMap.named_uri_map = {};
     }
 
     const tokens: string[] = uri.split("/");
+    // Partition by "/" count, optimize lookup.
+    const bucket = tokens.length - 1;
     const keyNames = useRegex ? [] : tokens;
     const { key, params } = this.createPathRegExKeyWithSegments(tokens);
     // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', keyNames);
@@ -534,9 +535,9 @@ export class Furi {
   ): void {
     const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
     const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
-    if (!middleware_chain) { return; }
-    for (let i = 0; i < middleware_chain.length; ++i) {
-      middleware_chain[i](request, response);
+    if (middleware_chain?.length === 0) { return; }
+    for (const callback of middleware_chain) {
+      callback(request, response);
     }
   }
   /**
@@ -694,9 +695,10 @@ export class Furi {
         // Found direct match of static URI path.
         this.executeMiddlewareCallback(request, response);
         // Execute path callback chain.
-        const callback_chain = httpMap.static_uri_map[URL].callbacks;
-        for (let i = 0; i < callback_chain.length; ++i) {
-          const rv = callback_chain[i](request, response);
+        const callback_chain = httpMap.static_uri_map[URL]?.callbacks;
+        if (callback_chain?.length === 0) { return; }
+        for (const callback of callback_chain) {
+          const rv = callback(request, response);
           if (rv !== undefined && rv === true) {
             response.end();
             break;
@@ -716,23 +718,24 @@ export class Furi {
           if (!request.params) { request.params = {}; }
 
           const namedRouteParams = httpMap.named_uri_map[bucket];
-
-          for (let i = 0; i < namedRouteParams.length; ++i) {
-            const namedRouteParam = namedRouteParams[i];
+          if (namedRouteParams?.length === 0) { return; }
+          for (const namedRouteParam of namedRouteParams) {
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
               this.executeMiddlewareCallback(request, response);
-              // Execure path callback chain.
-              for (let i = 0; i < namedRouteParam.callbacks.length; ++i) {
-                const rv = namedRouteParam.callbacks[i](request, response);
-                // Check for early exit from callback chain.
-                if (rv !== undefined && rv === true) {
-                  response.end();
-                  break;
+              // Execute path callback chain.
+              if (namedRouteParam?.callbacks.length > 0) {
+                for (const callback of namedRouteParam.callbacks) {
+                  const rv = callback(request, response);
+                  // Check for early exit from callback chain.
+                  if (rv !== undefined && rv === true) {
+                    response.end();
+                    break;
+                  }
                 }
+                return;
               }
-              return;
             }
           } // for
         } else if (throwOnNotFound) {
