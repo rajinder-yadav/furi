@@ -20,9 +20,11 @@ const API_VERSION: string = "0.1.0";
 
 // Debug logging - comment our for production builds.
 // deno-lint-ignore no-unused-vars
-const LOG_DEBUG = (...s: string[]) => console.log("DEBUG> ", ...s);
-const LOG_WARN = (...s: string[]) => console.log("WARNING> ", ...s);
-const LOG_ERROR = (...s: string[]) => console.log("ERROR> ", ...s);
+const LOG_DEBUG = (...s: string[]) => console.debug("DEBUG> ", ...s);
+// deno-lint-ignore no-unused-vars
+const LOG_INFO = (...s: string[]) => console.info("DEBUG> ", ...s);
+const LOG_WARN = (...s: string[]) => console.warn("WARNING> ", ...s);
+const LOG_ERROR = (...s: string[]) => console.error("ERROR> ", ...s);
 
 type ANY = object | string | number | boolean | null | undefined | bigint | symbol | Function;
 type MapOfString = { [key: string]: string };
