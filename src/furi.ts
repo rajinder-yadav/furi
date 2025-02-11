@@ -167,7 +167,7 @@ export class Furi {
 
   /**
    * Parse query string into an object.
-   * @param request HTTP request object.
+   * @param ctx:    Application context object.
    * @param simple  true will parse all values as a string,
    *                false will parse a value as a string or number.
    * @returns Parsed query string as an object, or null if no valid query parameters are found.
@@ -177,7 +177,6 @@ export class Furi {
     simple: boolean = true
   ): { [key: string]: string | string[] | number } | null {
     const queryParams: URLSearchParams | null = ctx.request?.query;
-    if (!queryParams) { return null; }
     const resultObj: { [key: string]: string | string[] | number } = {};
     queryParams?.forEach((v, k) => {
       const arr = v.split(',');
@@ -497,13 +496,13 @@ export class Furi {
      * https://tools.ietf.org/html/rfc3986
      * Static URI characters
      */
-    const regexCheckStaticURL = /^\/?([~\w/-]+)?$/;
-    const useRegex = /[*+.?{,}]/.test(uri);
+    const regexCheckStaticURL = /^\/?([~\w/.-]+)\/?$/;
+    const useRegex = ! regexCheckStaticURL.test(uri);
 
     /**
      * Check URI is a static path.
      */
-    if (regexCheckStaticURL.test(uri) && !useRegex) {
+    if (!useRegex) {
       // Static path, we can use direct lookup.
       if (!httpMap.static_uri_map[uri]) {
         httpMap.static_uri_map[uri] = { callbacks };
