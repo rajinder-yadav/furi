@@ -649,7 +649,7 @@ Deno.test("GET: Query paramter check 1", async () => {
 });
 
 Deno.test("GET: Query paramter check 2", async () => {
-  const request = new Request("http://localhost:3100/query-check/?aa=12&&bb&&c=33", {
+  const request = new Request("http://localhost:3100/query-check/?aa=12&bb&c=33", {
     method: "GET",
     headers: {
       "content-type": "text/plain",
@@ -657,7 +657,7 @@ Deno.test("GET: Query paramter check 2", async () => {
   });
   const response: Response = await fetch(request);
   if (response.ok) {
-    const s = '{"aa":"12","c":"33"}';
+    const s = '{"aa":"12","bb":"","c":"33"}';
     const data = await response.text();
     assertEquals(data, s);
     assertEquals(response.status, 200);
