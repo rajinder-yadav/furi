@@ -166,6 +166,42 @@ export class Furi {
   }
 
   /**
+   * Parse query string into an object.
+   * @param request HTTP request object.
+   * @param simple  true will parse all values as a string,
+   *                false will parse a value as a string or number.
+   * @returns Parsed query string as an object, or null if no valid query parameters are found.
+   */
+  queryStringToObject(
+    ctx: ApplicationContext,
+    simple: boolean = true
+  ): { [key: string]: string | string[] | number } | null {
+    const queryParams: URLSearchParams | null = ctx.request?.query;
+    if (!queryParams) { return null; }
+    const resultObj: { [key: string]: string | string[] | number } = {};
+    queryParams?.forEach((v, k) => {
+      const arr = v.split(',');
+      if (simple) {
+        // Params to Object with string values.
+        resultObj[k] = arr.length > 1 ? arr : v;
+      } else {
+        // Params to Object with string or number values.
+        const value = v !== '' ? Number(v) : NaN;
+        resultObj[k] = arr.length > 1 ? arr : (isNaN(value) ? v : value);
+      }
+    });
+    return resultObj
+  }
+
+  // Params to Object with String or Number values.
+  // const resultObj: { [key: string]: string | string[] | number } = {};
+  // params?.forEach((v, k) => {
+  //   const arr = v.split(',');
+  //   const value = v !== '' ? Number(v) : NaN;
+  //   resultObj[k] = arr.length > 1 ? arr : (isNaN(value) ? v : value);
+  // });
+
+  /**
    * Read data from the application store.
    * @param key Property name of data to read.
    * @returns Value of the property if found, otherwise undefined.

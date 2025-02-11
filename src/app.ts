@@ -357,8 +357,9 @@ furi.get("/query-check", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(JSON.stringify(ctx.request.query));
-
+  const result = ctx.app.queryStringToObject(ctx);
+  console.log(result);
+  ctx.response.end(JSON.stringify(result));
 });
 
 // HTTP GET RegEx path
