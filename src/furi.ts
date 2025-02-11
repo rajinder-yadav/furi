@@ -49,9 +49,9 @@ export class HttpRequest extends IncomingMessage {
    * Placeholder functions.
    */
   // deno-lint-ignore no-unused-vars no-explicit-any
-  public loadStoreData: Function = (key: string): any => { };
+  // public loadStoreData: Function = (key: string): any => { };
   // deno-lint-ignore no-unused-vars no-explicit-any
-  public saveStoreData: Function = (key: string, value: any): void => { };
+  // public saveStoreData: Function = (key: string, value: any): void => { };
 }
 
 export class HttpResponse extends ServerResponse<HttpRequest> {
@@ -99,7 +99,7 @@ interface RequestHandler {
 */
 interface NamedRouteParam {
   useRegex: boolean;            // Use regex for path matching.
-  keyNames: string[];           // Named segments.
+  pathNames: string[];          // Path segment names.
   key: string;                  // RegEx URI string.
   params: string[];             // URI named segments.
   callbacks: RequestCallback[]; // Handler callback functions for associated URI.
@@ -115,11 +115,6 @@ interface NamedRouteParam {
 interface UriMap {
   static_uri_map: MapOfRequestHandler;
   named_uri_map: MapOfNamedRouteParam | null;
-}
-
-interface HttpHandlers {
-  request: HttpRequest;
-  response: HttpResponse;
 }
 
 /**
@@ -141,7 +136,7 @@ const HttpMapIndex = {
 export class Furi {
 
   private readonly httpMaps: UriMap[] = [];
-  private store: MapOfANY = {};
+  private readonly store: MapOfANY = {};
 
   constructor() {
     // Initialize HTTP Router lookup maps.
@@ -525,14 +520,14 @@ export class Furi {
     const tokens: string[] = uri.split("/");
     // Partition by "/" count, optimize lookup.
     const bucket = tokens.length - 1;
-    const keyNames = useRegex ? [] : tokens;
+    const pathNames = useRegex ? [] : tokens;
     const { key, params } = this.createPathRegExKeyWithSegments(tokens);
-    // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', keyNames);
+    // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', pathNames);
 
     if (!httpMap.named_uri_map[bucket]) {
-      httpMap.named_uri_map[bucket] = [{ key, params, callbacks, keyNames, useRegex }];
+      httpMap.named_uri_map[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
     } else {
-      httpMap.named_uri_map[bucket].push({ key, params, callbacks, keyNames, useRegex });
+      httpMap.named_uri_map[bucket].push({ key, params, callbacks, pathNames, useRegex });
     }
     // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
   }
@@ -566,36 +561,36 @@ export class Furi {
     // LOG_DEBUG( request.method, request.url );
 
     // Add request session properties.
-    Object.defineProperties(request, {
-      'sessionData': {
-        writable: true,
-        value: {}
-      },
-      'params': {
-        writable: true,
-        value: {}
-      },
-      'query': {
-        writable: true,
-        value: null,
-      },
-      'app': {
-        writable: true,
-        value: this
-      },
-      'saveStoreData': {
-        // deno-lint-ignore no-explicit-any
-        value: (key: string, value: any): void => {
-          this.saveStoreData(key, value);
-        }
-      },
-      'loadStoreData': {
-        // deno-lint-ignore no-explicit-any
-        value: (key: string): any => {
-          return this.loadStoreData(key);
-        }
-      }
-    });
+    // Object.defineProperties(request, {
+    //   'sessionData': {
+    //     writable: true,
+    //     value: {}
+    //   },
+    //   'params': {
+    //     writable: true,
+    //     value: {}
+    //   },
+    //   'query': {
+    //     writable: true,
+    //     value: null,
+    //   },
+    //   'app': {
+    //     writable: true,
+    //     value: this
+    //   },
+    //   'saveStoreData': {
+    //     // deno-lint-ignore no-explicit-any
+    //     value: (key: string, value: any): void => {
+    //       this.saveStoreData(key, value);
+    //     }
+    //   },
+    //   'loadStoreData': {
+    //     // deno-lint-ignore no-explicit-any
+    //     value: (key: string): any => {
+    //       return this.loadStoreData(key);
+    //     }
+    //   }
+    // });
 
     // Exit if response.end() was called by a middleware.
     if (response.writableEnded) { return; }
@@ -734,7 +729,7 @@ export class Furi {
           const namedRouteParams = httpMap.named_uri_map[bucket];
           if (!namedRouteParams || namedRouteParams?.length === 0) { return; }
           for (const namedRouteParam of namedRouteParams) {
-            if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.keyNames, request) ||
+            if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.pathNames, request) ||
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
               this.executeMiddlewareCallback(request, response);
