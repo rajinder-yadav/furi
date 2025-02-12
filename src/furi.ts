@@ -50,9 +50,10 @@ export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
 export interface ServerConfig {
-  port?: number;          // Port server will listen for connection requests.
-  hostname?: string;      // Hostname server will listen for connection requests.
-  callback?: () => void;  // Callback function that will be called when server is ready.
+  env: string;            // Run-time environment (development, production).
+  port: number;          // Port server will listen for connection requests.
+  hostname: string;      // Hostname server will listen for connection requests.
+  callback: null | (() => void);  // Callback function that will be called when server is ready.
 }
 
 /**
@@ -264,6 +265,14 @@ const HttpMapIndex = {
  */
 export class Furi {
 
+  // Default server configuration.
+  private serverConfig: ServerConfig = {
+   env: 'development',
+   port: 3030,
+   hostname: 'localhost',
+   callback: null
+  };
+
   private readonly httpMaps: UriMap[] = [];
   private readonly store: MapOfANY = {};
 
@@ -345,6 +354,7 @@ export class Furi {
    * @returns Instance of http.Server.
    */
   listen(serverConfig: ServerConfig): Server {
+    this.serverConfig = serverConfig;
     const { port, hostname, callback } = serverConfig;
     const server: Server = http.createServer(this.handler());
     if (port && hostname && callback) {
@@ -364,31 +374,30 @@ export class Furi {
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
-    let SERVER_PORT = 3030;
-    let SERVER_HOSTNAME = '0.0.0.0';
-    let SERVER_MESSAGE = `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`;
+    let {env, port, hostname} = this.serverConfig;
 
     if (Deno?.version.deno) {
       // LOG_DEBUG('Running under Deno');
-
-      SERVER_PORT = Number(Deno.env.get('SERVER_PORT')) || 3030;
-      SERVER_HOSTNAME = Deno.env.get('SERVER_HOSTNAME') || '0.0.0.0';
-      SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`
+      env = Deno.env.get('env') || env;
+      port = Number(Deno.env.get('port')) || port;
+      hostname = Deno.env.get('hostname') || hostname;
     } else {
       // LOG_DEBUG('Running under Node.js');
-      SERVER_PORT = Number(process.env.SERVER_PORT) || 3030;
-      SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || '0.0.0.0';
-      SERVER_MESSAGE = process.env.SERVER_MESSAGE || `Server running on '${SERVER_HOSTNAME}', listening on port: '${SERVER_PORT}`
+      env = process.env.env || env;
+      port = Number(process.env.port) || port;
+      hostname = process.env.hostname || hostname;
     }
 
+    const SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `Server running on '${hostname}', listening on port: '${port}\nServer in running ${env} mode.`
     const callback = _callback || (() => { console.log(SERVER_MESSAGE); })
 
-    const serverInfo = {
-      port: SERVER_PORT,
-      hostname: SERVER_HOSTNAME,
+    const serverConfig: ServerConfig = {
+      env,
+      port,
+      hostname,
       callback
     };
-    return this.listen(serverInfo);
+    return this.listen(serverConfig);
   }
 
   /**
