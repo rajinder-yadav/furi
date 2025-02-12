@@ -16,7 +16,7 @@ import { Buffer } from 'node:buffer';
 const furi = Furi.create();
 const USER_AGENT: string = "FURI Node Server (v0.1)";
 
-furi.saveStoreData("db", { database: "Sqlite3" });
+furi.storeState("db", { database: "Sqlite3" });
 
 furi.get("/", (ctx: ApplicationContext) => {
 
@@ -26,8 +26,8 @@ furi.get("/", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.write("<h1>FURI</h1>\n");
-  ctx.response.write("<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n");
+  ctx.send("<h1>FURI</h1>\n");
+  ctx.send("<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n");
   ctx.response.end();
 
 });
@@ -87,7 +87,7 @@ furi.get("/chain", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.write("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
+  ctx.send("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
   // Uncomment next line to stop here!
   // return true;
 
@@ -107,7 +107,7 @@ furi.get("/chainhalt", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.write("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
+  ctx.send("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
   // Uncomment next 2 lines to stop here!
   return true;
 
@@ -291,7 +291,7 @@ furi.use("/middleware", (ctx: ApplicationContext) => {
     "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
-  ctx.response.write("About page Middleware 1\n");
+  ctx.send("About page Middleware 1\n");
 });
 //
 furi.use("/middleware", (ctx: ApplicationContext) => {
@@ -299,7 +299,7 @@ furi.use("/middleware", (ctx: ApplicationContext) => {
     "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
-  ctx.response.write("About page Middleware 2\n");
+  ctx.send("About page Middleware 2\n");
   return true;
 });
 
@@ -310,7 +310,7 @@ furi.get("/middleware", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.write("<h1>About FURI</h1>\nThis is the about page.\n");
+  ctx.send("<h1>About FURI</h1>\nThis is the about page.\n");
   ctx.response.end();
 
 });
@@ -326,7 +326,7 @@ furi.get("/middleware2", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.write("<p>Middleware 2 pre</p>\n");
+  ctx.send("<p>Middleware 2 pre</p>\n");
 
 });
 furi.get("/middleware2", (ctx: ApplicationContext) => {
@@ -336,7 +336,7 @@ furi.get("/middleware2", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.write("<p>Middleware 2 GET </p>\n");
+  ctx.send("<p>Middleware 2 GET </p>\n");
 
 });
 furi.get("/middleware2", (ctx: ApplicationContext) => {
@@ -485,7 +485,7 @@ furi.all('/all', (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.write("<h1>All Page</h1>\n");
+  ctx.send("<h1>All Page</h1>\n");
 
 });
 
@@ -502,19 +502,37 @@ furi.get('/all', (ctx: ApplicationContext) => {
  * Set middleware request session data.
  */
 furi.use((ctx: ApplicationContext) => {
-  ctx.app.saveStoreData('msg', { message: 'Store data' });
+  ctx.storeState('msg', { message: 'Store data' });
+  ctx.sessionState('message', 'Root middleware session data');
   console.log('Root Middleware - pre');
-  if (ctx.request.sessionData) {
-    ctx.request.sessionData.message = "Root middleware session data";
-  }
 });
 furi.use((ctx: ApplicationContext) => {
   console.log('Root Middleware - main');
 });
 furi.use((ctx: ApplicationContext) => {
-  console.log('Request session data> ', ctx.request.sessionData?.message as string);
-  console.log('Store data for property "MSG"> ', ctx.app.loadStoreData('msg'));
-  console.log('Store data for property "db"> ', ctx.app.loadStoreData('db'));
+  console.log('Session data 1 >>> ', ctx.request.sessionData?.message as string);
+  console.log('Store data for property "MSG" 1 >>> ', ctx.storeState('msg'));
+  console.log('Store data for property "db" 1 >>> ', ctx.storeState('db'));
+});
+
+furi.get('/headers', (ctx: ApplicationContext) => {
+  console.log('Session data 2 >>> ', ctx.request.sessionData?.message as string);
+  console.log('Store data for property "MSG" 2 >>> ', ctx.storeState('msg'));
+  console.log('Store data for property "db" 2 >>> ', ctx.storeState('db'));
+
+  console.log('Headers >>>', ctx.requestHeaders());
+  console.log('Cookies >>>', ctx.getCookie());
+  console.log('Store("msg") >>>', ctx.storeState('msg'));
+
+  ctx.requestHeader('Content-Type', 'application/json');
+  ctx.requestHeader('X-Powered-By', 'Furi');
+  ctx.requestHeader('Authorization', 'Bearer token123');
+  ctx.requestHeader('Cache-Control', 'no-cache');
+
+  ctx.setCookie('session_id', '1234567890');
+  ctx.setCookie('page_id', 'service');
+
+  ctx.response.end('{"msg": "Headers set"}');
 });
 
 // const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
