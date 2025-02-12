@@ -19,7 +19,7 @@ furi.get("/", (ctx: ApplicationContext) => {
   ctx.response.writeHead(200, {
     "Content-Type": "application/json"
   });
-    ctx.response.end(JSON.stringify({hello: 'world'}));
+    ctx.end(JSON.stringify({hello: 'world'}));
 });
 
 furi.start();
