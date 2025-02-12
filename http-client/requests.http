@@ -151,3 +151,8 @@ HEAD http://localhost:3100/mox
 
 ### Test path does not exist
 GET http://localhost:3100/regex/123/dept
+
+###
+GET http://localhost:3100/headers
+Cookie: sessionId=abc123
+Cookie: user=yadav12
