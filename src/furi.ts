@@ -8,10 +8,13 @@
 * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
 */
 
-// deno-lint-ignore-file no-process-globals ban-types
-
+// deno-lint-ignore-file no-process-globals ban-types no-explicit-any no-unused-vars
 import * as http from "node:http";
-import { IncomingMessage, ServerResponse, Server } from "node:http";
+import {
+  IncomingMessage,
+  ServerResponse,
+  Server,
+} from "node:http";
 
 /**
  * API Version.
@@ -19,17 +22,14 @@ import { IncomingMessage, ServerResponse, Server } from "node:http";
 const API_VERSION: string = "0.1.0";
 
 // Debug logging - comment our for production builds.
-// deno-lint-ignore no-unused-vars
 const LOG_DEBUG = (...s: string[]) => console.debug("DEBUG> ", ...s);
-// deno-lint-ignore no-unused-vars
 const LOG_INFO = (...s: string[]) => console.info("DEBUG> ", ...s);
 const LOG_WARN = (...s: string[]) => console.warn("WARNING> ", ...s);
 const LOG_ERROR = (...s: string[]) => console.error("ERROR> ", ...s);
 
-type ANY = object | string | number | boolean | null | undefined | bigint | symbol | Function;
 type MapOfString = { [key: string]: string };
 type MapOfStringNumber = { [key: string]: string | number };
-type MapOfANY = { [key: string]: ANY }
+type MapOfANY = { [key: string]: any }
 type MapOfRequestHandler = { [key: string]: RequestHandler };
 type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
 
@@ -42,39 +42,169 @@ type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
 export class HttpRequest extends IncomingMessage {
   public params: MapOfStringNumber = {};
   public query: URLSearchParams | null = null;
-  public sessionData?: MapOfANY;
+  public sessionData: MapOfANY = {};
   public app: Furi | null = null;
-
-  /**
-   * Placeholder functions.
-   */
-  // deno-lint-ignore no-unused-vars no-explicit-any
-  // public loadStoreData: Function = (key: string): any => { };
-  // deno-lint-ignore no-unused-vars no-explicit-any
-  // public saveStoreData: Function = (key: string, value: any): void => { };
 }
 
 export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
 export interface ServerConfig {
-  port?: number;
-  hostname?: string;
-  callback?: () => void;
+  port?: number;          // Port server will listen for connection requests.
+  hostname?: string;      // Hostname server will listen for connection requests.
+  callback?: () => void;  // Callback function that will be called when server is ready.
 }
 
 /**
- * Application Context
+ * An initialized Application Context object is passed to
+ * each middleware and request handler. It provider helper
+ * function to simplify work with Request and Response objects.
+ * It also helps manage application state and session state.
  */
-export interface ApplicationContext {
-  app: Furi;                // Application object.
-  request: HttpRequest;     // HTTP Request object.
-  response: HttpResponse;   // HTTP Response object.
+export class ApplicationContext {
+
+  constructor(
+    public app: Furi,
+    public request: HttpRequest,
+    public response: HttpResponse
+  ) {
+    // Init request session data.
+    this.request.sessionData = {};
+  }
+
+  /**************************************
+   * Application level helper functions.
+   **************************************/
+
+  /**
+   * Request session state.
+   * Overloaded functions to read or set application state.
+   *
+   * Read session data from the request object.
+   * Set session data from the request object.
+   * Session data is automatically reset between requests.
+   *
+   * @param key The session data key.
+   * @param value The session data value.
+   * @return Session data value or undefined if not found, when value is not provided.
+  */
+  sessionState(key: string): any;
+  sessionState(key: string, value: any): void;
+  sessionState(key: string, value?: any): any {
+    if (value) {
+      this.request.sessionData[key] = value;
+    } else {
+      return this.request.sessionData[key];
+    }
+  }
+  /**
+   * Global Application state.
+   * Overloaded functions to read or set application state.
+   *
+   * Read application state data.
+   * Set application state data.
+   *
+   * @param key The application state key.
+   * @param value The application state value.
+   * @return Application state value or undefined if not found, when value is not provided.
+   */
+  storeState(key: string): any;
+  storeState(key: string, value: any): void;
+  storeState(key: string, value?: any): any {
+    if (value) {
+      this.app.storeState(key, value);
+    } else {
+      return this.app.storeState(key);
+    }
+  }
+
+  /**
+   * Fetch cookie from request header.
+   * @return Cookie value or undefined if not found.
+   */
+  getCookie(): string | string[] | undefined {
+    return this.request.headers['cookie'];
+  }
+
+  /**
+   * Set cookies in response header. This function may be called
+   * multiple times to set multiple cookies.
+   *
+   * @param name Cookie name.
+   * @param value Cookie value.
+   */
+  setCookie(name: string, value: string): void {
+    const cookies = this.response.getHeader('Set-Cookie');
+    if (!cookies) {
+      this.response.setHeader('Set-Cookie', `${name}=${value};`);
+    } else {
+      this.response.setHeader('Set-Cookie', `${cookies} ${name}=${value};`);
+    }
+  }
+
+  /**************************************
+   * Request level helper functions.
+  **************************************/
+
+  /**
+   * Overloaded functions to read or set request headers.
+   *
+   * @param name The header name.
+   * @param value The header value.
+   * @returns Current header value or undefined if not found, when value is not provided.
+   */
+  requestHeader(name: string): string | string[] | undefined;
+  requestHeader(name: string, value: string): void;
+  requestHeader(name: string, value?: string): any {
+    if (value) {
+      this.request.headers[name] = value;
+    } else {
+      return this.request.headers[name];
+    }
+  }
+  requestHeaders(): any {
+    return this.request.headers;
+  }
+
+
+  /**************************************
+   * Response level helper functions.
+   **************************************/
+
+  /**
+   * Overloaded functions to read or set response headers.
+   *
+   * @param headers The headers to set.
+   * @param name The header name.
+   * @param value {optional} The header value.
+   * @return Current header value or undefined if not found, when value is not provided.
+   */
+  responseHeader(headers: Headers): void;
+  responseHeader(name: string): string | string[] | undefined;
+  responseHeader(name: string, value: string): void;
+  responseHeader(): any {
+    if (arguments[0] instanceof Headers) {
+      this.response.setHeaders(arguments[0]);
+    }
+    else if (arguments.length === 1) {
+      return this.response.getHeader(arguments[0] as string);
+    } else if (arguments.length === 2) {
+      this.response.setHeader(arguments[0] as string, arguments[1] as string);
+    }
+  }
+
+  send(data: string, encoding: NodeJS.BufferEncoding = 'utf8'): void {
+    this.response.write(data, encoding);
+  }
+
+  end(data: string, encoding: NodeJS.BufferEncoding = 'utf8'): void {
+    this.response.end(data, encoding);
+  }
+
 };
 
 /**
- * Function prototype for Request Handler.
- * This is pretty much the same function signature as http.Server, that is returned by http.createServer().
+ * Function prototype for Request Handler callback function.
  *
  * @param request: HttpRequest
  * @param response: HttpResponse
@@ -87,7 +217,6 @@ export type RequestCallback = (ctx: ApplicationContext) => boolean | void;
 
 /**
  * Named segments and the handler callback functions for associated URI.
- * @property {array} callbacks - Handler callback functions.
  */
 interface RequestHandler {
   callbacks: RequestCallback[]; // Handler callback functions for associated URI.
@@ -189,32 +318,25 @@ export class Furi {
     return resultObj
   }
 
-  // Params to Object with String or Number values.
-  // const resultObj: { [key: string]: string | string[] | number } = {};
-  // params?.forEach((v, k) => {
-  //   const arr = v.split(',');
-  //   const value = v !== '' ? Number(v) : NaN;
-  //   resultObj[k] = arr.length > 1 ? arr : (isNaN(value) ? v : value);
-  // });
-
   /**
-   * Read data from the application store.
-   * @param key Property name of data to read.
-   * @returns Value of the property if found, otherwise undefined.
-  */
-  // deno-lint-ignore no-explicit-any
-  loadStoreData(key: string): any {
-    return this.store[key];
-  }
-
-  /**
-   * Save data to the application store.
-   * @param key Property name of data to read.
-   * @param value Value to save.
+   * Global Application state.
+   * Overloaded functions to read or set application state.
+   *
+   * Read application state data.
+   * Set application state data.
+   *
+   * @param key The application state key.
+   * @param value The application state value.
+   * @return Application state value or undefined if not found, when value is not provided.
    */
-  // deno-lint-ignore no-explicit-any
-  saveStoreData(key: string, value: any): void {
-    this.store[key] = value;
+  storeState(key: string): any;
+  storeState(key: string, value: any): void;
+  storeState(key: string, value?: any): any {
+    if (value) {
+      this.store[key] = value;
+    } else {
+      return this.store[key];
+    }
   }
 
   /**
@@ -494,7 +616,7 @@ export class Furi {
      * Static URI characters
      */
     const regexCheckStaticURL = /^\/?([~\w/.-]+)\/?$/;
-    const useRegex = ! regexCheckStaticURL.test(uri);
+    const useRegex = !regexCheckStaticURL.test(uri);
 
     /**
      * Check URI is a static path.
@@ -534,18 +656,14 @@ export class Furi {
 
   /**
    * Execute all application level middlewares.
-   * @param request   Reference to Node request object (IncomingMessage).
-   * @param response  Reference to Node response object (ServerResponse).
+   * @param ctx   Application context object.
    */
-  private executeMiddlewareCallback(
-    request: HttpRequest,
-    response: HttpResponse,
-  ): void {
+  private executeMiddlewareCallback(ctx: ApplicationContext): void {
     const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
     const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
     if (!middleware_chain || middleware_chain?.length === 0) { return; }
     for (const callback of middleware_chain) {
-      callback({ app: this, request, response });
+      callback(ctx);
     }
   }
   /**
@@ -559,38 +677,6 @@ export class Furi {
     response: HttpResponse
   ): void {
     // LOG_DEBUG( request.method, request.url );
-
-    // Add request session properties.
-    // Object.defineProperties(request, {
-    //   'sessionData': {
-    //     writable: true,
-    //     value: {}
-    //   },
-    //   'params': {
-    //     writable: true,
-    //     value: {}
-    //   },
-    //   'query': {
-    //     writable: true,
-    //     value: null,
-    //   },
-    //   'app': {
-    //     writable: true,
-    //     value: this
-    //   },
-    //   'saveStoreData': {
-    //     // deno-lint-ignore no-explicit-any
-    //     value: (key: string, value: any): void => {
-    //       this.saveStoreData(key, value);
-    //     }
-    //   },
-    //   'loadStoreData': {
-    //     // deno-lint-ignore no-explicit-any
-    //     value: (key: string): any => {
-    //       return this.loadStoreData(key);
-    //     }
-    //   }
-    // });
 
     // Exit if response.end() was called by a middleware.
     if (response.writableEnded) { return; }
@@ -695,6 +781,11 @@ export class Furi {
       request.query = new URLSearchParams(urlQuery[1]);
     }
 
+    /**
+     * Setup helper functions on application context object.
+     */
+    const applicationContext = new ApplicationContext(this, request, response,);
+
     URL = urlQuery[0];
     // Remove trailing slash '/' from URL.
     if (URL.length > 1 && URL[URL.length - 1] === "/") { URL = URL.substring(0, URL.length - 1); }
@@ -702,12 +793,12 @@ export class Furi {
     try {
       if (httpMap.static_uri_map[URL]) {
         // Found direct match of static URI path.
-        this.executeMiddlewareCallback(request, response);
+        this.executeMiddlewareCallback(applicationContext);
         // Execute path callback chain.
         const callback_chain = httpMap.static_uri_map[URL]?.callbacks;
         if (!callback_chain || callback_chain?.length === 0) { return; }
         for (const callback of callback_chain) {
-          const rv = callback({ app: this, request, response });
+          const rv = callback(applicationContext);
           if (rv !== undefined && rv === true) {
             response.end();
             break;
@@ -732,11 +823,11 @@ export class Furi {
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.pathNames, request) ||
               namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
-              this.executeMiddlewareCallback(request, response);
+              this.executeMiddlewareCallback(applicationContext);
               // Execute path callback chain.
               if (namedRouteParam?.callbacks.length > 0) {
                 for (const callback of namedRouteParam.callbacks) {
-                  const rv = callback({ app: this, request, response });
+                  const rv = callback(applicationContext);
                   // Check for early exit from callback chain.
                   if (rv !== undefined && rv === true) {
                     response.end();
