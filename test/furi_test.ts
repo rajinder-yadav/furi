@@ -933,3 +933,22 @@ Deno.test("ALL: Testing All with GET", async () => {
     assertEquals(data, s);
   }
 });
+
+Deno.test("GET: /headers", async () => {
+  const request = new Request("http://localhost:3100/headers", {
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const s = '{"msg": "Headers set"}';
+
+    const data = await response.text();
+    const c1 = response.headers.get('set-cookie');
+
+    assertEquals(data, s);
+    assertEquals(c1, 'session_id=1234567890; page_id=service;');
+  }
+});
