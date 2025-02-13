@@ -50,9 +50,9 @@ export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
 export interface ServerConfig {
-  env: string;            // Run-time environment (development, production).
-  port: number;          // Port server will listen for connection requests.
-  hostname: string;      // Hostname server will listen for connection requests.
+  env: string;   // Run-time environment (development, production).
+  port: number;  // Port server will listen for connection requests.
+  host: string;  // host server will listen for connection requests.
   callback: null | (() => void);  // Callback function that will be called when server is ready.
 }
 
@@ -284,7 +284,7 @@ export class Furi {
   private serverConfig: ServerConfig = {
     env: 'development',
     port: 3030,
-    hostname: 'localhost',
+    host: 'localhost',
     callback: null
   };
 
@@ -370,14 +370,14 @@ export class Furi {
    */
   listen(serverConfig: ServerConfig): Server {
     this.serverConfig = serverConfig;
-    const { port, hostname, callback } = serverConfig;
+    const { port, host, callback } = serverConfig;
     const server: Server = http.createServer(this.handler());
-    if (port && hostname && callback) {
-      server.listen(port, hostname, callback);
+    if (port && host && callback) {
+      server.listen(port, host, callback);
     } else if (port && callback) {
       server.listen(port, callback);
-    } else if (port && hostname) {
-      server.listen(port, hostname);
+    } else if (port && host) {
+      server.listen(port, host);
     } else {
       server.listen(port);
     }
@@ -389,27 +389,27 @@ export class Furi {
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
-    let { env, port, hostname } = this.serverConfig;
+    let { env, port, host } = this.serverConfig;
 
     if (Deno?.version.deno) {
       // LOG_DEBUG('Running under Deno');
       env = Deno.env.get('env') || env;
       port = Number(Deno.env.get('port')) || port;
-      hostname = Deno.env.get('hostname') || hostname;
+      host = Deno.env.get('host') || host;
     } else {
       // LOG_DEBUG('Running under Node.js');
       env = process.env.env || env;
       port = Number(process.env.port) || port;
-      hostname = process.env.hostname || hostname;
+      host = process.env.host || host;
     }
 
-    const SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `Server running on '${hostname}', listening on port: '${port}\nServer in running ${env} mode.`
+    const SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `FURI Server { host: '${host}', port: ${port}, mode: '${env}' }`
     const callback = _callback || (() => { console.log(SERVER_MESSAGE); })
 
     const serverConfig: ServerConfig = {
       env,
       port,
-      hostname,
+      host,
       callback
     };
     return this.listen(serverConfig);
