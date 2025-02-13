@@ -28,7 +28,7 @@ furi.get("/", (ctx: ApplicationContext) => {
 
   ctx.send("<h1>FURI</h1>\n");
   ctx.send("<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n");
-  ctx.response.end();
+  ctx.end();
 
 });
 
@@ -39,7 +39,7 @@ furi.get("/about", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("<h1>About FURI</h1>\nThis is the about page.\n");
+  ctx.end("<h1>About FURI</h1>\nThis is the about page.\n");
 
 });
 
@@ -50,7 +50,7 @@ furi.get("/about/:user_id", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`<h1>About User Page!</h1>\nUser page for: ${ctx.request.params.user_id}\n`);
+  ctx.end(`<h1>About User Page!</h1>\nUser page for: ${ctx.request.params.user_id}\n`);
 
 });
 
@@ -61,7 +61,7 @@ furi.get("/user/:user_id/photo/:photo_id", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`<h1>User Photo Page!</h1>\nUser ${ctx.request.params.user_id} photo ${ctx.request.params.photo_id}\n`);
+  ctx.end(`<h1>User Photo Page!</h1>\nUser ${ctx.request.params.user_id} photo ${ctx.request.params.photo_id}\n`);
 
 });
 
@@ -73,7 +73,7 @@ furi.get("/tor+onto/:code/ca\\d*n$", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`<h1>Toronto Canada</h1>\nCode is ${ctx.request.params.code}\n`);
+  ctx.end(`<h1>Toronto Canada</h1>\nCode is ${ctx.request.params.code}\n`);
 
 });
 
@@ -93,7 +93,7 @@ furi.get("/chain", (ctx: ApplicationContext) => {
 
 }, (ctx: ApplicationContext) => {
 
-  ctx.response.end("<p>This paragraph is form handler 2</p>\n");
+  ctx.end("<p>This paragraph is form handler 2</p>\n");
 
 });
 
@@ -113,7 +113,7 @@ furi.get("/chainhalt", (ctx: ApplicationContext) => {
 
 }, (ctx: ApplicationContext) => {
 
-  ctx.response.end("<p>This paragraph is form handler 2</p>\n");
+  ctx.end("<p>This paragraph is form handler 2</p>\n");
 
 });
 
@@ -126,7 +126,7 @@ furi.patch("/comment", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("PATCH a fresh comment.");
+  ctx.end("PATCH a fresh comment.");
 
 });
 
@@ -138,7 +138,7 @@ furi.patch("/comment/how-to", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("PATCH How to post a comment page.");
+  ctx.end("PATCH How to post a comment page.");
 
 });
 
@@ -159,7 +159,7 @@ furi.patch("/comment/:id", (ctx: ApplicationContext) => {
     on("end", () => {
       text = Buffer.concat(body).toString();
       const data = { message: "PATCH comment with id", id: ctx.request.params.id, text: text };
-      ctx.response.end(JSON.stringify(data));
+      ctx.end(JSON.stringify(data));
     });
 
 });
@@ -173,7 +173,7 @@ furi.post("/comment", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("POST a fresh comment.");
+  ctx.end("POST a fresh comment.");
 
 });
 
@@ -185,7 +185,7 @@ furi.post("/comment/how-to", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("POST How to post a comment page.");
+  ctx.end("POST How to post a comment page.");
 
 });
 
@@ -206,7 +206,7 @@ furi.post("/comment/:id", (ctx: ApplicationContext) => {
     on("end", () => {
       text = Buffer.concat(body).toString();
       const data = { message: "POST comment with id", id: ctx.request.params.id, text: text };
-      ctx.response.end(JSON.stringify(data));
+      ctx.end(JSON.stringify(data));
 
     });
 
@@ -221,7 +221,7 @@ furi.put("/comment", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   })
 
-  ctx.response.end("PUT a fresh comment.");
+  ctx.end("PUT a fresh comment.");
 
 });
 
@@ -233,7 +233,7 @@ furi.put("/comment/how-to", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("PUT How to post a comment page.");
+  ctx.end("PUT How to post a comment page.");
 
 });
 
@@ -245,7 +245,7 @@ furi.put("/comment/:id", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`PUT comment with id: ${ctx.request.params.id}`);
+  ctx.end(`PUT comment with id: ${ctx.request.params.id}`);
 
 });
 
@@ -258,7 +258,7 @@ furi.delete("/comment", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("DELETE a comment.");
+  ctx.end("DELETE a comment.");
 
 });
 
@@ -270,7 +270,7 @@ furi.delete("/comment/how-to", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("DELETE How to post a comment page.");
+  ctx.end("DELETE How to post a comment page.");
 
 });
 
@@ -282,7 +282,7 @@ furi.delete("/comment/:id", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`DELETE comment with id: ${ctx.request.params.id}`);
+  ctx.end(`DELETE comment with id: ${ctx.request.params.id}`);
 
 });
 
@@ -311,7 +311,7 @@ furi.get("/middleware", (ctx: ApplicationContext) => {
   });
 
   ctx.send("<h1>About FURI</h1>\nThis is the about page.\n");
-  ctx.response.end();
+  ctx.end();
 
 });
 
@@ -346,7 +346,7 @@ furi.get("/middleware2", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("<p>Middleware 2 post </p>\n");
+  ctx.end("<p>Middleware 2 post </p>\n");
 
 });
 
@@ -359,7 +359,7 @@ furi.get("/query-check", (ctx: ApplicationContext) => {
 
   const result = ctx.app.queryStringToObject(ctx);
   console.log(result);
-  ctx.response.end(JSON.stringify(result));
+  ctx.end(JSON.stringify(result));
 });
 
 // HTTP GET RegEx path
@@ -371,7 +371,7 @@ furi.get("/regex/:id/dept\\d+", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   })
 
-  ctx.response.end("RegEx path matched.");
+  ctx.end("RegEx path matched.");
 
 });
 
@@ -384,7 +384,7 @@ furi.get("/regex/\\d?to*ronto", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   })
 
-  ctx.response.end("RegEx for path toronto matched.");
+  ctx.end("RegEx for path toronto matched.");
 
 });
 
@@ -399,7 +399,7 @@ furi.get("/foo/:bar", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`Foo ${ctx.request.params.bar}`);
+  ctx.end(`Foo ${ctx.request.params.bar}`);
 
 });
 
@@ -410,7 +410,7 @@ furi.get("/foo/bar", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end("Foo Bar");
+  ctx.end("Foo Bar");
 
 });
 
@@ -426,7 +426,7 @@ furi.get("/foo/:bar/bar1", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`Foo ${ctx.request.params.bar} bar1`);
+  ctx.end(`Foo ${ctx.request.params.bar} bar1`);
 
 });
 
@@ -441,7 +441,7 @@ furi.get("/foo/:bar/bar2/bar", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`Foo ${ctx.request.params.bar} bar2 bar`);
+  ctx.end(`Foo ${ctx.request.params.bar} bar2 bar`);
 
 });
 
@@ -456,7 +456,7 @@ furi.get("/foo/:bar/bar2", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`Foo ${ctx.request.params.bar} bar2`);
+  ctx.end(`Foo ${ctx.request.params.bar} bar2`);
 
 });
 
@@ -471,7 +471,7 @@ furi.get("/foo/:bar/bar2/car", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  ctx.response.end(`Foo ${ctx.request.params.bar} bar2 car`);
+  ctx.end(`Foo ${ctx.request.params.bar} bar2 car`);
 
 });
 
@@ -494,7 +494,7 @@ furi.get('/all', (ctx: ApplicationContext) => {
     "Content-Type": "text/html",
     "User-Agent": USER_AGENT
   });
-  ctx.response.end("<p>A paragraph all about nothing.\n");
+  ctx.end("<p>A paragraph all about nothing.\n");
 
 });
 
@@ -532,7 +532,7 @@ furi.get('/headers', (ctx: ApplicationContext) => {
   ctx.setCookie('session_id', '1234567890');
   ctx.setCookie('page_id', 'service');
 
-  ctx.response.end('{"msg": "Headers set"}');
+  ctx.end('{"msg": "Headers set"}');
 });
 
 // const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
