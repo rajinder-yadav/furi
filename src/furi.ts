@@ -194,12 +194,27 @@ export class ApplicationContext {
     }
   }
 
-  send(data: string, encoding: NodeJS.BufferEncoding = 'utf8'): void {
-    this.response.write(data, encoding);
+  send(data: string, encoding: NodeJS.BufferEncoding): void;
+  send(data: object, encoding: NodeJS.BufferEncoding): void;
+  send(data: unknown, encoding: NodeJS.BufferEncoding = 'utf8'): void {
+    if(typeof data === 'string') {
+      this.response.write(data, encoding);
+    } else {
+      this.response.write(JSON.stringify(data), encoding);
+    }
   }
 
-  end(data: string, encoding: NodeJS.BufferEncoding = 'utf8'): void {
-    this.response.end(data, encoding);
+  end(): void;
+  end(data: string): void;
+  end(data: object): void;
+  end(data?: unknown): void {
+    if (!data) {
+      this.response.end();
+    } else if (typeof data === 'string') {
+      this.response.end(data);
+    } else {
+      this.response.end(JSON.stringify(data));
+    }
   }
 
 };
@@ -267,10 +282,10 @@ export class Furi {
 
   // Default server configuration.
   private serverConfig: ServerConfig = {
-   env: 'development',
-   port: 3030,
-   hostname: 'localhost',
-   callback: null
+    env: 'development',
+    port: 3030,
+    hostname: 'localhost',
+    callback: null
   };
 
   private readonly httpMaps: UriMap[] = [];
@@ -374,7 +389,7 @@ export class Furi {
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
-    let {env, port, hostname} = this.serverConfig;
+    let { env, port, hostname } = this.serverConfig;
 
     if (Deno?.version.deno) {
       // LOG_DEBUG('Running under Deno');
