@@ -50,10 +50,10 @@ export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
 export interface ServerConfig {
-  env: string;   // Run-time environment (development, production).
-  port: number;  // Port server will listen for connection requests.
-  host: string;  // host server will listen for connection requests.
-  callback: null | (() => void);  // Callback function that will be called when server is ready.
+  env?: string;   // Run-time environment (development, production).
+  port?: number;  // Port server will listen for connection requests.
+  host?: string;  // host server will listen for connection requests.
+  callback?: null | (() => void);  // Callback function that will be called when server is ready.
 }
 
 /**
@@ -197,7 +197,7 @@ export class ApplicationContext {
   send(data: string, encoding: NodeJS.BufferEncoding): void;
   send(data: object, encoding: NodeJS.BufferEncoding): void;
   send(data: unknown, encoding: NodeJS.BufferEncoding = 'utf8'): void {
-    if(typeof data === 'string') {
+    if (typeof data === 'string') {
       this.response.write(data, encoding);
     } else {
       this.response.write(JSON.stringify(data), encoding);
@@ -281,7 +281,7 @@ const HttpMapIndex = {
 export class Furi {
 
   // Default server configuration.
-  private serverConfig: ServerConfig = {
+  private readonly serverConfig: ServerConfig = {
     env: 'development',
     port: 3030,
     host: 'localhost',
@@ -296,6 +296,23 @@ export class Furi {
     Object.keys(HttpMapIndex).forEach(() => {
       this.httpMaps.push({ named_uri_map: null, static_uri_map: {} })
     });
+
+    let { env, port, host, callback } = this.serverConfig;
+
+    if (Deno?.version.deno) {
+      // LOG_DEBUG('Running under Deno');
+      env = Deno.env.get('env') || env;
+      port = Number(Deno.env.get('port')) || port;
+      host = Deno.env.get('host') || host;
+    } else {
+      // LOG_DEBUG('Running under Node.js');
+      env = process.env.env || env;
+      port = Number(process.env.port) || port;
+      host = process.env.host || host;
+    }
+
+    callback = () => { console.log(this.getServerStartupMessage()); }
+    this.serverConfig = { env, port, host, callback };
   }
 
   /**
@@ -369,8 +386,19 @@ export class Furi {
    * @returns Instance of http.Server.
    */
   listen(serverConfig: ServerConfig): Server {
-    this.serverConfig = serverConfig;
-    const { port, host, callback } = serverConfig;
+
+    let { env, port, host, callback } = serverConfig;
+
+    // Update running server config properties.
+    if (env) { this.serverConfig.env = env; }
+    if (port) { this.serverConfig.port = port; }
+    if (host) { this.serverConfig.host = host; }
+    if (callback) { this.serverConfig.callback = callback; }
+
+    if (!callback) {
+      callback = this.serverConfig.callback;
+    }
+
     const server: Server = http.createServer(this.handler());
     if (port && host && callback) {
       server.listen(port, host, callback);
@@ -381,6 +409,7 @@ export class Furi {
     } else {
       server.listen(port);
     }
+
     return server;
   }
 
@@ -389,30 +418,7 @@ export class Furi {
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
-    let { env, port, host } = this.serverConfig;
-
-    if (Deno?.version.deno) {
-      // LOG_DEBUG('Running under Deno');
-      env = Deno.env.get('env') || env;
-      port = Number(Deno.env.get('port')) || port;
-      host = Deno.env.get('host') || host;
-    } else {
-      // LOG_DEBUG('Running under Node.js');
-      env = process.env.env || env;
-      port = Number(process.env.port) || port;
-      host = process.env.host || host;
-    }
-
-    const SERVER_MESSAGE = Deno.env.get('SERVER_MESSAGE') || `FURI Server { host: '${host}', port: ${port}, mode: '${env}' }`
-    const callback = _callback || (() => { console.log(SERVER_MESSAGE); })
-
-    const serverConfig: ServerConfig = {
-      env,
-      port,
-      host,
-      callback
-    };
-    return this.listen(serverConfig);
+    return this.listen(this.serverConfig);
   }
 
   /**
@@ -543,6 +549,15 @@ export class Furi {
     }
     this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
     return this;
+  }
+
+  /**
+   * Startup message based on current server configuration.
+   * @returns Server configuration string.
+   */
+  private getServerStartupMessage() {
+    const { env, port, host } = this.serverConfig;
+    return `FURI Server { host: '${host}', port: ${port}, mode: '${env}' }`
   }
 
   /**
