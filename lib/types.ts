@@ -34,6 +34,7 @@ export type MapOfStringNumber = { [key: string]: string | number };
 export type MapOfANY = { [key: string]: any }
 export type MapOfRequestHandler = { [key: string]: RequestHandler };
 export type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
+export type MapOfQueryParams = { [key: string]: string | string[] | number }
 
 /**
  * Function prototype for Request Handler callback function.

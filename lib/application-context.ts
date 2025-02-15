@@ -9,7 +9,7 @@
  */
 
 import { Furi } from './furi.ts';
-import { HttpRequest, HttpResponse } from './types.ts';
+import { HttpRequest, HttpResponse, MapOfQueryParams } from './types.ts';
 
 /**
  * An initialized Application Context object is passed to
@@ -29,17 +29,18 @@ export class ApplicationContext {
   }
 
   /**
-     * Parse query string into an object.
-     * @param ctx:    Application context object.
-     * @param simple  true will parse all values as a string,
-     *                false will parse a value as a string or number.
-     * @returns Parsed query string as an object, or null if no valid query parameters are found.
-     */
-  queryStringToObject(
-    simple: boolean = true
-  ): { [key: string]: string | string[] | number } | null {
+   * Parse query string into an object.
+   *
+   * @param ctx:    Application context object.
+   * @param simple  true will parse all values as a string,
+   *                false will parse a value as a string or number.
+   * @returns Parsed query string as an object, or null if no valid query parameters are found.
+   */
+  queryStringToObject(simple: boolean = true): MapOfQueryParams | null {
+
     const queryParams: URLSearchParams | null = this.request?.query;
     const resultObj: { [key: string]: string | string[] | number } = {};
+
     queryParams?.forEach((v, k) => {
       const arr = v.split(',');
       if (simple) {
@@ -51,6 +52,7 @@ export class ApplicationContext {
         resultObj[k] = arr.length > 1 ? arr : (isNaN(value) ? v : value);
       }
     });
+
     return resultObj
   }
   /**************************************
@@ -68,7 +70,7 @@ export class ApplicationContext {
    * @param key The session data key.
    * @param value The session data value.
    * @return Session data value or undefined if not found, when value is not provided.
-  */
+   */
   sessionState(key: string): any;
   sessionState(key: string, value: any): void;
   sessionState(key: string, value?: any): any {
@@ -125,7 +127,7 @@ export class ApplicationContext {
 
   /**************************************
    * Request level helper functions.
-  **************************************/
+   **************************************/
 
   /**
    * Overloaded functions to read or set request headers.
