@@ -8,7 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-import { IncomingMessage, ServerResponse, } from "node:http";
+import { IncomingMessage, ServerResponse, } from 'node:http';
 
 import { ApplicationContext } from './application-context.ts';
 import { Furi } from './furi.ts';
@@ -16,15 +16,15 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = "0.1.0";
+export const API_VERSION: string = '0.1.0';
 
 /**
  * Logging helper functions.
  */
-export const LOG_DEBUG = (...s: string[]) => console.debug("DEBUG> ", ...s);
-export const LOG_INFO = (...s: string[]) => console.info("DEBUG> ", ...s);
-export const LOG_WARN = (...s: string[]) => console.warn("WARNING> ", ...s);
-export const LOG_ERROR = (...s: string[]) => console.error("ERROR> ", ...s);
+export const LOG_DEBUG = (...s: string[]) => console.debug('DEBUG> ', ...s);
+export const LOG_INFO = (...s: string[]) => console.info('DEBUG> ', ...s);
+export const LOG_WARN = (...s: string[]) => console.warn('WARNING> ', ...s);
+export const LOG_ERROR = (...s: string[]) => console.error('ERROR> ', ...s);
 
 /**
  * Map types for different indexed access.

@@ -9,8 +9,8 @@
  */
 
 // deno-lint-ignore-file no-process-globals no-explicit-any
-import * as http from "node:http";
-import { Server } from "node:http";
+import * as http from 'node:http';
+import { Server } from 'node:http';
 
 import { FuriRouter } from './furi-router.ts';
 import {
@@ -152,15 +152,6 @@ export class Furi extends FuriRouter {
   private getServerStartupMessage() {
     const { env, port, host } = this.furiConfig;
     return `FURI Server { host: '${host}', port: ${port}, mode: '${env}' }`
-  }
-
-  /**
-   * Node requires a handler function for incoming HTTP request.
-   * This handler function is usually passed to createServer().
-   * @returns Reference to request handler function.
-   */
-  private handler(): Function {
-    return this.dispatch.bind(this);
   }
 
 }
