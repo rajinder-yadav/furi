@@ -12,7 +12,7 @@
 // deno -A --env-file ./benchmark/main.ts
 // deno --inspect -A --env-file ./benchmark/main.ts
 
-import { Furi, ApplicationContext } from '../src/furi.ts';
+import { Furi, ApplicationContext } from '../lib/furi.ts';
 const furi = Furi.create();
 
 furi.get('/', (ctx: ApplicationContext) => {
