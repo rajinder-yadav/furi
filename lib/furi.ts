@@ -8,7 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-// deno-lint-ignore-file no-process-globals ban-types no-explicit-any
+// deno-lint-ignore-file no-process-globals no-explicit-any
 import * as http from "node:http";
 import { Server } from "node:http";
 
