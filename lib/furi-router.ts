@@ -18,7 +18,7 @@ import {
   LOG_ERROR
 } from './types.ts';
 
-import {Furi} from './furi.ts';
+import { Furi } from './furi.ts';
 import { ApplicationContext } from "./application-context.ts";
 
 /**
@@ -35,7 +35,7 @@ export class FuriRouter {
 
   protected readonly httpMaps: UriMap[] = [];
 
-  constructor() {
+  constructor(protected app: Furi) {
     // Initialize HTTP Router lookup maps.
     Object.keys(HttpMapIndex).forEach(() => {
       this.httpMaps.push({ named_uri_map: null, static_uri_map: {} })
@@ -81,7 +81,7 @@ export class FuriRouter {
         throw new Error('No middleware callback function provided');
       }
       return this.all(uri, ...fn);
-    } else if(arguments[0] instanceof FuriRouter) {
+    } else if (arguments[0] instanceof FuriRouter) {
       this.mergeRouterPath(arguments[0].httpMaps);
     }
 
@@ -425,9 +425,9 @@ export class FuriRouter {
     /**
      * Setup helper functions on application context object.
      */
-    const applicationContext =
-      this instanceof Furi ? new ApplicationContext(this, request, response) :
-        null; //new ApplicationContext(this.app, request, response);
+    const applicationContext = this instanceof Furi
+      ? new ApplicationContext(this, request, response)
+      : new ApplicationContext(this.app, request, response);
 
     URL = urlQuery[0];
     // Remove trailing slash '/' from URL.

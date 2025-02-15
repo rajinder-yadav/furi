@@ -8,7 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-// deno-lint-ignore-file no-process-globals ban-types no-explicit-any no-unused-vars
+// deno-lint-ignore-file no-process-globals ban-types no-explicit-any
 import * as http from "node:http";
 import { Server } from "node:http";
 
@@ -29,6 +29,8 @@ export * from './furi-router.ts';
  */
 export class Furi extends FuriRouter {
 
+  protected static readonly app: Furi = new Furi();
+
   // Default server configuration.
   private readonly furiConfig: FuriConfig = {
     env: 'development',
@@ -40,7 +42,7 @@ export class Furi extends FuriRouter {
   private readonly store: MapOfANY = {};
 
   constructor() {
-    super();
+    super(Furi.app);
 
     let { env, port, host, callback } = this.furiConfig;
 
@@ -66,11 +68,11 @@ export class Furi extends FuriRouter {
    */
   static create(): Furi {
     // LOG_DEBUG(Furi.getApiVersion());
-    return new Furi();
+    return Furi.app;
   }
 
   static router(): FuriRouter {
-    return new FuriRouter();
+    return new FuriRouter(Furi.app);
   }
 
   /**
