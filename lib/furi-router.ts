@@ -8,6 +8,9 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
+import { IncomingMessage, ServerResponse } from 'node:http';
+import path from 'node:path';
+
 import {
   UriMap,
   HttpMapIndex,
@@ -15,7 +18,9 @@ import {
   HttpRequest,
   HttpResponse,
   LOG_WARN,
-  LOG_ERROR
+  LOG_ERROR,
+  MapOfRequestHandler,
+  MapOfNamedRouteParam
 } from './types.ts';
 
 import { Furi } from './furi.ts';
@@ -40,7 +45,7 @@ export class FuriRouter {
   constructor(protected app: Furi) {
     // Initialize HTTP Router lookup maps.
     Object.keys(HttpMapIndex).forEach(() => {
-      this.httpMaps.push({ named_uri_map: null, static_uri_map: {} })
+      this.httpMaps.push({ named_uri_map: {}, static_uri_map: {} })
     });
   }
 
@@ -64,6 +69,7 @@ export class FuriRouter {
     * @returns    Reference to self, allows method chaining.
     */
   use(router: FuriRouter): FuriRouter;
+  use(uri: string, router: FuriRouter): FuriRouter;
   use(...fn: RequestCallback[]): FuriRouter;
   use(uri: string, ...fn: RequestCallback[]): FuriRouter;
   use(): FuriRouter {
@@ -75,7 +81,33 @@ export class FuriRouter {
     let uri = APP_MIDDLEWARE;
     let fn: RequestCallback[];
 
-    if (typeof arguments[0] === 'string') {
+    if (arguments[0] instanceof FuriRouter) {
+      this.mergeRouterPath(arguments[0].httpMaps);
+    } else if (arguments[1] instanceof FuriRouter) {
+      uri = arguments[0] as string;
+      const uriMaps: UriMap[] = arguments[1].httpMaps;
+
+      // Map all keys from router maps with a prefix.
+      for (let i = 0; i < uriMaps.length; ++i) {
+
+        // Static paths.
+        const mapOfRequestHandler: MapOfRequestHandler = {};
+        for (const [k, v] of Object.entries(uriMaps[i].static_uri_map)) {
+          const key = path.join(uri, k).replace(/\/$/, '');
+          mapOfRequestHandler[key] = v;
+        }
+        uriMaps[i].static_uri_map = mapOfRequestHandler;
+
+        // Named paths.
+        const mapOfNamedRouteParam: MapOfNamedRouteParam = {};
+        for (const [k, v] of Object.entries(uriMaps[i].named_uri_map)) {
+          const key = path.join(uri, k).replace(/\/$/, '');
+          mapOfNamedRouteParam[key] = v;
+        }
+        uriMaps[i].named_uri_map = mapOfNamedRouteParam;
+      }
+      this.mergeRouterPath(uriMaps);
+    } else if (typeof arguments[0] === 'string') {
       // Route based middleware.
       uri = arguments[0];
       fn = Array.from(arguments).slice(1);
@@ -83,8 +115,6 @@ export class FuriRouter {
         throw new Error('No middleware callback function provided');
       }
       return this.all(uri, ...fn);
-    } else if (arguments[0] instanceof FuriRouter) {
-      this.mergeRouterPath(arguments[0].httpMaps);
     }
 
     // Application based middleware.
@@ -186,7 +216,7 @@ export class FuriRouter {
    *
    * @returns Reference to request handler function.
    */
-  protected handler(): Function {
+  protected handler(): (incomingMessage: IncomingMessage,response: ServerResponse<IncomingMessage>) => void {
     return this.dispatch.bind(this);
   }
 
@@ -198,10 +228,12 @@ export class FuriRouter {
    * @returns void
    */
   public dispatch(
-    request: HttpRequest,
-    response: HttpResponse
+    incomingMessage: IncomingMessage,
+    response: ServerResponse<IncomingMessage>
   ): void {
     // LOG_DEBUG( request.method, request.url );
+    const request = new HttpRequest(incomingMessage.socket);
+    Object.assign(request, incomingMessage);
 
     switch (request.method) {
       case 'GET':
@@ -345,10 +377,6 @@ export class FuriRouter {
     }
 
     // Dynamic path with named parameters or Regex.
-    if (!httpMap.named_uri_map) {
-      // Initialize empty map
-      httpMap.named_uri_map = {};
-    }
 
     const tokens: string[] = uri.split('/');
     // Partition by '/' count, optimize lookup.
@@ -429,8 +457,7 @@ export class FuriRouter {
 
     const httpMap: UriMap = this.httpMaps[mapIndex];
 
-    if (!request.url) { return; }
-    let URL = request.url;
+    let URL = request.url!;
 
     /** URL strip rules:
      * Remove trailing slash '/'
@@ -461,7 +488,7 @@ export class FuriRouter {
         if (!callback_chain || callback_chain?.length === 0) { return; }
         for (const callback of callback_chain) {
           const rv = callback(applicationContext);
-          if (rv !== undefined && rv === true) {
+          if (rv) {
             response.end();
             break;
           }
@@ -491,7 +518,7 @@ export class FuriRouter {
                 for (const callback of namedRouteParam.callbacks) {
                   const rv = callback(applicationContext);
                   // Check for early exit from callback chain.
-                  if (rv !== undefined && rv === true) {
+                  if (rv) {
                     response.end();
                     break;
                   }
@@ -533,7 +560,14 @@ export class FuriRouter {
     }
   }
 
-  mergeRouterPath(routerHttpMaps: UriMap[]) {
+  /**
+   * Merge given router maps into existing router map.
+   * This will occur when the caller adds a router middleware.
+   *
+   * @param routerHttpMaps UriMap[] to merge into the current httpMaps.
+   * @return void
+   */
+  protected mergeRouterPath(routerHttpMaps: UriMap[]): void {
     for (let i = 0; i < routerHttpMaps.length; ++i) {
       this.httpMaps[i].static_uri_map =
         Object.assign(

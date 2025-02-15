@@ -76,7 +76,7 @@ export interface NamedRouteParam {
  */
 export interface UriMap {
   static_uri_map: MapOfRequestHandler;
-  named_uri_map: MapOfNamedRouteParam | null;
+  named_uri_map: MapOfNamedRouteParam;
 }
 
 /**
@@ -105,7 +105,7 @@ export class HttpRequest extends IncomingMessage {
 /**
  * HTTP Response object extending Node.js ServerResponse.
  */
-export class HttpResponse extends ServerResponse<HttpRequest> {
+export class HttpResponse extends ServerResponse<IncomingMessage> {
 }
 
 /**
