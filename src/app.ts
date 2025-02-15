@@ -1,16 +1,17 @@
 /**
- * FURI - Fast Uniform Resource Identifier
- * The Fast and Furious Node Router
-*
-* Copyright(c) 2016 Rajinder Yadav
-*
-* Labs DevMentor.org Corp. <info@devmentor.org>
-* This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
-*/
+ * FURI - Fast Uniform Resource Identifier.
+ *
+ * The Fast and Furious Node.js Router.
+ * Copyright(c) 2016, 2025 Rajinder Yadav.
+ *
+ * Labs DevMentor.org Corp. <info@devmentor.org>
+ * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
+ */
+
 
 // deno-lint-ignore-file no-unused-vars
 
-import { Furi, ApplicationContext } from "./furi.ts";
+import { Furi, ApplicationContext } from "../lib/furi.ts";
 import { Buffer } from 'node:buffer';
 
 const furi = Furi.create();
@@ -357,7 +358,7 @@ furi.get("/query-check", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
 
-  const result = ctx.app.queryStringToObject(ctx);
+  const result = ctx.queryStringToObject();
   console.log(result);
   ctx.end(JSON.stringify(result));
 });
