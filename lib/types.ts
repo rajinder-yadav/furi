@@ -21,12 +21,17 @@ import { Furi } from './furi.ts';
  */
 export const API_VERSION: string = "0.1.0";
 
-// Debug logging - comment our for production builds.
+/**
+ * Logging helper functions.
+ */
 export const LOG_DEBUG = (...s: string[]) => console.debug("DEBUG> ", ...s);
 export const LOG_INFO = (...s: string[]) => console.info("DEBUG> ", ...s);
 export const LOG_WARN = (...s: string[]) => console.warn("WARNING> ", ...s);
 export const LOG_ERROR = (...s: string[]) => console.error("ERROR> ", ...s);
 
+/**
+ * Map types for different indexed access.
+ */
 export type MapOfString = { [key: string]: string };
 export type MapOfStringNumber = { [key: string]: string | number };
 export type MapOfANY = { [key: string]: any }
@@ -55,7 +60,7 @@ export interface RequestHandler {
 /**
  * Place holder: Route attributes, uri, list of named params, handler callbacks.
  * key is a regex string of path with named segments.
-*/
+ */
 export interface NamedRouteParam {
   useRegex: boolean;            // Use regex for path matching.
   pathNames: string[];          // Path segment names.
@@ -77,7 +82,8 @@ export interface UriMap {
 }
 
 /**
- * Enumerated keys for HTTP Maps.
+ * Enumerated keys for HTTP Maps. The keys are used to partition
+ * HTTP methods, to optimized lookup.
  */
 export const HttpMapIndex = {
   MIDDLEWARE: 0,
@@ -88,12 +94,9 @@ export const HttpMapIndex = {
   DELETE: 5
 }
 
-// Type definitions for request and response objects.
-// Obtained from http.d.ts
-//
-// type Request  = typeof IncomingMessage;
-// type Response = typeof ServerResponse<InstanceType<Request>>;
-//
+/**
+ * HTTP Request object extending Node.js IncomingMessage.
+ */
 export class HttpRequest extends IncomingMessage {
   public params: MapOfStringNumber = {};
   public query: URLSearchParams | null = null;
@@ -101,12 +104,20 @@ export class HttpRequest extends IncomingMessage {
   public app: Furi | null = null;
 }
 
+/**
+ * HTTP Response object extending Node.js ServerResponse.
+ */
 export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
+/**
+ * FURI Server Configuration properties.
+ * The properties are assigned default values, but can be overridden,
+ * either from code or environment variables, or a '.env' file.
+ */
 export interface FuriConfig {
-  env?: string;   // Run-time environment (development, production).
-  port?: number;  // Port server will listen for connection requests.
-  host?: string;  // host server will listen for connection requests.
-  callback?: null | (() => void);  // Callback function that will be called when server is ready.
+  env?: string;                   // Run-time environment (development, production).
+  port?: number;                  // Port server will listen for connection requests.
+  host?: string;                  // host server will listen for connection requests.
+  callback?: null | (() => void); // Callback function that will be called when server is ready.
 }
