@@ -103,6 +103,7 @@ export class ApplicationContext {
 
   /**
    * Fetch cookie from request header.
+   *
    * @return Cookie value or undefined if not found.
    */
   getCookie(): string | string[] | undefined {
@@ -115,6 +116,7 @@ export class ApplicationContext {
    *
    * @param name Cookie name.
    * @param value Cookie value.
+   * @return void.
    */
   setCookie(name: string, value: string): void {
     const cookies = this.response.getHeader('Set-Cookie');
@@ -176,16 +178,34 @@ export class ApplicationContext {
     }
   }
 
-  send(data: string, encoding: NodeJS.BufferEncoding): void;
-  send(data: object, encoding: NodeJS.BufferEncoding): void;
-  send(data: unknown, encoding: NodeJS.BufferEncoding = 'utf8'): void {
+  /**
+   * Overloaded method to send response data, default encoding is 'utf8'.
+   * Support send both text or object input and will convert to JSON if data is an object.
+   *
+   * @param data     The response data, can be a string or an object.
+   * @param encoding The encoding of the response data, default is 'utf8'.
+   * @return void.
+   */
+  send(data: string, encoding?: NodeJS.BufferEncoding): void;
+  send(data: object, encoding?: NodeJS.BufferEncoding): void;
+  send(data: unknown, encoding?: NodeJS.BufferEncoding): void {
+    const bufferEncoding = encoding ?? 'utf8';
     if (typeof data === 'string') {
-      this.response.write(data, encoding);
+      this.response.write(data, bufferEncoding);
     } else {
-      this.response.write(JSON.stringify(data), encoding);
+      this.response.write(JSON.stringify(data), bufferEncoding);
     }
   }
 
+  /**
+   * Overloaded method to optionally send response data, and then close the connection.
+   * Support send both text or object input and will convert to JSON if data is an object.
+   * The default encoding is 'utf8'.
+   *
+   * @param data     The response data, can be a string or an object, or empty.
+   * @param encoding The encoding of the response data, default is 'utf8'.
+   * @return void.
+   */
   end(): void;
   end(data: string): void;
   end(data: object): void;

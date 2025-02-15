@@ -64,6 +64,7 @@ export class Furi extends FuriRouter {
 
   /**
    * Class static method. Create instance of Router object.
+   *
    * @returns Instance of class Furi.
    */
   static create(): Furi {
@@ -77,6 +78,7 @@ export class Furi extends FuriRouter {
 
   /**
    * Get Router API version.
+   *
    * @returns API version as a string.
    */
   static getApiVersion(): string {
@@ -106,6 +108,7 @@ export class Furi extends FuriRouter {
 
   /**
    * Start server with specified configuration.
+   *
    * @param serverConfig  Configuration object for the server.
    * @returns Instance of http.Server.
    */
@@ -139,6 +142,7 @@ export class Furi extends FuriRouter {
 
   /**
    * Starts the Furi server with default or provided configuration.
+   *
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
@@ -147,6 +151,7 @@ export class Furi extends FuriRouter {
 
   /**
    * Startup message based on current server configuration.
+   *
    * @returns Server configuration string.
    */
   private getServerStartupMessage() {

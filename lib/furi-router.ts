@@ -124,6 +124,7 @@ export class FuriRouter {
 
   /**
    * Assign Request handler to all HTTP lookup maps.
+   *
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
@@ -142,6 +143,7 @@ export class FuriRouter {
 
   /**
    * Assign a HTTP GET handler to the provided URI lookup map.
+   *
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
@@ -156,6 +158,7 @@ export class FuriRouter {
 
   /**
    * Assign a HTTP PATCH handler to the provided URI lookup map.
+   *
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
@@ -170,6 +173,7 @@ export class FuriRouter {
 
   /**
    * Assign a HTTP POST handler to the provided URI lookup map.
+   *
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
@@ -184,6 +188,7 @@ export class FuriRouter {
 
   /**
    * Assign a HTTP PUT handler to the provided URI lookup map.
+   *
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
@@ -198,6 +203,7 @@ export class FuriRouter {
 
   /**
    * Assign a HTTP DELETE handler to the provided URI lookup map.
+   *
    * @param uri  String value of URI.
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
@@ -225,7 +231,7 @@ export class FuriRouter {
    *
    * @param request HTTP request.
    * @param response HTTP response.
-   * @returns void
+   * @returns void.
    */
   public dispatch(
     incomingMessage: IncomingMessage,
@@ -340,6 +346,7 @@ export class FuriRouter {
 
   /**
    * Build HTTP Request handler mappings and assign callback function
+   *
    * @param mapIndex  The URI Map used to look up callbacks.
    * @param uri       String value of URI.
    * @param callbacks Reference to callback functions of type RequestHandlerFunc.
@@ -409,6 +416,7 @@ export class FuriRouter {
   /**
    * Check if each path token matches its ordinal key values,
    * named path segments always match and are saved to request.params.
+   *
    * @param pathNames Array of path segments.
    * @param keyName   Array of key names.
    * @param request  HttpRequest object.
@@ -442,12 +450,13 @@ export class FuriRouter {
   }
 
   /**
- * This method calls the callbacks for the mapped URL if it exists.
- * If one does not exist a HTTP status error code is returned.
- * @param mapIndex  The URI Map used to look up callbacks.
- * @param request   Reference to Node request object (IncomingMessage).
- * @param response  Reference to Node response object (ServerResponse).
- */
+   * This method calls the callbacks for the mapped URL if it exists.
+   * If one does not exist a HTTP status error code is returned.
+   *
+   * @param mapIndex  The URI Map used to look up callbacks.
+   * @param request   Reference to Node request object (IncomingMessage).
+   * @param response  Reference to Node response object (ServerResponse).
+   */
   protected processHTTPMethod(
     mapIndex: number,
     request: HttpRequest,
