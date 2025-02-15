@@ -49,7 +49,7 @@ export class HttpRequest extends IncomingMessage {
 export class HttpResponse extends ServerResponse<HttpRequest> {
 }
 
-export interface ServerConfig {
+export interface FuriConfig {
   env?: string;   // Run-time environment (development, production).
   port?: number;  // Port server will listen for connection requests.
   host?: string;  // host server will listen for connection requests.
@@ -73,6 +73,31 @@ export class ApplicationContext {
     this.request.sessionData = {};
   }
 
+  /**
+     * Parse query string into an object.
+     * @param ctx:    Application context object.
+     * @param simple  true will parse all values as a string,
+     *                false will parse a value as a string or number.
+     * @returns Parsed query string as an object, or null if no valid query parameters are found.
+     */
+  queryStringToObject(
+    simple: boolean = true
+  ): { [key: string]: string | string[] | number } | null {
+    const queryParams: URLSearchParams | null = this.request?.query;
+    const resultObj: { [key: string]: string | string[] | number } = {};
+    queryParams?.forEach((v, k) => {
+      const arr = v.split(',');
+      if (simple) {
+        // Params to Object with string values.
+        resultObj[k] = arr.length > 1 ? arr : v;
+      } else {
+        // Params to Object with string or number values.
+        const value = v !== '' ? Number(v) : NaN;
+        resultObj[k] = arr.length > 1 ? arr : (isNaN(value) ? v : value);
+      }
+    });
+    return resultObj
+  }
   /**************************************
    * Application level helper functions.
    **************************************/
@@ -274,191 +299,61 @@ const HttpMapIndex = {
   DELETE: 5
 }
 
+export class FuriRouter {
 
-/**
- * Router Class, matches URI for fast dispatch to handler.
- */
-export class Furi {
-
-  // Default server configuration.
-  private readonly serverConfig: ServerConfig = {
-    env: 'development',
-    port: 3030,
-    host: 'localhost',
-    callback: null
-  };
-
-  private readonly httpMaps: UriMap[] = [];
-  private readonly store: MapOfANY = {};
+  protected readonly httpMaps: UriMap[] = [];
 
   constructor() {
     // Initialize HTTP Router lookup maps.
     Object.keys(HttpMapIndex).forEach(() => {
       this.httpMaps.push({ named_uri_map: null, static_uri_map: {} })
     });
-
-    let { env, port, host, callback } = this.serverConfig;
-
-    if (Deno?.version.deno) {
-      // LOG_DEBUG('Running under Deno');
-      env = Deno.env.get('env') || env;
-      port = Number(Deno.env.get('port')) || port;
-      host = Deno.env.get('host') || host;
-    } else {
-      // LOG_DEBUG('Running under Node.js');
-      env = process.env.env || env;
-      port = Number(process.env.port) || port;
-      host = process.env.host || host;
-    }
-
-    callback = () => { console.log(this.getServerStartupMessage()); }
-    this.serverConfig = { env, port, host, callback };
   }
 
   /**
-   * Class static method. Create instance of Router object.
-   * @returns Instance of class Furi.
-   */
-  static create(): Furi {
-    // LOG_DEBUG(Furi.getApiVersion());
-    return new Furi();
-  }
-
-  /**
-   * Get Router API version.
-   * @returns API version as a string.
-   */
-  static getApiVersion(): string {
-    return `FURI (v${API_VERSION})`;
-  }
-
-  /**
-   * Parse query string into an object.
-   * @param ctx:    Application context object.
-   * @param simple  true will parse all values as a string,
-   *                false will parse a value as a string or number.
-   * @returns Parsed query string as an object, or null if no valid query parameters are found.
-   */
-  queryStringToObject(
-    ctx: ApplicationContext,
-    simple: boolean = true
-  ): { [key: string]: string | string[] | number } | null {
-    const queryParams: URLSearchParams | null = ctx.request?.query;
-    const resultObj: { [key: string]: string | string[] | number } = {};
-    queryParams?.forEach((v, k) => {
-      const arr = v.split(',');
-      if (simple) {
-        // Params to Object with string values.
-        resultObj[k] = arr.length > 1 ? arr : v;
-      } else {
-        // Params to Object with string or number values.
-        const value = v !== '' ? Number(v) : NaN;
-        resultObj[k] = arr.length > 1 ? arr : (isNaN(value) ? v : value);
-      }
-    });
-    return resultObj
-  }
-
-  /**
-   * Global Application state.
-   * Overloaded functions to read or set application state.
-   *
-   * Read application state data.
-   * Set application state data.
-   *
-   * @param key The application state key.
-   * @param value The application state value.
-   * @return Application state value or undefined if not found, when value is not provided.
-   */
-  storeState(key: string): any;
-  storeState(key: string, value: any): void;
-  storeState(key: string, value?: any): any {
-    if (value) {
-      this.store[key] = value;
-    } else {
-      return this.store[key];
-    }
-  }
-
-  /**
-   * Start server with specified configuration.
-   * @param serverConfig  Configuration object for the server.
-   * @returns Instance of http.Server.
-   */
-  listen(serverConfig: ServerConfig): Server {
-
-    let { env, port, host, callback } = serverConfig;
-
-    // Update running server config properties.
-    if (env) { this.serverConfig.env = env; }
-    if (port) { this.serverConfig.port = port; }
-    if (host) { this.serverConfig.host = host; }
-    if (callback) { this.serverConfig.callback = callback; }
-
-    if (!callback) {
-      callback = this.serverConfig.callback;
-    }
-
-    const server: Server = http.createServer(this.handler());
-    if (port && host && callback) {
-      server.listen(port, host, callback);
-    } else if (port && callback) {
-      server.listen(port, callback);
-    } else if (port && host) {
-      server.listen(port, host);
-    } else {
-      server.listen(port);
-    }
-
-    return server;
-  }
-
-  /**
-   * Starts the Furi server with default or provided configuration.
-   * @returns Instance of http.Server.
-   */
-  start(_callback?: () => void): Server {
-    return this.listen(this.serverConfig);
-  }
-
-  /**
-  * Assign a middleware to the provided URI lookup map.
-  * There are two overloaded functions:
-  * 1. Application level middleware registration.
-  *     use(...fn: RequestCallback[]): Furi;
-  * 2. Route level middleware registration.
-  *     use(uri: string, ...fn: RequestCallback[]): Furi;
-  *
-  * When called without a path, the middleware is added to application level middleware.
-  * When called with a path, the middleware is added to the route level.
-  *
-  * Middlewares without a path will be called in order of registration,
-  * before other all routes, irrespective of their path. Otherwise the
-  * middleware will be called in the order of registration for each route.
-  *
-  * @param uri  Optional String value of URI.
-  * @param fn   Reference to callback functions of type RequestHandlerFunc.
-  * @returns    Reference to self, allows method chaining.
-  */
-  use(...fn: RequestCallback[]): Furi;
-  use(uri: string, ...fn: RequestCallback[]): Furi;
-  use(): Furi {
+    * Assign a middleware to the provided URI lookup map.
+    * There are two overloaded functions:
+    * 1. Application level middleware registration.
+    *     use(...fn: RequestCallback[]): FuriRouter;
+    * 2. Route level middleware registration.
+    *     use(uri: string, ...fn: RequestCallback[]): FuriRouter;
+    *
+    * When called without a path, the middleware is added to application level middleware.
+    * When called with a path, the middleware is added to the route level.
+    *
+    * Middlewares without a path will be called in order of registration,
+    * before other all routes, irrespective of their path. Otherwise the
+    * middleware will be called in the order of registration for each route.
+    *
+    * @param uri  Optional String value of URI.
+    * @param fn   Reference to callback functions of type RequestHandlerFunc.
+    * @returns    Reference to self, allows method chaining.
+    */
+  use(router: FuriRouter): FuriRouter;
+  use(...fn: RequestCallback[]): FuriRouter;
+  use(uri: string, ...fn: RequestCallback[]): FuriRouter;
+  use(): FuriRouter {
 
     if (arguments.length === 0) {
       throw new Error('No Middleware callback function provided');
     }
 
-    let uri = '/';
+    let uri = '@AppMiddleware@';
     let fn: RequestCallback[];
 
     if (typeof arguments[0] === 'string') {
+      // Route based middleware.
       uri = arguments[0];
       fn = Array.from(arguments).slice(1);
       if (fn.length === 0) {
         throw new Error('No middleware callback function provided');
       }
       return this.all(uri, ...fn);
+    } else if(arguments[0] instanceof FuriRouter) {
+      this.mergeRouterPath(arguments[0].httpMaps);
     }
+
+    // Application based middleware.
     this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, Array.from(arguments));
     return this;
   }
@@ -469,7 +364,7 @@ export class Furi {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  all(uri: string, ...fn: RequestCallback[]): Furi {
+  all(uri: string, ...fn: RequestCallback[]): FuriRouter {
     // Skip Middleware Map.
     if (fn.length === 0) {
       throw new Error('No callback function provided');
@@ -487,7 +382,7 @@ export class Furi {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  get(uri: string, ...fn: RequestCallback[]): Furi {
+  get(uri: string, ...fn: RequestCallback[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -501,7 +396,7 @@ export class Furi {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  patch(uri: string, ...fn: RequestCallback[]): Furi {
+  patch(uri: string, ...fn: RequestCallback[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -515,7 +410,7 @@ export class Furi {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  post(uri: string, ...fn: RequestCallback[]): Furi {
+  post(uri: string, ...fn: RequestCallback[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -529,7 +424,7 @@ export class Furi {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  put(uri: string, ...fn: RequestCallback[]): Furi {
+  put(uri: string, ...fn: RequestCallback[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -543,7 +438,7 @@ export class Furi {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  delete(uri: string, ...fn: RequestCallback[]): Furi {
+  delete(uri: string, ...fn: RequestCallback[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -551,174 +446,11 @@ export class Furi {
     return this;
   }
 
-  /**
-   * Startup message based on current server configuration.
-   * @returns Server configuration string.
-   */
-  private getServerStartupMessage() {
-    const { env, port, host } = this.serverConfig;
-    return `FURI Server { host: '${host}', port: ${port}, mode: '${env}' }`
-  }
-
-  /**
-   * Node requires a handler function for incoming HTTP request.
-   * This handler function is usually passed to createServer().
-   * @returns Reference to request handler function.
-   */
-  private handler(): Function {
-    return this.dispatch.bind(this);
-  }
-
-  /**
-   * Convert named segments path to a RegEx key and collect segment names.
-   *
-   * URI    => /aa/:one/bb/cc/:two/e
-   * KEY    => /aa/(\w+)/bb/cc/(\w+)/e
-   * params => ['one', 'two']
-   * return => { params: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
-   *
-   * @param  uri URI with segment names.
-   * @return Object with regex key and array with param names.
-   */
-  private createPathRegExKeyWithSegments(tokens: string[]): { params: string[], key: string } {
-
-    if (!tokens || tokens?.length === 0) {
-      return { params: [], key: '' };
-    }
-
-    const params: string[] = [];
-    let key: string = "";
-
-    for (const token of tokens) {
-      if (token.startsWith(":")) {
-        params.push(token.substring(1));
-        key = `${key}/([\\w-.~]+)`;
-      } else {
-        key = `${key}/${token}`;
-      }
-    }
-
-    return { params: params, key: key.substring(1) };
-  }
-
-  /**
-   * Match URI with named segments and return param object containing
-   * the property of each named segment and its value on the request object.
-   *
-   * @param uri: string The URI to be matched.
-   * @param {segments: string[], key: string} Path object with RegEx key and segments.
-   * @return null If URI doesn't match Path Object.
-   * @return param Object containing property and its value for each segment from Path object.
-   */
-  private attachPathParamsToRequestIfExists(
-    uri: string,
-    pk: { params: string[], key: string },
-    request: HttpRequest
-  ): boolean {
-
-    if (!pk.params || !pk.key) {
-      return false;
-    }
-
-    const pat = RegExp(pk.key);
-    const match = pat.exec(uri);
-
-    if (match) {
-      // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
-      for (const [i, segment] of pk.params.entries()) {
-        // LOG_DEBUG( "segment: " + segment );
-        request.params[segment] = match[i + 1];
-      }
-      // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Build HTTP Request handler mappings and assign callback function
-   * @param mapIndex  The URI Map used to look up callbacks.
-   * @param uri       String value of URI.
-   * @param callbacks Reference to callback functions of type RequestHandlerFunc.
-   * @returns         Reference to self, allows method chaining.
-   */
-  private buildRequestMap(
-    mapIndex: number,
-    uri: string,
-    callbacks: RequestCallback[]
-  ): void {
-    // LOG_DEBUG(uri);
-
-    const httpMap: UriMap = this.httpMaps[mapIndex];
-    /**
-     * https://tools.ietf.org/html/rfc3986
-     * Static URI characters
-     */
-    const regexCheckStaticURL = /^\/?([~\w/.-]+)\/?$/;
-    const useRegex = !regexCheckStaticURL.test(uri);
-
-    /**
-     * Check URI is a static path.
-     */
-    if (!useRegex) {
-      // Static path, we can use direct lookup.
-      if (!httpMap.static_uri_map[uri]) {
-        httpMap.static_uri_map[uri] = { callbacks };
-      } else {
-        // chain callbacks for same URI path.
-        for (const callback of callbacks) {
-          httpMap.static_uri_map[uri].callbacks.push(callback);
-        }
-      }
-    }
-
-    // Dynamic path with named parameters or Regex.
-    if (!httpMap.named_uri_map) {
-      // Initialize empty map
-      httpMap.named_uri_map = {};
-    }
-
-    const tokens: string[] = uri.split("/");
-    // Partition by "/" count, optimize lookup.
-    const bucket = tokens.length - 1;
-    const pathNames = useRegex ? [] : tokens;
-    const { key, params } = this.createPathRegExKeyWithSegments(tokens);
-    // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', pathNames);
-
-    if (!httpMap.named_uri_map[bucket]) {
-      httpMap.named_uri_map[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
-    } else {
-      httpMap.named_uri_map[bucket].push({ key, params, callbacks, pathNames, useRegex });
-    }
-    // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
-  }
-
-  /**
-   * Execute all application level middlewares.
-   * @param ctx   Application context object.
-   */
-  private executeMiddlewareCallback(ctx: ApplicationContext): void {
-    const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
-    const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
-    if (!middleware_chain || middleware_chain?.length === 0) { return; }
-    for (const callback of middleware_chain) {
-      callback(ctx);
-    }
-  }
-  /**
-   * This method routes HTTP request to an assigned handler.
-   * If one does not exist a HTTP status error code is returned.
-   * @param request   Reference to Node request object (IncomingMessage).
-   * @param response  Reference to Node response object (ServerResponse).
-   */
-  private dispatch(
+  public dispatch(
     request: HttpRequest,
     response: HttpResponse
   ): void {
     // LOG_DEBUG( request.method, request.url );
-
-    // Exit if response.end() was called by a middleware.
-    if (response.writableEnded) { return; }
 
     switch (request.method) {
       case "GET":
@@ -758,6 +490,144 @@ export class Furi {
   }
 
   /**
+   * Convert named segments path to a RegEx key and collect segment names.
+   *
+   * URI    => /aa/:one/bb/cc/:two/e
+   * KEY    => /aa/(\w+)/bb/cc/(\w+)/e
+   * params => ['one', 'two']
+   * return => { params: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
+   *
+   * @param  uri URI with segment names.
+   * @return Object with regex key and array with param names.
+   */
+  protected createNamedRouteSearchKey(tokens: string[]): { params: string[], key: string } {
+
+    if (!tokens || tokens?.length === 0) {
+      return { params: [], key: '' };
+    }
+
+    const params: string[] = [];
+    let key: string = "";
+
+    for (const token of tokens) {
+      if (token.startsWith(":")) {
+        params.push(token.substring(1));
+        key = `${key}/([\\w-.~]+)`;
+      } else {
+        key = `${key}/${token}`;
+      }
+    }
+
+    return { params: params, key: key.substring(1) };
+  }
+
+  /**
+   * Match URI with named segments and return param object containing
+   * the property of each named segment and its value on the request object.
+   *
+   * @param uri: string The URI to be matched.
+   * @param {segments: string[], key: string} Path object with RegEx key and segments.
+   * @return null If URI doesn't match Path Object.
+   * @return param Object containing property and its value for each segment from Path object.
+   */
+  protected attachPathParamsToRequestIfExists(
+    uri: string,
+    pk: { params: string[], key: string },
+    request: HttpRequest
+  ): boolean {
+
+    if (!pk.params || !pk.key) {
+      return false;
+    }
+
+    const pat = RegExp(pk.key);
+    const match = pat.exec(uri);
+
+    if (match) {
+      // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
+      for (const [i, segment] of pk.params.entries()) {
+        // LOG_DEBUG( "segment: " + segment );
+        request.params[segment] = match[i + 1];
+      }
+      // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Build HTTP Request handler mappings and assign callback function
+   * @param mapIndex  The URI Map used to look up callbacks.
+   * @param uri       String value of URI.
+   * @param callbacks Reference to callback functions of type RequestHandlerFunc.
+   * @returns         Reference to self, allows method chaining.
+   */
+  protected buildRequestMap(
+    mapIndex: number,
+    uri: string,
+    callbacks: RequestCallback[]
+  ): void {
+    // LOG_DEBUG(uri);
+
+    const httpMap: UriMap = this.httpMaps[mapIndex];
+    /**
+     * https://tools.ietf.org/html/rfc3986
+     * Static URI characters
+     */
+    const regexCheckStaticURL = /^\/?([~\w/.-]+)\/?$/;
+    const useRegex = !regexCheckStaticURL.test(uri);
+
+    /**
+     * Check if URI is a static path.
+     */
+    if (!useRegex) {
+      // Static path, we can use direct lookup.
+      if (!httpMap.static_uri_map[uri]) {
+        httpMap.static_uri_map[uri] = { callbacks };
+      } else {
+        // chain callbacks for same URI path.
+        for (const callback of callbacks) {
+          httpMap.static_uri_map[uri].callbacks.push(callback);
+        }
+      }
+      return;
+    }
+
+    // Dynamic path with named parameters or Regex.
+    if (!httpMap.named_uri_map) {
+      // Initialize empty map
+      httpMap.named_uri_map = {};
+    }
+
+    const tokens: string[] = uri.split("/");
+    // Partition by "/" count, optimize lookup.
+    const bucket = tokens.length - 1;
+    const pathNames = useRegex ? [] : tokens;
+    const { key, params } = this.createNamedRouteSearchKey(tokens);
+    // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', pathNames);
+
+    if (!httpMap.named_uri_map[bucket]) {
+      httpMap.named_uri_map[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
+    } else {
+      httpMap.named_uri_map[bucket].push({ key, params, callbacks, pathNames, useRegex });
+    }
+    // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
+  }
+
+  /**
+   * Execute all application level middlewares.
+   * @param ctx   Application context object.
+   */
+  protected executeMiddlewareCallback(ctx: ApplicationContext): void {
+    const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
+    const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
+    if (!middleware_chain || middleware_chain?.length === 0) { return; }
+    for (const callback of middleware_chain) {
+      callback(ctx);
+    }
+  }
+
+  /**
    * Check if each path token matches its ordinal key values,
    * named path segments always match and are saved to request.params.
    * @param pathNames Array of path segments.
@@ -765,7 +635,7 @@ export class Furi {
    * @param request  HttpRequest object.
    * @returns boolean True if all tokens match, otherwise false.
    */
-  private fastPathMatch(
+  protected fastPathMatch(
     pathNames: string[],
     keyName: string[],
     request: HttpRequest
@@ -793,13 +663,13 @@ export class Furi {
   }
 
   /**
-   * This method calls the callbacks for the mapped URL if it exists.
-   * If one does not exist a HTTP status error code is returned.
-   * @param mapIndex  The URI Map used to look up callbacks.
-   * @param request   Reference to Node request object (IncomingMessage).
-   * @param response  Reference to Node response object (ServerResponse).
-   */
-  private processHTTPMethod(
+ * This method calls the callbacks for the mapped URL if it exists.
+ * If one does not exist a HTTP status error code is returned.
+ * @param mapIndex  The URI Map used to look up callbacks.
+ * @param request   Reference to Node request object (IncomingMessage).
+ * @param response  Reference to Node response object (ServerResponse).
+ */
+  protected processHTTPMethod(
     mapIndex: number,
     request: HttpRequest,
     response: HttpResponse,
@@ -823,7 +693,9 @@ export class Furi {
     /**
      * Setup helper functions on application context object.
      */
-    const applicationContext = new ApplicationContext(this, request, response,);
+    const applicationContext =
+      this instanceof Furi ? new ApplicationContext(this, request, response) :
+        null; //new ApplicationContext(this.app, request, response);
 
     URL = urlQuery[0];
     // Remove trailing slash '/' from URL.
@@ -910,5 +782,160 @@ export class Furi {
     }
   }
 
+  mergeRouterPath(routerHttpMaps: UriMap[]) {
+    for (let i = 0; i < routerHttpMaps.length; ++i) {
+      this.httpMaps[i].static_uri_map =
+        Object.assign(
+          this.httpMaps[i].static_uri_map,
+          routerHttpMaps[i].static_uri_map
+        );
+
+      this.httpMaps[i].static_uri_map =
+        Object.assign(
+          this.httpMaps[i].static_uri_map,
+          routerHttpMaps[i].static_uri_map
+        );
+    }
+  }
+
 }
 
+/**
+ * Router Class, matches URI for fast dispatch to handler.
+ */
+export class Furi extends FuriRouter {
+
+  // Default server configuration.
+  private readonly furiConfig: FuriConfig = {
+    env: 'development',
+    port: 3030,
+    host: 'localhost',
+    callback: null
+  };
+
+  private readonly furiRouter = new FuriRouter();
+  private readonly store: MapOfANY = {};
+
+  constructor() {
+    super();
+
+    let { env, port, host, callback } = this.furiConfig;
+
+    if (Deno?.version.deno) {
+      // LOG_DEBUG('Running under Deno');
+      env = Deno.env.get('env') || env;
+      port = Number(Deno.env.get('port')) || port;
+      host = Deno.env.get('host') || host;
+    } else {
+      // LOG_DEBUG('Running under Node.js');
+      env = process.env.env || env;
+      port = Number(process.env.port) || port;
+      host = process.env.host || host;
+    }
+
+    callback = () => { console.log(this.getServerStartupMessage()); }
+    this.furiConfig = { env, port, host, callback };
+  }
+
+  /**
+   * Class static method. Create instance of Router object.
+   * @returns Instance of class Furi.
+   */
+  static create(): Furi {
+    // LOG_DEBUG(Furi.getApiVersion());
+    return new Furi();
+  }
+
+  static router(): FuriRouter {
+    return new FuriRouter();
+  }
+
+  /**
+   * Get Router API version.
+   * @returns API version as a string.
+   */
+  static getApiVersion(): string {
+    return `FURI (v${API_VERSION})`;
+  }
+
+  /**
+   * Global Application state.
+   * Overloaded functions to read or set application state.
+   *
+   * Read application state data.
+   * Set application state data.
+   *
+   * @param key The application state key.
+   * @param value The application state value.
+   * @return Application state value or undefined if not found, when value is not provided.
+   */
+  storeState(key: string): any;
+  storeState(key: string, value: any): void;
+  storeState(key: string, value?: any): any {
+    if (value) {
+      this.store[key] = value;
+    } else {
+      return this.store[key];
+    }
+  }
+
+  /**
+   * Start server with specified configuration.
+   * @param serverConfig  Configuration object for the server.
+   * @returns Instance of http.Server.
+   */
+  listen(serverConfig: FuriConfig): Server {
+
+    let { env, port, host, callback } = serverConfig;
+
+    // Update running server config properties.
+    if (env) { this.furiConfig.env = env; }
+    if (port) { this.furiConfig.port = port; }
+    if (host) { this.furiConfig.host = host; }
+    if (callback) { this.furiConfig.callback = callback; }
+
+    if (!callback) {
+      callback = this.furiConfig.callback;
+    }
+
+    const server: Server = http.createServer(this.handler());
+    if (port && host && callback) {
+      server.listen(port, host, callback);
+    } else if (port && callback) {
+      server.listen(port, callback);
+    } else if (port && host) {
+      server.listen(port, host);
+    } else {
+      server.listen(port);
+    }
+
+    return server;
+  }
+
+  /**
+   * Starts the Furi server with default or provided configuration.
+   * @returns Instance of http.Server.
+   */
+  start(_callback?: () => void): Server {
+    return this.listen(this.furiConfig);
+  }
+
+  /**
+   * Startup message based on current server configuration.
+   * @returns Server configuration string.
+   */
+  private getServerStartupMessage() {
+    const { env, port, host } = this.furiConfig;
+    return `FURI Server { host: '${host}', port: ${port}, mode: '${env}' }`
+  }
+
+  /**
+   * Node requires a handler function for incoming HTTP request.
+   * This handler function is usually passed to createServer().
+   * @returns Reference to request handler function.
+   */
+  private handler(): Function {
+    return this.dispatch.bind(this);
+  }
+
+}
