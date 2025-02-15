@@ -8,10 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-import {
-  IncomingMessage,
-  ServerResponse,
-} from "node:http";
+import { IncomingMessage, ServerResponse, } from "node:http";
 
 import { ApplicationContext } from './application-context.ts';
 import { Furi } from './furi.ts';
