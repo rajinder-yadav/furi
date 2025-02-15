@@ -9,7 +9,12 @@
  */
 
 import { Furi } from './furi.ts';
-import { HttpRequest, HttpResponse, MapOfQueryParams } from './types.ts';
+import {
+  HttpRequest,
+  HttpResponse,
+  KeyMap,
+  QueryParamTypes,
+} from './types.ts';
 
 /**
  * An initialized Application Context object is passed to
@@ -36,7 +41,7 @@ export class ApplicationContext {
    *                false will parse a value as a string or number.
    * @returns Parsed query string as an object, or null if no valid query parameters are found.
    */
-  queryStringToObject(simple: boolean = true): MapOfQueryParams | null {
+  queryStringToObject(simple: boolean = true): KeyMap<QueryParamTypes> | null {
 
     const queryParams: URLSearchParams | null = this.request?.query;
     const resultObj: { [key: string]: string | string[] | number } = {};

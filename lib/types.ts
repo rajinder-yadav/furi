@@ -29,12 +29,11 @@ export const LOG_ERROR = (...s: string[]) => console.error('ERROR> ', ...s);
 /**
  * Map types for different indexed access.
  */
-export type MapOfString = { [key: string]: string };
-export type MapOfStringNumber = { [key: string]: string | number };
-export type MapOfANY = { [key: string]: any }
-export type MapOfRequestHandler = { [key: string]: RequestHandler };
-export type MapOfNamedRouteParam = { [key: string]: NamedRouteParam[] };
-export type MapOfQueryParams = { [key: string]: string | string[] | number }
+export interface KeyMap<T1> {
+  [key: string]: T1;
+}
+
+export type QueryParamTypes = string | string[] | number;
 
 /**
  * Function prototype for Request Handler callback function.
@@ -75,8 +74,8 @@ export interface NamedRouteParam {
  * For URI with named segments, the callbacks will be found under named_param.
  */
 export interface UriMap {
-  static_uri_map: MapOfRequestHandler;
-  named_uri_map: MapOfNamedRouteParam;
+  static_uri_map: KeyMap<RequestHandler>;
+  named_uri_map: KeyMap<NamedRouteParam[]>;
 }
 
 /**
@@ -96,9 +95,9 @@ export const HttpMapIndex = {
  * HTTP Request object extending Node.js IncomingMessage.
  */
 export class HttpRequest extends IncomingMessage {
-  public params: MapOfStringNumber = {};
+  public params: KeyMap<string|number> = {};
   public query: URLSearchParams | null = null;
-  public sessionData: MapOfANY = {};
+  public sessionData: KeyMap<any> = {};
   public app: Furi | null = null;
 }
 

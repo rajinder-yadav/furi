@@ -12,15 +12,16 @@ import { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 
 import {
-  UriMap,
   HttpMapIndex,
-  RequestCallback,
   HttpRequest,
   HttpResponse,
-  LOG_WARN,
+  KeyMap,
   LOG_ERROR,
-  MapOfRequestHandler,
-  MapOfNamedRouteParam
+  LOG_WARN,
+  NamedRouteParam,
+  RequestCallback,
+  RequestHandler,
+  UriMap,
 } from './types.ts';
 
 import { Furi } from './furi.ts';
@@ -91,7 +92,7 @@ export class FuriRouter {
       for (let i = 0; i < uriMaps.length; ++i) {
 
         // Static paths.
-        const mapOfRequestHandler: MapOfRequestHandler = {};
+        const mapOfRequestHandler: KeyMap<RequestHandler> = {};
         for (const [k, v] of Object.entries(uriMaps[i].static_uri_map)) {
           const key = path.join(uri, k).replace(/\/$/, '');
           mapOfRequestHandler[key] = v;
@@ -99,7 +100,7 @@ export class FuriRouter {
         uriMaps[i].static_uri_map = mapOfRequestHandler;
 
         // Named paths.
-        const mapOfNamedRouteParam: MapOfNamedRouteParam = {};
+        const mapOfNamedRouteParam: KeyMap<NamedRouteParam[]> = {};
         for (const [k, v] of Object.entries(uriMaps[i].named_uri_map)) {
           const key = path.join(uri, k).replace(/\/$/, '');
           mapOfNamedRouteParam[key] = v;

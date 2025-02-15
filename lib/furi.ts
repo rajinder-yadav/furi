@@ -14,9 +14,9 @@ import { Server } from 'node:http';
 
 import { FuriRouter } from './furi-router.ts';
 import {
+  API_VERSION,
   FuriConfig,
-  MapOfANY,
-  API_VERSION
+  KeyMap,
 } from './types.ts';
 
 // Re-export types and classes for applications
@@ -39,7 +39,7 @@ export class Furi extends FuriRouter {
     callback: null
   };
 
-  private readonly store: MapOfANY = {};
+  private readonly store: KeyMap<any> = {};
 
   constructor() {
     super(Furi.app);
