@@ -19,7 +19,9 @@ import {
 } from './types.ts';
 
 import { Furi } from './furi.ts';
-import { ApplicationContext } from "./application-context.ts";
+import { ApplicationContext } from './application-context.ts';
+
+const APP_MIDDLEWARE: string = '/';
 
 /**
  * The FuriRouter class is responsible for two things:
@@ -70,7 +72,7 @@ export class FuriRouter {
       throw new Error('No Middleware callback function provided');
     }
 
-    let uri = '@AppMiddleware@';
+    let uri = APP_MIDDLEWARE;
     let fn: RequestCallback[];
 
     if (typeof arguments[0] === 'string') {
@@ -178,6 +180,23 @@ export class FuriRouter {
     return this;
   }
 
+  /**
+   * Node requires a handler function for incoming HTTP request.
+   * This handler function is usually passed to createServer().
+   *
+   * @returns Reference to request handler function.
+   */
+  protected handler(): Function {
+    return this.dispatch.bind(this);
+  }
+
+  /**
+   * Dispatches incoming HTTP requests to the appropriate handler function.
+   *
+   * @param request HTTP request.
+   * @param response HTTP response.
+   * @returns void
+   */
   public dispatch(
     request: HttpRequest,
     response: HttpResponse
@@ -185,35 +204,35 @@ export class FuriRouter {
     // LOG_DEBUG( request.method, request.url );
 
     switch (request.method) {
-      case "GET":
-      case "get":
+      case 'GET':
+      case 'get':
         this.processHTTPMethod(HttpMapIndex.GET, request, response);
         break;
 
-      case "POST":
-      case "post":
+      case 'POST':
+      case 'post':
         this.processHTTPMethod(HttpMapIndex.POST, request, response);
         break;
 
-      case "PUT":
-      case "put":
+      case 'PUT':
+      case 'put':
         this.processHTTPMethod(HttpMapIndex.PUT, request, response);
         break;
 
-      case "PATCH":
-      case "patch":
+      case 'PATCH':
+      case 'patch':
         this.processHTTPMethod(HttpMapIndex.PATCH, request, response);
         break;
 
-      case "DELETE":
-      case "delete":
+      case 'DELETE':
+      case 'delete':
         this.processHTTPMethod(HttpMapIndex.DELETE, request, response);
         break;
 
       default:
-        response.writeHead(501, "HTTP Dispatch method not implemented", {
-          "Content-Type": "text/plain",
-          "User-Agent": Furi.getApiVersion()
+        response.writeHead(501, 'HTTP Dispatch method not implemented', {
+          'Content-Type': 'text/plain',
+          'User-Agent': Furi.getApiVersion()
         });
         console.error(`HTTP method ${request.method} is not supported.`);
         response.end();
@@ -227,7 +246,7 @@ export class FuriRouter {
    * URI    => /aa/:one/bb/cc/:two/e
    * KEY    => /aa/(\w+)/bb/cc/(\w+)/e
    * params => ['one', 'two']
-   * return => { params: ['one', 'two'], key: "/aa/(\w+)/bb/cc/(\w+)/e" }
+   * return => { params: ['one', 'two'], key: '/aa/(\w+)/bb/cc/(\w+)/e' }
    *
    * @param  uri URI with segment names.
    * @return Object with regex key and array with param names.
@@ -239,10 +258,10 @@ export class FuriRouter {
     }
 
     const params: string[] = [];
-    let key: string = "";
+    let key: string = '';
 
     for (const token of tokens) {
-      if (token.startsWith(":")) {
+      if (token.startsWith(':')) {
         params.push(token.substring(1));
         key = `${key}/([\\w-.~]+)`;
       } else {
@@ -276,9 +295,9 @@ export class FuriRouter {
     const match = pat.exec(uri);
 
     if (match) {
-      // LOG_DEBUG( "URI with segment(s) matched: " + JSON.stringify( pk ) );
+      // LOG_DEBUG( 'URI with segment(s) matched: ' + JSON.stringify( pk ) );
       for (const [i, segment] of pk.params.entries()) {
-        // LOG_DEBUG( "segment: " + segment );
+        // LOG_DEBUG( 'segment: ' + segment );
         request.params[segment] = match[i + 1];
       }
       // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
@@ -331,8 +350,8 @@ export class FuriRouter {
       httpMap.named_uri_map = {};
     }
 
-    const tokens: string[] = uri.split("/");
-    // Partition by "/" count, optimize lookup.
+    const tokens: string[] = uri.split('/');
+    // Partition by '/' count, optimize lookup.
     const bucket = tokens.length - 1;
     const pathNames = useRegex ? [] : tokens;
     const { key, params } = this.createNamedRouteSearchKey(tokens);
@@ -343,7 +362,7 @@ export class FuriRouter {
     } else {
       httpMap.named_uri_map[bucket].push({ key, params, callbacks, pathNames, useRegex });
     }
-    // LOG_DEBUG("rv: "+JSON.stringify(method.named_param[bucket]));
+    // LOG_DEBUG('rv: '+JSON.stringify(method.named_param[bucket]));
   }
 
   /**
@@ -352,7 +371,7 @@ export class FuriRouter {
    */
   protected executeMiddlewareCallback(ctx: ApplicationContext): void {
     const middlewareMap = this.httpMaps[HttpMapIndex.MIDDLEWARE];
-    const middleware_chain = middlewareMap.static_uri_map['/']?.callbacks;
+    const middleware_chain = middlewareMap.static_uri_map[APP_MIDDLEWARE]?.callbacks;
     if (!middleware_chain || middleware_chain?.length === 0) { return; }
     for (const callback of middleware_chain) {
       callback(ctx);
@@ -431,7 +450,7 @@ export class FuriRouter {
 
     URL = urlQuery[0];
     // Remove trailing slash '/' from URL.
-    if (URL.length > 1 && URL[URL.length - 1] === "/") { URL = URL.substring(0, URL.length - 1); }
+    if (URL.length > 1 && URL[URL.length - 1] === '/') { URL = URL.substring(0, URL.length - 1); }
 
     try {
       if (httpMap.static_uri_map[URL]) {
@@ -451,7 +470,7 @@ export class FuriRouter {
       } else if (httpMap.named_uri_map) {
         // Search for named parameter URI or RegEx path match.
 
-        const pathNames = URL.split("/");
+        const pathNames = URL.split('/');
         // Partition index.
         const bucket = pathNames.length - 1;
         // LOG_DEBUG(('pathNames>', pathNames);
@@ -485,32 +504,32 @@ export class FuriRouter {
           // throw new Error(`Route not found for ${URL}`);
           LOG_WARN(`Route not found for ${URL}`);
           response.writeHead(404, {
-            "Content-Type": "text/plain",
-            "User-Agent": Furi.getApiVersion(),
+            'Content-Type': 'text/plain',
+            'User-Agent': Furi.getApiVersion(),
           });
-          response.end("Route not found");
+          response.end('Route not found');
           return;
         }
       }
     } catch (_ex) {
-      LOG_ERROR("URI Not Found.");
+      LOG_ERROR('URI Not Found.');
       response.writeHead(404, {
-        "Content-Type": "text/plain",
-        "User-Agent": Furi.getApiVersion(),
+        'Content-Type': 'text/plain',
+        'User-Agent': Furi.getApiVersion(),
       });
-      response.end("Route not found");
+      response.end('Route not found');
       return;
     }
     if (throwOnNotFound) {
       // throw new Error(`Route not found for ${URL}`);
       LOG_WARN(`Route not found for ${URL}`);
       // response.statusCode = 404;
-      // response.statusMessage = "Route not found";
+      // response.statusMessage = 'Route not found';
       response.writeHead(404, {
-        "Content-Type": "text/plain",
-        "User-Agent": Furi.getApiVersion(),
+        'Content-Type': 'text/plain',
+        'User-Agent': Furi.getApiVersion(),
       });
-      response.end("Route not found");
+      response.end('Route not found');
     }
   }
 
