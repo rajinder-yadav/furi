@@ -12,7 +12,7 @@ import {
   HttpResponse,
   KeyMap,
   QueryParamTypes,
-} from '../lib/furi.ts';
+} from '../../lib/furi.ts';
 
 Deno.test("ApplicationContext: check for valid app object", async () => {
   const furi = new Furi();
