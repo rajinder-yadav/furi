@@ -15,7 +15,7 @@ import {
   HttpMapIndex,
   HttpRequest,
   HttpResponse,
-  KeyMap,
+  MapOf,
   LOG_ERROR,
   LOG_WARN,
   NamedRouteParam,
@@ -96,7 +96,7 @@ export class FuriRouter {
 
         // Static paths.
         let changed = false;
-        const mapOfRequestHandler: KeyMap<RequestHandler> = {};
+        const mapOfRequestHandler: MapOf<RequestHandler> = {};
         for (const [k, v] of Object.entries(uriMaps[i].static_uri_map)) {
           const key = path.join(uri, k).replace(/\/$/, '');
           mapOfRequestHandler[key] = v;
@@ -108,7 +108,7 @@ export class FuriRouter {
 
         // Named paths.
         changed = false;
-        const mapOfNamedRouteParam: KeyMap<NamedRouteParam[]> = {};
+        const mapOfNamedRouteParam: MapOf<NamedRouteParam[]> = {};
         for (const [k, v] of Object.entries(uriMaps[i].named_uri_map)) {
           const key = path.join(uri, k).replace(/\/$/, '');
           mapOfNamedRouteParam[key] = v;
