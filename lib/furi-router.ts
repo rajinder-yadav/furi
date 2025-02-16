@@ -83,8 +83,11 @@ export class FuriRouter {
     let fn: RequestCallback[];
 
     if (arguments[0] instanceof FuriRouter) {
+      // Mounting router as top level middleware.
       this.mergeRouterPath(arguments[0].httpMaps);
+      return this;
     } else if (arguments[1] instanceof FuriRouter) {
+      // Mounting router on a path.
       uri = arguments[0] as string;
       const uriMaps: UriMap[] = arguments[1].httpMaps;
 
@@ -92,22 +95,31 @@ export class FuriRouter {
       for (let i = 0; i < uriMaps.length; ++i) {
 
         // Static paths.
+        let changed = false;
         const mapOfRequestHandler: KeyMap<RequestHandler> = {};
         for (const [k, v] of Object.entries(uriMaps[i].static_uri_map)) {
           const key = path.join(uri, k).replace(/\/$/, '');
           mapOfRequestHandler[key] = v;
+          changed = true;
         }
-        uriMaps[i].static_uri_map = mapOfRequestHandler;
+        if (changed) {
+          uriMaps[i].static_uri_map = mapOfRequestHandler;
+        }
 
         // Named paths.
+        changed = false;
         const mapOfNamedRouteParam: KeyMap<NamedRouteParam[]> = {};
         for (const [k, v] of Object.entries(uriMaps[i].named_uri_map)) {
           const key = path.join(uri, k).replace(/\/$/, '');
           mapOfNamedRouteParam[key] = v;
+          changed = true;
         }
-        uriMaps[i].named_uri_map = mapOfNamedRouteParam;
+        if (changed) {
+          uriMaps[i].named_uri_map = mapOfNamedRouteParam;
+        }
       }
       this.mergeRouterPath(uriMaps);
+      return this;
     } else if (typeof arguments[0] === 'string') {
       // Route based middleware.
       uri = arguments[0];
@@ -115,10 +127,11 @@ export class FuriRouter {
       if (fn.length === 0) {
         throw new Error('No middleware callback function provided');
       }
-      return this.all(uri, ...fn);
+      this.all(uri, ...fn);
+      return this;
     }
 
-    // Application based middleware.
+    // Top level based middleware.
     this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, Array.from(arguments));
     return this;
   }
@@ -135,10 +148,18 @@ export class FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
-    const count = Object.keys(HttpMapIndex).length;
-    for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
-      this.buildRequestMap(mapIndex, uri, fn);
-    }
+
+    this.get(uri, ...fn);
+    this.post(uri, ...fn);
+    this.put(uri, ...fn);
+    this.patch(uri, ...fn);
+    this.delete(uri, ...fn);
+
+    // TODO: Learn why this is doing something strange.
+    // const count = Object.keys(HttpMapIndex).length;
+    // for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
+    //   this.buildRequestMap(mapIndex, uri, fn);
+    // }
     return this;
   }
 
@@ -223,7 +244,7 @@ export class FuriRouter {
    *
    * @returns Reference to request handler function.
    */
-  protected handler(): (incomingMessage: IncomingMessage,response: ServerResponse<IncomingMessage>) => void {
+  protected handler(): (incomingMessage: IncomingMessage, response: ServerResponse<IncomingMessage>) => void {
     return this.dispatch.bind(this);
   }
 

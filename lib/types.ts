@@ -95,7 +95,7 @@ export const HttpMapIndex = {
  * HTTP Request object extending Node.js IncomingMessage.
  */
 export class HttpRequest extends IncomingMessage {
-  public params: KeyMap<string|number> = {};
+  public params: KeyMap<string | number> = {};
   public query: URLSearchParams | null = null;
   public sessionData: KeyMap<any> = {};
   public app: Furi | null = null;
