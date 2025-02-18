@@ -45,25 +45,25 @@ export type QueryParamTypes = string | string[] | number;
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type RequestCallback = (ctx: ApplicationContext) => boolean | void;
+export type RequestHandler = (ctx: ApplicationContext) => boolean | void;
 
 /**
  * Named segments and the handler callback functions for associated URI.
  */
-export interface RequestHandler {
-  callbacks: RequestCallback[]; // Handler callback functions for associated URI.
+export interface StaticRouteCallback {
+  callbacks: RequestHandler[]; // Handler callback functions for associated URI.
 }
 
 /**
  * Place holder: Route attributes, uri, list of named params, handler callbacks.
  * key is a regex string of path with named segments.
  */
-export interface NamedRouteParam {
+export interface NamedRouteCallback {
   useRegex: boolean;            // Use regex for path matching.
   pathNames: string[];          // Path segment names.
   key: string;                  // RegEx URI string.
   params: string[];             // URI named segments.
-  callbacks: RequestCallback[]; // Handler callback functions for associated URI.
+  callbacks: RequestHandler[]; // Handler callback functions for associated URI.
 }
 
 /**
@@ -73,9 +73,9 @@ export interface NamedRouteParam {
  * For URI direct matches, the callbacks will be found in uri_map.
  * For URI with named segments, the callbacks will be found under named_param.
  */
-export interface UriMap {
-  static_uri_map: MapOf<RequestHandler>;
-  named_uri_map: MapOf<NamedRouteParam[]>;
+export interface RouteMap {
+  staticRouteMap: MapOf<StaticRouteCallback>;
+  namedRoutePartitionMap: MapOf<NamedRouteCallback[]>;
 }
 
 /**

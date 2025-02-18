@@ -10,7 +10,7 @@ import {
   Furi,
   HttpRequest,
   HttpResponse,
-  KeyMap,
+  MapOf,
   QueryParamTypes,
 } from '../../lib/furi.ts';
 
@@ -30,7 +30,7 @@ Deno.test("ApplicationContext::queryStringToObject simple", async () => {
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
   const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
 
-  const result: KeyMap<QueryParamTypes> | null = appContext.queryStringToObject();
+  const result: MapOf<QueryParamTypes> | null = appContext.queryStringToObject();
 
   // All values should be strings.
   assertNotEquals(result, null);
@@ -46,7 +46,7 @@ Deno.test("ApplicationContext::queryStringToObject not simple", async () => {
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
   const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
 
-  const result: KeyMap<QueryParamTypes> | null = appContext.queryStringToObject(false);
+  const result: MapOf<QueryParamTypes> | null = appContext.queryStringToObject(false);
 
   // Values can should be string or number.
   assertNotEquals(result, null);
