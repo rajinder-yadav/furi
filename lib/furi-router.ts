@@ -605,17 +605,35 @@ export class FuriRouter {
    */
   protected mergeRouterMaps(routeMap: RouteMap[]): void {
     for (let i = 0; i < routeMap.length; ++i) {
-      this.httpMethodMap[i].staticRouteMap =
+      if (Object.keys(this.httpMethodMap[i].staticRouteMap).length === 0) {
         Object.assign(
           this.httpMethodMap[i].staticRouteMap,
           routeMap[i].staticRouteMap
         );
+      } else {
+        for (const [k, v] of Object.entries(routeMap[i].staticRouteMap)) {
+          this.httpMethodMap[i].staticRouteMap[k].callbacks =
+            this.httpMethodMap[i].staticRouteMap[k].callbacks.concat(
+              routeMap[i].staticRouteMap[k].callbacks
+            );
+        }
+      }
 
-      this.httpMethodMap[i].staticRouteMap =
-        Object.assign(
-          this.httpMethodMap[i].staticRouteMap,
-          routeMap[i].staticRouteMap
-        );
+      // for (const [k, v] of Object.entries(routeMap[i].namedRoutePartitionMap)) {
+      //   if (this.httpMethodMap[i].namedRoutePartitionMap[k]) {
+      //     this.httpMethodMap[i].namedRoutePartitionMap[k] =
+      //       this.httpMethodMap[i].namedRoutePartitionMap[k].concat(
+      //         routeMap[i].namedRoutePartitionMap[k]
+      //       );
+      //   } else {
+      //     Object.assign(
+      //       this.httpMethodMap[i].namedRoutePartitionMap[k],
+      //       routeMap[i].namedRoutePartitionMap[k]
+      //     );
+      //   }
+      // }
+
+
     }
   }
 
