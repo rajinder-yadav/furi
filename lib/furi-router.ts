@@ -19,7 +19,7 @@ import {
   LOG_ERROR,
   LOG_WARN,
   NamedRouteCallback,
-  RequestHandler,
+  HandlerFunction,
   StaticRouteCallback,
   RouteMap,
 } from './types.ts';
@@ -71,8 +71,8 @@ export class FuriRouter {
     */
   use(router: FuriRouter): FuriRouter;
   use(uri: string, router: FuriRouter): FuriRouter;
-  use(...fn: RequestHandler[]): FuriRouter;
-  use(uri: string, ...fn: RequestHandler[]): FuriRouter;
+  use(...fn: HandlerFunction[]): FuriRouter;
+  use(uri: string, ...fn: HandlerFunction[]): FuriRouter;
   use(): FuriRouter {
 
     if (arguments.length === 0) {
@@ -80,7 +80,7 @@ export class FuriRouter {
     }
 
     let uri = TopLevelMiddleware;
-    let fn: RequestHandler[];
+    let fn: HandlerFunction[];
 
     if (arguments[0] instanceof FuriRouter) {
       // Mounting router as top level middleware.
@@ -98,7 +98,7 @@ export class FuriRouter {
         let changed = false;
         const mapOfStaticRouteCallback: MapOf<StaticRouteCallback> = {};
         for (const [k, v] of Object.entries(routeMap[i].staticRouteMap)) {
-          const key = path.join(uri, k).replace(/\/$/, '');
+          const key = i === 0 ? k : path.join(uri, k).replace(/\/$/, '');
           mapOfStaticRouteCallback[key] = v;
           changed = true;
         }
@@ -110,7 +110,7 @@ export class FuriRouter {
         changed = false;
         const mapOfNamedRouteCallback: MapOf<NamedRouteCallback[]> = {};
         for (const [k, v] of Object.entries(routeMap[i].namedRoutePartitionMap)) {
-          const key = path.join(uri, k).replace(/\/$/, '');
+          const key = i === 0 ? k : path.join(uri, k).replace(/\/$/, '');
           mapOfNamedRouteCallback[key] = v;
           changed = true;
         }
@@ -143,7 +143,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  all(uri: string, ...fn: RequestHandler[]): FuriRouter {
+  all(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     // Skip Middleware Map.
     if (fn.length === 0) {
       throw new Error('No callback function provided');
@@ -170,7 +170,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  get(uri: string, ...fn: RequestHandler[]): FuriRouter {
+  get(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -185,7 +185,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  patch(uri: string, ...fn: RequestHandler[]): FuriRouter {
+  patch(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -200,7 +200,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  post(uri: string, ...fn: RequestHandler[]): FuriRouter {
+  post(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -215,7 +215,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  put(uri: string, ...fn: RequestHandler[]): FuriRouter {
+  put(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -230,7 +230,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  delete(uri: string, ...fn: RequestHandler[]): FuriRouter {
+  delete(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
@@ -377,7 +377,7 @@ export class FuriRouter {
   protected buildRequestMap(
     mapIndex: number,
     uri: string,
-    callbacks: RequestHandler[]
+    callbacks: HandlerFunction[]
   ): void {
     // LOG_DEBUG(uri);
 
