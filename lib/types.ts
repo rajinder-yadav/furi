@@ -45,25 +45,31 @@ export type QueryParamTypes = string | string[] | number;
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type RequestHandler = (ctx: ApplicationContext) => boolean | void;
+export type HandlerFunction = (ctx: ApplicationContext) => boolean | void;
 
 /**
- * Named segments and the handler callback functions for associated URI.
+ * Static route handler callback functions.
  */
 export interface StaticRouteCallback {
-  callbacks: RequestHandler[]; // Handler callback functions for associated URI.
+  callbacks: HandlerFunction[]; // Handler callback functions for associated URI.
 }
 
 /**
- * Place holder: Route attributes, uri, list of named params, handler callbacks.
- * key is a regex string of path with named segments.
+ * Named route handler callback functions.
+ * The 'key' is a regex string, with grouping for named segments.
+ * the 'pathNames' is used by  the fast match algorithm, when useRegex is false,
+ * otherwise the 'key' is use to determine if a route matches.
+ *
+ * @see createNamedRouteSearchKey for details on how 'key' is created.
+ * @see attachPathParamsToRequestIfExists for details on how 'params' is created.
+ * @see fastPathMatch for how the path is matched against 'pathNames'.
  */
 export interface NamedRouteCallback {
   useRegex: boolean;            // Use regex for path matching.
   pathNames: string[];          // Path segment names.
   key: string;                  // RegEx URI string.
   params: string[];             // URI named segments.
-  callbacks: RequestHandler[]; // Handler callback functions for associated URI.
+  callbacks: HandlerFunction[]; // Handler callback functions for associated URI.
 }
 
 /**
