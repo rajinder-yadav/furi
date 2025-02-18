@@ -103,7 +103,10 @@ export class FuriRouter {
           changed = true;
         }
         if (changed) {
-          routeMap[i].staticRouteMap = mapOfStaticRouteCallback;
+          Object.assign(
+            this.httpMethodMap[i].staticRouteMap,
+            mapOfStaticRouteCallback
+          );
         }
 
         // Named paths.
@@ -115,10 +118,12 @@ export class FuriRouter {
           changed = true;
         }
         if (changed) {
-          routeMap[i].namedRoutePartitionMap = mapOfNamedRouteCallback;
+          Object.assign(
+            this.httpMethodMap[i].namedRoutePartitionMap,
+            mapOfNamedRouteCallback
+          );
         }
       }
-      this.mergeRouterMaps(routeMap);
       return this;
     } else if (typeof arguments[0] === 'string') {
       // Route based middleware.
