@@ -87,34 +87,44 @@ export class FuriRouter {
       this.mergeRouterMaps(arguments[0].httpMethodMap);
       return this;
     } else if (arguments[1] instanceof FuriRouter) {
-      // Mounting router on a path.
+      // Mounting router to a path.
       uri = arguments[0] as string;
       const routeMap: RouteMap[] = arguments[1].httpMethodMap;
 
-      // Map all keys from router maps with a prefix.
+      // Map all keys from supplied router with a prefix and save to this router map.
       for (let mapIndex = 0; mapIndex < routeMap.length; ++mapIndex) {
 
-        // Static paths.
+        // Map static paths.
         let changed = false;
         const mapOfStaticRouteCallback: MapOf<StaticRouteCallback> = {};
-        for (const [k, v] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
-          const key = mapIndex === 0 ? k : path.join(uri, k).replace(/\/$/, '');
-          mapOfStaticRouteCallback[key] = v;
+        for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
+          const prefixKey = mapIndex === 0 ? key : path.join(uri, key).replace(/\/$/, '');
+          mapOfStaticRouteCallback[prefixKey] = staticRouteMap;
           changed = true;
         }
         if (changed) {
-          Object.assign(
-            this.httpMethodMap[mapIndex].staticRouteMap,
-            mapOfStaticRouteCallback
-          );
+          if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
+            Object.assign(
+              this.httpMethodMap[mapIndex].staticRouteMap,
+              mapOfStaticRouteCallback
+            );
+          } else {
+            for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
+              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(
+                  staticRouteMap.callbacks
+                );
+            }
+
+          }
         }
 
-        // Named paths.
+        // Map named paths.
         changed = false;
         const mapOfNamedRouteCallback: MapOf<NamedRouteCallback[]> = {};
         for (const [k, v] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
           const buckets = routeMap[mapIndex].namedRoutePartitionMap[k].length;
-          for (let bucketIndex=0; bucketIndex < buckets; ++bucketIndex) {
+          for (let bucketIndex = 0; bucketIndex < buckets; ++bucketIndex) {
             const keySrc = routeMap[mapIndex].namedRoutePartitionMap[k][bucketIndex].pathNames.join('/');
             const keyDest = path.join(uri, keySrc).replace(/\/$/, '');
 
@@ -122,11 +132,10 @@ export class FuriRouter {
 
             const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
             const useRegex = !regexCheckNamedPath.test(keyDest);
-            const tokens: string[] = keyDest.split('/');
+            const pathNames: string[] = keyDest.replace(/(^\/)|(\/$)/g, '').split('/');
             // Partition by '/' count, optimize lookup.
-            const bucket = tokens.length - 1;
-            const pathNames = tokens.slice(1);
-            const { key, params } = this.createNamedRouteSearchKey(tokens);
+            const bucket = pathNames.length;
+            const { key, params } = this.createNamedRouteSearchKey(pathNames);
 
             changed = true;
             if (!mapOfNamedRouteCallback[bucket]) {
@@ -138,10 +147,22 @@ export class FuriRouter {
           }
 
           if (changed) {
-            Object.assign(
-              this.httpMethodMap[mapIndex].namedRoutePartitionMap,
-              mapOfNamedRouteCallback
-            );
+            if (Object.keys(this.httpMethodMap[mapIndex].namedRoutePartitionMap).length === 0) {
+              Object.assign(
+                this.httpMethodMap[mapIndex].namedRoutePartitionMap,
+                mapOfNamedRouteCallback
+              );
+            } else {
+              for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+                if (this.httpMethodMap[mapIndex].namedRoutePartitionMap[key]) {
+                  this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] =
+                    this.httpMethodMap[mapIndex].namedRoutePartitionMap[key].concat(
+                      // namedRoutePartitionMap[mapIndex]
+                      routeMap[mapIndex].namedRoutePartitionMap[key]
+                    );
+                }
+              }
+            }
           }
         }
       }
@@ -435,11 +456,10 @@ export class FuriRouter {
     const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
     const useRegex = !regexCheckNamedPath.test(uri);
 
-    const tokens: string[] = uri.split('/');
+    const pathNames: string[] = uri.replace(/(^\/)|(\/$)/g, '').split('/');
     // Partition by '/' count, optimize lookup.
-    const bucket = tokens.length - 1;
-    const pathNames = tokens.slice(1);
-    const { key, params } = this.createNamedRouteSearchKey(tokens);
+    const bucket = pathNames.length;
+    const { key, params } = this.createNamedRouteSearchKey(pathNames);
     // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', pathNames);
 
     if (!routeMap.namedRoutePartitionMap[bucket]) {
@@ -483,7 +503,7 @@ export class FuriRouter {
     let didMatch: boolean = true;
     if (keyNames.length === pathNames.length) {
       // LOG_DEBUG(('Equal token count');
-      for (let i = pathNames.length-1; i >= 0; i--) {
+      for (let i = pathNames.length - 1; i >= 0; i--) {
         if (pathNames[i] !== keyNames[i] && keyNames[i][0] !== ':') {
           didMatch = false;
           break;
@@ -556,7 +576,7 @@ export class FuriRouter {
       } else if (routeMap.namedRoutePartitionMap) {
         // Search for named parameter URI or RegEx path match.
 
-        const pathNames = URL.split('/').slice(1);
+        const pathNames = URL.replace(/(^\/)|(\/$)/g, '').split('/');
         // Partition index.
         const bucket = pathNames.length;
         // LOG_DEBUG(('pathNames>', pathNames);
@@ -620,40 +640,45 @@ export class FuriRouter {
   }
 
   /**
-   * Merge given router maps into existing router map.
-   * This will occur when the caller adds a router middleware.
+   * Merge given router maps into existing top-level router map.
+   * This will occur when the caller adds a route-less router middleware.
    *
    * @param routeMap UriMap[] to merge into the current httpMaps.
    * @return void
    */
   protected mergeRouterMaps(routeMap: RouteMap[]): void {
-    for (let i = 0; i < routeMap.length; ++i) {
-      if (Object.keys(this.httpMethodMap[i].staticRouteMap).length === 0) {
+    for (let mapIndex = 0; mapIndex < routeMap.length; ++mapIndex) {
+      // Static route map.
+      if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
+        // Static route map is empty, so we can just merge a new map.
         Object.assign(
-          this.httpMethodMap[i].staticRouteMap,
-          routeMap[i].staticRouteMap
+          this.httpMethodMap[mapIndex].staticRouteMap,
+          routeMap[mapIndex].staticRouteMap
         );
       } else {
-        for (const [k, v] of Object.entries(routeMap[i].staticRouteMap)) {
-          this.httpMethodMap[i].staticRouteMap[k].callbacks =
-            this.httpMethodMap[i].staticRouteMap[k].callbacks.concat(
-              routeMap[i].staticRouteMap[k].callbacks
+        for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
+          this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(
+              staticRouteMap.callbacks
             );
         }
       }
 
-      if (Object.keys(this.httpMethodMap[i].namedRoutePartitionMap).length === 0) {
+      // Named route map.
+      if (Object.keys(this.httpMethodMap[mapIndex].namedRoutePartitionMap).length === 0) {
+        // Named route map is empty, so we can just merge a new map.
         Object.assign(
-          this.httpMethodMap[i].namedRoutePartitionMap,
-          routeMap[i].namedRoutePartitionMap
+          this.httpMethodMap[mapIndex].namedRoutePartitionMap,
+          routeMap[mapIndex].namedRoutePartitionMap
         );
       }
       else {
-        for (const [k, v] of Object.entries(routeMap[i].namedRoutePartitionMap)) {
-          if (this.httpMethodMap[i].namedRoutePartitionMap[k]) {
-            this.httpMethodMap[i].namedRoutePartitionMap[k] =
-              this.httpMethodMap[i].namedRoutePartitionMap[k].concat(
-                routeMap[i].namedRoutePartitionMap[k]
+        for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+          if (this.httpMethodMap[mapIndex].namedRoutePartitionMap[key]) {
+            this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] =
+              this.httpMethodMap[mapIndex].namedRoutePartitionMap[key].concat(
+                // namedRoutePartitionMap[mapIndex]
+                routeMap[mapIndex].namedRoutePartitionMap[key]
               );
           }
         }
