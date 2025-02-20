@@ -111,8 +111,8 @@ export class FuriRouter {
             );
           } else {
             // Router map for the given key exists, merge with existing router map.
-            for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
-              if (mapOfStaticRouteCallback[key]?.callbacks.length > 0) {
+            for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
+              if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
                 this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
                   this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(
                     staticRouteMap.callbacks
@@ -163,13 +163,14 @@ export class FuriRouter {
                 mapOfNamedRouteCallback
               );
             } else {
-              for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+              for (const [key, namedRoutePartitionMap] of Object.entries(mapOfNamedRouteCallback)) {
                 if (this.httpMethodMap[mapIndex].namedRoutePartitionMap[key]) {
                   this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] =
                     this.httpMethodMap[mapIndex].namedRoutePartitionMap[key].concat(
-                      // namedRoutePartitionMap[mapIndex]
-                      routeMap[mapIndex].namedRoutePartitionMap[key]
+                      mapOfNamedRouteCallback[key]
                     );
+                } else {
+                  this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] = namedRoutePartitionMap;
                 }
               }
             }
