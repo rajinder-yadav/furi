@@ -103,12 +103,14 @@ export class FuriRouter {
           changed = true;
         }
         if (changed) {
+          // Router map is empty, create a new entry.
           if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
             Object.assign(
               this.httpMethodMap[mapIndex].staticRouteMap,
               mapOfStaticRouteCallback
             );
           } else {
+            // Router map for the given key exists, merge with existing router map.
             for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
               if (mapOfStaticRouteCallback[key]?.callbacks.length > 0) {
                 this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
@@ -117,6 +119,7 @@ export class FuriRouter {
                   );
               }
               else {
+                // Router map for the given key is empty, create a new entry.
                 Object.assign(
                   this.httpMethodMap[mapIndex].staticRouteMap,
                   mapOfStaticRouteCallback
@@ -124,49 +127,49 @@ export class FuriRouter {
               }
             }
           }
+        }
 
-          // Map named paths.
-          changed = false;
-          const mapOfNamedRouteCallback: MapOf<NamedRouteCallback[]> = {};
-          for (const [k, v] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
-            const buckets = routeMap[mapIndex].namedRoutePartitionMap[k].length;
-            for (let bucketIndex = 0; bucketIndex < buckets; ++bucketIndex) {
-              const keySrc = routeMap[mapIndex].namedRoutePartitionMap[k][bucketIndex].pathNames.join('/');
-              const keyDest = path.join(uri, keySrc).replace(/\/$/, '');
+        // Map named paths.
+        changed = false;
+        const mapOfNamedRouteCallback: MapOf<NamedRouteCallback[]> = {};
+        for (const [k, v] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+          const buckets = routeMap[mapIndex].namedRoutePartitionMap[k].length;
+          for (let bucketIndex = 0; bucketIndex < buckets; ++bucketIndex) {
+            const keySrc = routeMap[mapIndex].namedRoutePartitionMap[k][bucketIndex].pathNames.join('/');
+            const keyDest = path.join(uri, keySrc).replace(/\/$/, '');
 
-              const callbacks = v[bucketIndex].callbacks;
+            const callbacks = v[bucketIndex].callbacks;
 
-              const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
-              const useRegex = !regexCheckNamedPath.test(keyDest);
-              const pathNames: string[] = keyDest.replace(/(^\/)|(\/$)/g, '').split('/');
-              // Partition by '/' count, optimize lookup.
-              const bucket = pathNames.length;
-              const { key, params } = this.createNamedRouteSearchKey(pathNames);
+            const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
+            const useRegex = !regexCheckNamedPath.test(keyDest);
+            const pathNames: string[] = keyDest.replace(/(^\/)|(\/$)/g, '').split('/');
+            // Partition by '/' count, optimize lookup.
+            const bucket = pathNames.length;
+            const { key, params } = this.createNamedRouteSearchKey(pathNames);
 
-              changed = true;
-              if (!mapOfNamedRouteCallback[bucket]) {
-                mapOfNamedRouteCallback[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
-                // this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
-              } else {
-                mapOfNamedRouteCallback[bucket].push({ key, params, callbacks, pathNames, useRegex });
-              }
+            changed = true;
+            if (!mapOfNamedRouteCallback[bucket]) {
+              mapOfNamedRouteCallback[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
+              // this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
+            } else {
+              mapOfNamedRouteCallback[bucket].push({ key, params, callbacks, pathNames, useRegex });
             }
+          }
 
-            if (changed) {
-              if (Object.keys(this.httpMethodMap[mapIndex].namedRoutePartitionMap).length === 0) {
-                Object.assign(
-                  this.httpMethodMap[mapIndex].namedRoutePartitionMap,
-                  mapOfNamedRouteCallback
-                );
-              } else {
-                for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
-                  if (this.httpMethodMap[mapIndex].namedRoutePartitionMap[key]) {
-                    this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] =
-                      this.httpMethodMap[mapIndex].namedRoutePartitionMap[key].concat(
-                        // namedRoutePartitionMap[mapIndex]
-                        routeMap[mapIndex].namedRoutePartitionMap[key]
-                      );
-                  }
+          if (changed) {
+            if (Object.keys(this.httpMethodMap[mapIndex].namedRoutePartitionMap).length === 0) {
+              Object.assign(
+                this.httpMethodMap[mapIndex].namedRoutePartitionMap,
+                mapOfNamedRouteCallback
+              );
+            } else {
+              for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+                if (this.httpMethodMap[mapIndex].namedRoutePartitionMap[key]) {
+                  this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] =
+                    this.httpMethodMap[mapIndex].namedRoutePartitionMap[key].concat(
+                      // namedRoutePartitionMap[mapIndex]
+                      routeMap[mapIndex].namedRoutePartitionMap[key]
+                    );
                 }
               }
             }
