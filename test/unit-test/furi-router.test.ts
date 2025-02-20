@@ -413,7 +413,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
 });
 
 //======================================================================
-// 2 Routes, route1 routless mounted on router 2
+// 2 Routes, route1 mounted routeless on router 2
 //======================================================================
 
 
@@ -941,6 +941,544 @@ Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
       assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 4);
     } else {
       assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+    }
+  }
+});
+
+//======================================================================
+// 1 Router mounted on another route on a path.
+//======================================================================
+
+Deno.test('FuriRouter: add routeless middleware', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use('/route2', router1);
+
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 1);
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 1);
+
+  // Make sure routes are empty.
+  const mapCount = router1.getRouteMap().length;
+  for (let i = 1; i < mapCount; ++i) {
+
+    const map1: RouteMap = router1.getRouteMap()[i];
+    assertFalse(map1.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map1.staticRouteMap).length, 0);
+
+    const map2: RouteMap = router2.getRouteMap()[i];
+    assertFalse(map2.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map2.staticRouteMap).length, 0);
+  }
+});
+
+Deno.test('FuriRouter: add two routless middleware', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  // Make sure routes are empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+
+  router2.use('/route2',router1);
+
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 2);
+
+  // Make sure routes are empty.
+  const mapCount = router1.getRouteMap().length;
+  for (let i = 1; i < mapCount; ++i) {
+
+    const map1: RouteMap = router1.getRouteMap()[i];
+    assertFalse(map1.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map1.staticRouteMap).length, 0);
+
+    const map2: RouteMap = router2.getRouteMap()[i];
+    assertFalse(map2.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map2.staticRouteMap).length, 0);
+  }
+});
+
+Deno.test('FuriRouter: add middleware to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  // Make sure routes are empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  assertFalse(httpMap1.staticRouteMap['/']);
+  assertFalse(httpMap1.staticRouteMap['/test']);
+  assertFalse(httpMap2.staticRouteMap['/']);
+  assertFalse(httpMap2.staticRouteMap['/test']);
+  assertFalse(httpMap2.staticRouteMap['/route2/test']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2',router1);
+
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 1);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 1);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 1);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 1);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 2);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 2);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertFalse(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertFalse(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertFalse(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertFalse(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2',router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 2);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertFalse(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
     }
   }
 });
@@ -1595,6 +2133,685 @@ Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
     }
   }
 });
+
+//======================================================================
+//======================================================================
+
+
+Deno.test('FuriRouter: add routeless middleware', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  // No top-level middleware.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use('/route2', router1);
+
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 1);
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 2);
+
+  // Make sure routes are empty.
+  const mapCount = router1.getRouteMap().length;
+  for (let i = 1; i < mapCount; ++i) {
+
+    const map1: RouteMap = router1.getRouteMap()[i];
+    assertFalse(map1.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map1.staticRouteMap).length, 0);
+
+    const map2: RouteMap = router2.getRouteMap()[i];
+    assertFalse(map2.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map2.staticRouteMap).length, 0);
+  }
+});
+
+Deno.test('FuriRouter: add two routless middleware', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+
+  router2.use('/route2', router1);
+
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 4);
+
+  // Make sure routes are empty.
+  const mapCount = router1.getRouteMap().length;
+  for (let i = 1; i < mapCount; ++i) {
+
+    const map1: RouteMap = router1.getRouteMap()[i];
+    assertFalse(map1.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map1.staticRouteMap).length, 0);
+
+    const map2: RouteMap = router2.getRouteMap()[i];
+    assertFalse(map2.namedRoutePartitionMap.callbacks);
+    assertEquals(Object.keys(map2.staticRouteMap).length, 0);
+  }
+});
+
+Deno.test('FuriRouter: add middleware to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  assertFalse(httpMap1.staticRouteMap['/']);
+  assertFalse(httpMap1.staticRouteMap['/test']);
+  assertFalse(httpMap2.staticRouteMap['/']);
+  assertFalse(httpMap2.staticRouteMap['/test']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 1);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 1);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 2);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 1);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 1);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 2);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 4);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 1);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 4);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 1);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 3);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 1);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 3);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 3);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 1);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 1);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap1.staticRouteMap['/']);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertFalse(httpMap2.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 4);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+    }
+  }
+});
+
+Deno.test('FuriRouter: add 2 middlewares to a route', async () => {
+  const furi = new Furi();
+  const router1 = new TestFuriRouter(furi);
+  const router2 = new TestFuriRouter(furi);
+
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router1.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use((ctx: ApplicationContext) => {
+    ctx.end('Middleware');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.use('/test', (ctx: ApplicationContext) => {
+    ctx.end('Route');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+  router2.get('/test', (ctx: ApplicationContext) => {
+    ctx.end('Method');
+  });
+
+  router2.use('/route2', router1);
+
+  // Make sure top-level middleware map is empty.
+  const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap1.staticRouteMap['/']);
+  assertEquals(httpMap1.staticRouteMap['/'].callbacks.length, 2);
+  const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
+  assertExists(httpMap2.staticRouteMap['/']);
+  assertEquals(httpMap2.staticRouteMap['/'].callbacks.length, 4);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+
+    const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
+    assertExists(httpMap1.staticRouteMap['/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap1.staticRouteMap['/test'].callbacks.length, 2);
+    }
+
+    const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
+    assertExists(httpMap2.staticRouteMap['/test']);
+    assertExists(httpMap2.staticRouteMap['/route2/test']);
+    if (mapIndex === HttpMapIndex.GET) {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 4);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 4);
+    } else {
+      assertEquals(httpMap2.staticRouteMap['/test'].callbacks.length, 2);
+      assertEquals(httpMap2.staticRouteMap['/route2/test'].callbacks.length, 2);
+    }
+  }
+});
+
 
 //======================================================================
 //======================================================================
