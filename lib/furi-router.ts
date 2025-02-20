@@ -567,7 +567,7 @@ export class FuriRouter {
         if (!callback_chain || callback_chain?.length === 0) { return; }
         for (const callback of callback_chain) {
           const rv = callback(applicationContext);
-          if (rv) {
+          if (rv && !response.writableEnded) {
             response.end();
             break;
           }
@@ -597,7 +597,7 @@ export class FuriRouter {
                 for (const callback of namedRouteParam.callbacks) {
                   const rv = callback(applicationContext);
                   // Check for early exit from callback chain.
-                  if (rv) {
+                  if (rv && !response.writableEnded) {
                     response.end();
                     break;
                   }
