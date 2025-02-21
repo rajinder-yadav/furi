@@ -9,6 +9,7 @@
  */
 
 import { IncomingMessage, ServerResponse, } from 'node:http';
+import { Socket } from "node:net";
 
 import { ApplicationContext } from './application-context.ts';
 import { Furi } from './furi.ts';
@@ -105,6 +106,18 @@ export class HttpRequest extends IncomingMessage {
   public query: URLSearchParams | null = null;
   public sessionData: MapOf<any> = {};
   public app: Furi | null = null;
+
+  constructor(incomingMessage: Socket);
+  constructor(incomingMessage: IncomingMessage);
+  constructor(incomingMessage: unknown) {
+    super(incomingMessage instanceof IncomingMessage
+      ? incomingMessage.socket :
+      incomingMessage as Socket
+    );
+    if (incomingMessage instanceof IncomingMessage) {
+      Object.assign(this, incomingMessage);
+    }
+  }
 }
 
 /**
