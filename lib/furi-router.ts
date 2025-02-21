@@ -105,10 +105,16 @@ export class FuriRouter {
         if (changed) {
           // Router map is empty, create a new entry.
           if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
-            Object.assign(
-              this.httpMethodMap[mapIndex].staticRouteMap,
-              mapOfStaticRouteCallback
-            );
+            // Create a new entry.
+            this.httpMethodMap[mapIndex].staticRouteMap = {};
+            for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
+              if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
+                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+                  this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
+              } else {
+                this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
+              }
+            }
           } else {
             // Router map for the given key exists, merge with existing router map.
             for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
@@ -119,11 +125,10 @@ export class FuriRouter {
                   );
               }
               else {
-                // Router map for the given key is empty, create a new entry.
-                Object.assign(
-                  this.httpMethodMap[mapIndex].staticRouteMap,
-                  mapOfStaticRouteCallback
-                );
+                // Create a new entry.
+                this.httpMethodMap[mapIndex].staticRouteMap[key] = { callbacks: [] };
+                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+                  this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
               }
             }
           }
@@ -185,13 +190,11 @@ export class FuriRouter {
       if (fn.length === 0) {
         throw new Error('No middleware callback function provided');
       }
-      this.all(uri, ...fn);
-      return this;
+      return this.all(uri, ...fn);
     }
 
     // Top level based middleware.
-    this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, Array.from(arguments));
-    return this;
+    return this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, Array.from(arguments));
   }
 
   /**
@@ -232,8 +235,7 @@ export class FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
-    this.buildRequestMap(HttpMapIndex.GET, uri, fn);
-    return this;
+    return this.buildRequestMap(HttpMapIndex.GET, uri, fn);
   }
 
   /**
@@ -247,8 +249,7 @@ export class FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
-    this.buildRequestMap(HttpMapIndex.PATCH, uri, fn);
-    return this;
+    return this.buildRequestMap(HttpMapIndex.PATCH, uri, fn);
   }
 
   /**
@@ -262,8 +263,7 @@ export class FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
-    this.buildRequestMap(HttpMapIndex.POST, uri, fn);
-    return this;
+    return this.buildRequestMap(HttpMapIndex.POST, uri, fn);
   }
 
   /**
@@ -277,8 +277,7 @@ export class FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
-    this.buildRequestMap(HttpMapIndex.PUT, uri, fn);
-    return this;
+    return this.buildRequestMap(HttpMapIndex.PUT, uri, fn);
   }
 
   /**
@@ -292,8 +291,7 @@ export class FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }
-    this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
-    return this;
+    return this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
   }
 
   /**
@@ -318,8 +316,7 @@ export class FuriRouter {
     response: ServerResponse<IncomingMessage>
   ): void {
     // LOG_DEBUG( request.method, request.url );
-    const request = new HttpRequest(incomingMessage.socket);
-    Object.assign(request, incomingMessage);
+    const request = new HttpRequest(incomingMessage);
 
     switch (request.method) {
       case 'GET':
@@ -355,7 +352,6 @@ export class FuriRouter {
         console.error(`HTTP method ${request.method} is not supported.`);
         response.end();
     } // switch
-
   }
 
   /**
@@ -436,7 +432,7 @@ export class FuriRouter {
     mapIndex: number,
     uri: string,
     callbacks: HandlerFunction[]
-  ): void {
+  ): FuriRouter {
     // LOG_DEBUG(uri);
 
     const routeMap: RouteMap = this.httpMethodMap[mapIndex];
@@ -460,25 +456,26 @@ export class FuriRouter {
           routeMap.staticRouteMap[uri].callbacks.push(callback);
         }
       }
-      return;
-    }
-
-    // Dynamic path with named parameters or Regex.
-    const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
-    const useRegex = !regexCheckNamedPath.test(uri);
-
-    const pathNames: string[] = uri.replace(/(^\/)|(\/$)/g, '').split('/');
-    // Partition by '/' count, optimize lookup.
-    const bucket = pathNames.length;
-    const { key, params } = this.createNamedRouteSearchKey(pathNames);
-    // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', pathNames);
-
-    if (!routeMap.namedRoutePartitionMap[bucket]) {
-      routeMap.namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
     } else {
-      routeMap.namedRoutePartitionMap[bucket].push({ key, params, callbacks, pathNames, useRegex });
+
+      // Dynamic path with named parameters or Regex.
+      const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
+      const useRegex = !regexCheckNamedPath.test(uri);
+
+      const pathNames: string[] = uri.replace(/(^\/)|(\/$)/g, '').split('/');
+      // Partition by '/' count, optimize lookup.
+      const bucket = pathNames.length;
+      const { key, params } = this.createNamedRouteSearchKey(pathNames);
+      // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', pathNames);
+
+      if (!routeMap.namedRoutePartitionMap[bucket]) {
+        routeMap.namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
+      } else {
+        routeMap.namedRoutePartitionMap[bucket].push({ key, params, callbacks, pathNames, useRegex });
+      }
     }
     // LOG_DEBUG('rv: '+JSON.stringify(method.named_param[bucket]));
+    return this;
   }
 
   /**
@@ -578,7 +575,7 @@ export class FuriRouter {
         if (!callback_chain || callback_chain?.length === 0) { return; }
         for (const callback of callback_chain) {
           const rv = callback(applicationContext);
-          if (rv && !response.writableEnded) {
+          if (rv && !response.writableEnded && !response.writableFinished) {
             response.end();
             break;
           }
@@ -608,7 +605,7 @@ export class FuriRouter {
                 for (const callback of namedRouteParam.callbacks) {
                   const rv = callback(applicationContext);
                   // Check for early exit from callback chain.
-                  if (rv && !response.writableEnded) {
+                  if (rv && !response.writableEnded && !response.writableFinished) {
                     response.end();
                     break;
                   }
@@ -662,16 +659,29 @@ export class FuriRouter {
       // Static route map.
       if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
         // Static route map is empty, so we can just merge a new map.
-        Object.assign(
-          this.httpMethodMap[mapIndex].staticRouteMap,
-          routeMap[mapIndex].staticRouteMap
-        );
+        this.httpMethodMap[mapIndex].staticRouteMap = {};
+        for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
+          if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
+            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
+          } else {
+            this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
+          }
+        }
       } else {
         for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
-          this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(
-              staticRouteMap.callbacks
-            );
+          if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
+            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(
+                staticRouteMap.callbacks
+              );
+          }
+          else {
+            // Create a new entry.
+            this.httpMethodMap[mapIndex].staticRouteMap[key] = { callbacks: [] };
+            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
+          }
         }
       }
 
