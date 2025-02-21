@@ -111,8 +111,7 @@ export class FuriRouter {
 
           for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
             if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
-              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
+                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.push(...staticRouteMap.callbacks);
             } else {
               this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
             }
@@ -642,8 +641,7 @@ export class FuriRouter {
       }
       for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
         if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
-          this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
+            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.push(...staticRouteMap.callbacks);
         } else {
           this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
         }
