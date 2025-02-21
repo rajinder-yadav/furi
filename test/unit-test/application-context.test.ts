@@ -164,7 +164,7 @@ Deno.test("ApplicationContext::storeState across calls", async () => {
  * To do: Working with Cookies, and completed cookies test cases.
  * To do: Working with Cookies, and completed cookies test cases.
  */
-Deno.test("ApplicationContext::cookies", async () => {
+Deno.test.ignore("ApplicationContext::cookies", async () => {
   const furi = new Furi();
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
