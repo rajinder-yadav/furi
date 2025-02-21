@@ -107,29 +107,14 @@ export class FuriRouter {
           if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
             // Create a new entry.
             this.httpMethodMap[mapIndex].staticRouteMap = {};
-            for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
-              if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
-                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-                  this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
-              } else {
-                this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
-              }
-            }
-          } else {
-            // Router map for the given key exists, merge with existing router map.
-            for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
-              if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
-                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-                  this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(
-                    staticRouteMap.callbacks
-                  );
-              }
-              else {
-                // Create a new entry.
-                this.httpMethodMap[mapIndex].staticRouteMap[key] = { callbacks: [] };
-                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-                  this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
-              }
+          }
+
+          for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
+            if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
+              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+                this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
+            } else {
+              this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
             }
           }
         }
@@ -162,23 +147,17 @@ export class FuriRouter {
           }
 
           if (changed) {
-            if (Object.keys(this.httpMethodMap[mapIndex].namedRoutePartitionMap).length === 0) {
-              Object.assign(
-                this.httpMethodMap[mapIndex].namedRoutePartitionMap,
-                mapOfNamedRouteCallback
-              );
-            } else {
-              for (const [key, namedRoutePartitionMap] of Object.entries(mapOfNamedRouteCallback)) {
-                if (this.httpMethodMap[mapIndex].namedRoutePartitionMap[key]) {
-                  this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] =
-                    this.httpMethodMap[mapIndex].namedRoutePartitionMap[key].concat(
-                      mapOfNamedRouteCallback[key]
-                    );
-                } else {
-                  this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] = namedRoutePartitionMap;
-                }
+            // Named route map is empty, so we can just merge a new map.
+            for (const [bucket, namedRoutePartitionMap] of Object.entries(mapOfNamedRouteCallback)) {
+              if (!this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket]) {
+                this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket] = [];
+              }
+
+              for (const namedRouteCallbacks of namedRoutePartitionMap) {
+                this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket].push(namedRouteCallbacks);
               }
             }
+
           }
         }
       }
@@ -660,51 +639,27 @@ export class FuriRouter {
       if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
         // Static route map is empty, so we can just merge a new map.
         this.httpMethodMap[mapIndex].staticRouteMap = {};
-        for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
-          if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
-            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
-          } else {
-            this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
-          }
-        }
-      } else {
-        for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
-          if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
-            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(
-                staticRouteMap.callbacks
-              );
-          }
-          else {
-            // Create a new entry.
-            this.httpMethodMap[mapIndex].staticRouteMap[key] = { callbacks: [] };
-            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
-              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
-          }
+      }
+      for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
+        if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
+          this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks =
+            this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.concat(staticRouteMap.callbacks);
+        } else {
+          this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
         }
       }
 
-      // Named route map.
-      if (Object.keys(this.httpMethodMap[mapIndex].namedRoutePartitionMap).length === 0) {
-        // Named route map is empty, so we can just merge a new map.
-        Object.assign(
-          this.httpMethodMap[mapIndex].namedRoutePartitionMap,
-          routeMap[mapIndex].namedRoutePartitionMap
-        );
-      }
-      else {
-        for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
-          if (this.httpMethodMap[mapIndex].namedRoutePartitionMap[key]) {
-            this.httpMethodMap[mapIndex].namedRoutePartitionMap[key] =
-              this.httpMethodMap[mapIndex].namedRoutePartitionMap[key].concat(
-                // namedRoutePartitionMap[mapIndex]
-                routeMap[mapIndex].namedRoutePartitionMap[key]
-              );
-          }
+      // Named route map is empty, so we can just merge a new map.
+      for (const [bucket, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+        if (!this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket]) {
+          this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket] = [];
         }
 
+        for (const namedRouteCallbacks of namedRoutePartitionMap) {
+          this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket].push(namedRouteCallbacks);
+        }
       }
+
 
 
     }
