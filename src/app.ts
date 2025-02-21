@@ -500,18 +500,21 @@ furi.get('/all', (ctx: ApplicationContext) => {
 /**
  * Set middleware request session data.
  */
-furi.use((ctx: ApplicationContext) => {
+furi.use((ctx: ApplicationContext, next) => {
   ctx.storeState('msg', { message: 'Store data' });
   ctx.sessionState('message', 'Root middleware session data');
   console.log('Root Middleware - pre');
+  next();
 });
-furi.use((ctx: ApplicationContext) => {
+furi.use((ctx: ApplicationContext, next) => {
   console.log('Root Middleware - main');
+  next();
 });
-furi.use((ctx: ApplicationContext) => {
+furi.use((ctx: ApplicationContext, next) => {
   console.log('Session data 1 >>> ', ctx.request.sessionData?.message as string);
   console.log('Store data for property "MSG" 1 >>> ', ctx.storeState('msg'));
   console.log('Store data for property "db" 1 >>> ', ctx.storeState('db'));
+  next();
 });
 
 furi.get('/headers', (ctx: ApplicationContext) => {
