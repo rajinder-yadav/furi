@@ -461,9 +461,15 @@ export class FuriRouter {
     const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
     const middleware_chain = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks;
     if (!middleware_chain || middleware_chain?.length === 0) { return; }
-    for (const callback of middleware_chain) {
-      callback(ctx);
+
+    let callbackMiddlewareIndex = 0;
+    const nextMiddleware = (): void => {
+      if (callbackMiddlewareIndex < middleware_chain.length) {
+        const callback = middleware_chain[callbackMiddlewareIndex++];
+        callback(ctx, nextMiddleware);
+      }
     }
+    nextMiddleware();
   }
 
   /**
@@ -548,14 +554,16 @@ export class FuriRouter {
         // Execute path callback chain.
         const callback_chain = routeMap.staticRouteMap[URL]?.callbacks;
         if (!callback_chain || callback_chain?.length === 0) { return; }
-        for (const callback of callback_chain) {
-          const rv = callback(applicationContext);
-          if (rv && !response.writableEnded && !response.writableFinished) {
-            response.end();
-            break;
+        let callbackIndex = 0;
+
+        const nextStatic = (): void => {
+          if (callbackIndex < callback_chain.length) {
+            const callback = callback_chain[callbackIndex++];
+            callback(applicationContext, nextStatic);
           }
         }
-        return;
+        return nextStatic();
+
       } else if (routeMap.namedRoutePartitionMap) {
         // Search for named parameter URI or RegEx path match.
 
@@ -577,15 +585,16 @@ export class FuriRouter {
               this.callTopLevelMiddlewares(applicationContext);
               // Execute path callback chain.
               if (namedRouteParam?.callbacks.length > 0) {
-                for (const callback of namedRouteParam.callbacks) {
-                  const rv = callback(applicationContext);
-                  // Check for early exit from callback chain.
-                  if (rv && !response.writableEnded && !response.writableFinished) {
-                    response.end();
-                    break;
+
+                let callbackNamedRouteIndex = 0;
+
+                const nextNamedRoute = (): void => {
+                  if (callbackNamedRouteIndex < namedRouteParam.callbacks.length) {
+                    const callback = namedRouteParam.callbacks[callbackNamedRouteIndex++];
+                    callback(applicationContext, nextNamedRoute);
                   }
                 }
-                return;
+                return nextNamedRoute();
               }
             }
           } // for
