@@ -80,7 +80,7 @@ furi.get("/tor+onto/:code/ca\\d*n$", (ctx: ApplicationContext) => {
 
 // Handlers can be chained
 // return true to terminate the call chain at any point.
-furi.get("/chain", (ctx: ApplicationContext) => {
+furi.get("/chain", (ctx: ApplicationContext, next) => {
 
   // Header can only be set once!
   ctx.response.writeHead(200, {
@@ -91,7 +91,7 @@ furi.get("/chain", (ctx: ApplicationContext) => {
   ctx.send("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
   // Uncomment next line to stop here!
   // return true;
-
+  next();
 }, (ctx: ApplicationContext) => {
 
   ctx.end("<p>This paragraph is form handler 2</p>\n");
@@ -109,8 +109,8 @@ furi.get("/chainhalt", (ctx: ApplicationContext) => {
   });
 
   ctx.send("<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n");
+  ctx.end();
   // Uncomment next 2 lines to stop here!
-  return true;
 
 }, (ctx: ApplicationContext) => {
 
@@ -156,12 +156,11 @@ furi.patch("/comment/:id", (ctx: ApplicationContext) => {
 
   ctx.request.on("data", chunk => {
     body.push(chunk);
-  }).
-    on("end", () => {
-      text = Buffer.concat(body).toString();
-      const data = { message: "PATCH comment with id", id: ctx.request.params.id, text: text };
-      ctx.end(JSON.stringify(data));
-    });
+  }).on("end", () => {
+    text = Buffer.concat(body).toString();
+    const data = { message: "PATCH comment with id", id: ctx.request.params.id, text: text };
+    ctx.end(JSON.stringify(data));
+  });
 
 });
 
@@ -287,12 +286,13 @@ furi.delete("/comment/:id", (ctx: ApplicationContext) => {
 
 });
 
-furi.use("/middleware", (ctx: ApplicationContext) => {
+furi.use("/middleware", (ctx: ApplicationContext, next) => {
   ctx.response.writeHead(200, {
     "Content-Type": "text/plain",
     "User-Agent": USER_AGENT
   });
   ctx.send("About page Middleware 1\n");
+  next();
 });
 //
 furi.use("/middleware", (ctx: ApplicationContext) => {
@@ -301,7 +301,7 @@ furi.use("/middleware", (ctx: ApplicationContext) => {
     "User-Agent": USER_AGENT
   });
   ctx.send("About page Middleware 2\n");
-  return true;
+  ctx.end();
 });
 
 furi.get("/middleware", (ctx: ApplicationContext) => {
@@ -312,15 +312,13 @@ furi.get("/middleware", (ctx: ApplicationContext) => {
   });
 
   ctx.send("<h1>About FURI</h1>\nThis is the about page.\n");
-  ctx.end();
-
 });
 
 /**
  * The next three test cases are for testing, pre, main, post requests.
  * The chained requires act like a stacked middlewactx.response.
  */
-furi.get("/middleware2", (ctx: ApplicationContext) => {
+furi.get("/middleware2", (ctx: ApplicationContext, next) => {
 
   ctx.response.writeHead(200, {
     "Content-Type": "text/html",
@@ -328,9 +326,9 @@ furi.get("/middleware2", (ctx: ApplicationContext) => {
   });
 
   ctx.send("<p>Middleware 2 pre</p>\n");
-
+  next();
 });
-furi.get("/middleware2", (ctx: ApplicationContext) => {
+furi.get("/middleware2", (ctx: ApplicationContext, next) => {
 
   ctx.response.writeHead(200, {
     "Content-Type": "text/html",
@@ -338,7 +336,7 @@ furi.get("/middleware2", (ctx: ApplicationContext) => {
   });
 
   ctx.send("<p>Middleware 2 GET </p>\n");
-
+  next();
 });
 furi.get("/middleware2", (ctx: ApplicationContext) => {
 
@@ -480,14 +478,14 @@ furi.get("/foo/:bar/bar2/car", (ctx: ApplicationContext) => {
 /**
  * Next 2 test the ALL and GET request handling.
  */
-furi.all('/all', (ctx: ApplicationContext) => {
+furi.all('/all', (ctx: ApplicationContext, next) => {
   ctx.response.writeHead(200, {
     "Content-Type": "text/html",
     "User-Agent": USER_AGENT
   });
 
   ctx.send("<h1>All Page</h1>\n");
-
+  next();
 });
 
 furi.get('/all', (ctx: ApplicationContext) => {
