@@ -156,3 +156,16 @@ GET http://localhost:3100/regex/123/dept
 GET http://localhost:3100/headers
 Cookie: sessionId=abc123
 Cookie: user=yadav12
+
+###
+GET http://localhost:3100/
+###
+GET http://localhost:3100/home
+###
+GET http://localhost:3100/api/v1/about
+###
+GET http://localhost:3100/api/v1/about/me
+
+
+###
+GET http://localhost:3100/one
