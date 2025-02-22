@@ -1,38 +1,38 @@
 ### Path does not exist
-GET http://localhost:3100/sdfert
+GET http://localhost:3030/sdfert
 
 ###
-GET http://localhost:3100/
+GET http://localhost:3030/
 
 ###
-GET http://localhost:3100/about
+GET http://localhost:3030/about
 
 ###
-GET http://localhost:3100/about/
+GET http://localhost:3030/about/
 
 ###
-GET http://localhost:3100/about/12
+GET http://localhost:3030/about/12
 
 ###
-GET http://localhost:3100/user/12/photo/33
+GET http://localhost:3030/user/12/photo/33
 
 ###
-GET http://localhost:3100/toronto/one/ca12n
+GET http://localhost:3030/toronto/one/ca12n
 
 ###
-GET http://localhost:3100/chain
+GET http://localhost:3030/chain
 
 ###
-GET http://localhost:3100/chainhalt
+GET http://localhost:3030/chainhalt
 
 ###
-PATCH http://localhost:3100/comment
+PATCH http://localhost:3030/comment
 
 ###
-PATCH http://localhost:3100/comment/how-to
+PATCH http://localhost:3030/comment/how-to
 
 ###
-PATCH http://localhost:3100/comment/how
+PATCH http://localhost:3030/comment/how
 Content-Type: application/json
 
 {
@@ -40,19 +40,19 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:3100/comment
+POST http://localhost:3030/comment
 Content-Type: text/html
 
 <p>hello world</p>
 
 ###
-POST http://localhost:3100/comment/how-to
+POST http://localhost:3030/comment/how-to
 Content-Type: text/html
 
 <p>hello world</p>
 
 ###
-POST http://localhost:3100/comment/how
+POST http://localhost:3030/comment/how
 Content-Type: application/json
 
 {
@@ -60,112 +60,112 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:3100/comment
+PUT http://localhost:3030/comment
 Content-Type: text/html
 
 <p>hello world</p>
 
 ###
-PUT http://localhost:3100/comment/how-to
+PUT http://localhost:3030/comment/how-to
 Content-Type: text/html
 
 <p>hello world</p>
 
 ###
-PUT http://localhost:3100/comment/how
+PUT http://localhost:3030/comment/how
 Content-Type: text/html
 
 <p>hello world</p>
 
 ###
-DELETE http://localhost:3100/comment
+DELETE http://localhost:3030/comment
 
 ###
-DELETE http://localhost:3100/comment/how-to
+DELETE http://localhost:3030/comment/how-to
 
 ###
-DELETE http://localhost:3100/comment/how
+DELETE http://localhost:3030/comment/how
 
 ###
-GET http://localhost:3100/middleware
+GET http://localhost:3030/middleware
 
 ###
-GET http://localhost:3100/middleware2
+GET http://localhost:3030/middleware2
 
 ###
-GET http://localhost:3100/about?s=45bnj34
+GET http://localhost:3030/about?s=45bnj34
 
 ###
-GET http://localhost:3100/about/?we=394845hjh
+GET http://localhost:3030/about/?we=394845hjh
 
 ###
-GET http://localhost:3100?q=dfjriour
+GET http://localhost:3030?q=dfjriour
 
 ###
-GET http://localhost:3100/query-check?q=dfjriour
+GET http://localhost:3030/query-check?q=dfjriour
 
 ###
-GET http://localhost:3100/query-check/?aa=12&bb&c=33
+GET http://localhost:3030/query-check/?aa=12&bb&c=33
 
 ###
-GET http://localhost:3100/query-check/?12=aa
+GET http://localhost:3030/query-check/?12=aa
 
 ###
-GET http://localhost:3100/regex/12345/dept
+GET http://localhost:3030/regex/12345/dept
 
 ###
-GET http://localhost:3100/regex/toronto
+GET http://localhost:3030/regex/toronto
 
 ###
-GET http://localhost:3100/regex/tooronto
+GET http://localhost:3030/regex/tooronto
 
 ###
-GET http://localhost:3100/regex/tronto
+GET http://localhost:3030/regex/tronto
 
 ###
-GET http://localhost:3100/regex/5toronto
+GET http://localhost:3030/regex/5toronto
 
 ### Test static route before named route
-GET http://localhost:3100/foo/bar
+GET http://localhost:3030/foo/bar
 
 ### Test static route before named route
-GET http://localhost:3100/foo/boo
+GET http://localhost:3030/foo/boo
 
 ### Test static route before named route
-GET http://localhost:3100/foo/boo/bar1
+GET http://localhost:3030/foo/boo/bar1
 
 ### Test static route before named route
-GET http://localhost:3100/foo/boo/bar2
+GET http://localhost:3030/foo/boo/bar2
 
 ### Test static route before named route
-GET http://localhost:3100/foo/boo/bar2/bar
+GET http://localhost:3030/foo/boo/bar2/bar
 
 ### Test static route before named route
-GET http://localhost:3100/foo/boo/bar2/car
+GET http://localhost:3030/foo/boo/bar2/car
 
 ### Test static route before named route
-GET http://localhost:3100/foo/moo/bar2/bar
+GET http://localhost:3030/foo/moo/bar2/bar
 
 ### Test for unsupported method
-HEAD http://localhost:3100/mox
+HEAD http://localhost:3030/mox
 
 ### Test path does not exist
-GET http://localhost:3100/regex/123/dept
+GET http://localhost:3030/regex/123/dept
 
 ###
-GET http://localhost:3100/headers
+GET http://localhost:3030/headers
 Cookie: sessionId=abc123
 Cookie: user=yadav12
 
 ###
-GET http://localhost:3100/
+GET http://localhost:3030/
 ###
-GET http://localhost:3100/home
+GET http://localhost:3030/home
 ###
-GET http://localhost:3100/api/v1/about
+GET http://localhost:3030/api/v1/about
 ###
-GET http://localhost:3100/api/v1/about/me
+GET http://localhost:3030/api/v1/about/me
 
 
 ###
-GET http://localhost:3100/one
+GET http://localhost:3030/one
