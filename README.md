@@ -13,7 +13,7 @@ import { Furi, ApplicationContext } from 'furi.ts';
 const furi = Furi.create();
 
 furi.get('/', (ctx: ApplicationContext) => {
-    ctx.end('Hello World');
+    return { message: 'Hello World' };
 });
 
 furi.start();

@@ -46,7 +46,7 @@ export type QueryParamTypes = string | string[] | number;
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type HandlerFunction = (ctx: ApplicationContext, next: () => void) => boolean | void;
+export type HandlerFunction = (ctx: ApplicationContext, next: () => void) => any | void;
 
 /**
  * Static route handler callback functions.

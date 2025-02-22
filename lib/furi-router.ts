@@ -455,9 +455,9 @@ export class FuriRouter {
 
   /**
    * Execute all top level middlewares.
-   * @param ctx   Application context object.
+   * @param applicationContext Application context object.
    */
-  protected callTopLevelMiddlewares(ctx: ApplicationContext): void {
+  protected callTopLevelMiddlewares(applicationContext: ApplicationContext): void {
     const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
     const middleware_chain = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks;
     if (!middleware_chain || middleware_chain?.length === 0) { return; }
@@ -466,7 +466,12 @@ export class FuriRouter {
     const nextMiddleware = (): void => {
       if (callbackMiddlewareIndex < middleware_chain.length) {
         const callback = middleware_chain[callbackMiddlewareIndex++];
-        callback(ctx, nextMiddleware);
+        const rv = callback(applicationContext, nextMiddleware);
+        if (rv) {
+          applicationContext.end(rv);
+          return;
+        }
+
       }
     }
     nextMiddleware();
@@ -559,7 +564,11 @@ export class FuriRouter {
         const nextStatic = (): void => {
           if (callbackIndex < callback_chain.length) {
             const callback = callback_chain[callbackIndex++];
-            callback(applicationContext, nextStatic);
+            const rv = callback(applicationContext, nextStatic);
+            if (rv) {
+              applicationContext.end(rv);
+              return;
+            }
           }
         }
         return nextStatic();
@@ -591,7 +600,12 @@ export class FuriRouter {
                 const nextNamedRoute = (): void => {
                   if (callbackNamedRouteIndex < namedRouteParam.callbacks.length) {
                     const callback = namedRouteParam.callbacks[callbackNamedRouteIndex++];
-                    callback(applicationContext, nextNamedRoute);
+                    const rv = callback(applicationContext, nextNamedRoute);
+                    if (rv) {
+                      applicationContext.end(rv);
+                      return;
+                    }
+
                   }
                 }
                 return nextNamedRoute();
