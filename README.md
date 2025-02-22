@@ -26,7 +26,7 @@ __File: ".env" (optional)__
 ```pre
 env='development'
 port=3100
-hostname='localhost'
+host='localhost'
 ```
 
 FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focued on the support of a simple State management store for seamless data access. Persistence using SQLite3 as the default DB engine will be the default, with a plug-in architecture for other DB engines.
