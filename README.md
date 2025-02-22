@@ -6,6 +6,8 @@
 
 FURI is Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI.
 
+__File: "main.ts"__
+
 ```ts
 import { Furi, ApplicationContext } from 'furi.ts';
 const furi = Furi.create();
@@ -15,6 +17,16 @@ furi.get('/', (ctx: ApplicationContext) => {
 });
 
 furi.start();
+```
+
+If you want to configure the default server settings, you can use the `.env` file.
+
+__File: ".env" (optional)__
+
+```pre
+env='development'
+port=3100
+hostname='localhost'
 ```
 
 FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focued on the support of a simple State management store for seamless data access. Persistence using SQLite3 as the default DB engine will be the default, with a plug-in architecture for other DB engines.
