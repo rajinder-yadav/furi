@@ -11,6 +11,7 @@
 // deno-lint-ignore-file no-process-globals no-explicit-any
 import * as http from 'node:http';
 import { Server } from 'node:http';
+import process from 'node:process';
 
 import { FuriRouter } from './furi-router.ts';
 import {
@@ -48,14 +49,14 @@ export class Furi extends FuriRouter {
 
     if (Deno?.version.deno) {
       // LOG_DEBUG('Running under Deno');
-      env = Deno.env.get('env') || env;
+      env = Deno.env.get('env') ?? env;
       port = Number(Deno.env.get('port')) || port;
-      host = Deno.env.get('host') || host;
+      host = Deno.env.get('host') ?? host;
     } else {
       // LOG_DEBUG('Running under Node.js');
-      env = process.env.env || env;
+      env = process.env.env ?? env;
       port = Number(process.env.port) || port;
-      host = process.env.host || host;
+      host = process.env.host ?? host;
     }
 
     callback = () => { console.log(this.getServerStartupMessage()); }
