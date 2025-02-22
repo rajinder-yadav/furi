@@ -2,15 +2,26 @@
 
 ![Image](./images/dolphin.jpeg)
 
-## A return to simplicity.
+## A Return to Simplicity
 
 FURI is Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI.
+
+```ts
+import { Furi, ApplicationContext } from 'furi.ts';
+const furi = Furi.create();
+
+furi.get('/', (ctx: ApplicationContext) => {
+    ctx.end('Hello World');
+});
+
+furi.start();
+```
 
 FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focued on the support of a simple State management store for seamless data access. Persistence using SQLite3 as the default DB engine will be the default, with a plug-in architecture for other DB engines.
 
 ![Image](./images/octopus.jpeg)
-## Motivation
 
+## Motivation
 
 The aim of the FURI project is to have a fast, small HTTP server that runs on small hardware with low memory. As a result scaling and performance in a mico-arcitecture is a key focus, for bigger production loads.
 
