@@ -6,7 +6,7 @@
     "jsr:@std/assert@^1.0.11": "1.0.11",
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "npm:@types/node@*": "22.5.4",
-    "npm:@types/node@^22.13.1": "22.13.1"
+    "npm:@types/node@^22.13.5": "22.13.5"
   },
   "jsr": {
     "@std/assert@1.0.11": {
@@ -20,8 +20,8 @@
     }
   },
   "npm": {
-    "@types/node@22.13.1": {
-      "integrity": "sha512-jK8uzQlrvXqEU91UxiK5J7pKHyzgnI1Qnl0QDHIgVGuolJhRb9EEl28Cj9b3rGR8B2lhFCtvIm5os8lFnO/1Ew==",
+    "@types/node@22.13.5": {
+      "integrity": "sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==",
       "dependencies": [
         "undici-types@6.20.0"
       ]
@@ -140,7 +140,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@^1.0.11",
-      "npm:@types/node@^22.13.1"
+      "npm:@types/node@^22.13.5"
     ]
   }
 }
