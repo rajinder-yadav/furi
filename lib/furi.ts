@@ -31,6 +31,7 @@ export * from './furi-router.ts';
 export class Furi extends FuriRouter {
 
   protected static readonly app: Furi = new Furi();
+  protected server: Server | null = null;
 
   // Default server configuration.
   private readonly furiConfig: FuriConfig = {
@@ -147,7 +148,8 @@ export class Furi extends FuriRouter {
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
-    return this.listen(this.furiConfig);
+    this.server =  this.listen(this.furiConfig);
+    return this.server;
   }
 
   /**
