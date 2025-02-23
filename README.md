@@ -56,14 +56,17 @@ If you are using Deno, add the package with:
 deno add npm:@furi-server/furi
 ```
 
-Under Deno, if you want to configure the default server settings, you can use the "__.env__" file, and pass it the, "__--env-file__" flag.
+### Configuration file
 
-__File: ".env" (optional)__
+Furi lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
 
-```pre
-env='development'
-port=3100
-host='localhost'
+__File: "furi.yaml" (optional)__
+
+```yaml
+server:
+  port: 3030
+  host: localhost
+  env: development
 ```
 
 FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
