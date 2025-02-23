@@ -21,6 +21,8 @@ import {
   MapOf,
 } from './types.ts';
 
+import { StoreState } from './state.ts';
+
 // Re-export types and classes for applications
 export * from './types.ts';
 export * from './application-context.ts';
@@ -31,7 +33,8 @@ export * from './furi-router.ts';
  */
 export class Furi extends FuriRouter {
 
-  protected static readonly app: Furi = new Furi();
+  static readonly appStore: StoreState = new StoreState();
+
   protected server: Server | null = null;
   protected properties: MapOf<any> = {};
 
@@ -43,10 +46,8 @@ export class Furi extends FuriRouter {
     callback: null
   };
 
-  private readonly store: MapOf<any> = {};
-
   constructor() {
-    super(Furi.app);
+    super();
 
     // Set defaults.
     let { env, port, host, callback } = this.furiConfig;
@@ -82,11 +83,11 @@ export class Furi extends FuriRouter {
    */
   static create(): Furi {
     // LOG_DEBUG(Furi.getApiVersion());
-    return Furi.app;
+    return new Furi();
   }
 
   static router(): FuriRouter {
-    return new FuriRouter(Furi.app);
+    return new FuriRouter();
   }
 
   /**
@@ -96,27 +97,6 @@ export class Furi extends FuriRouter {
    */
   static getApiVersion(): string {
     return `FURI (v${API_VERSION})`;
-  }
-
-  /**
-   * Global Application state.
-   * Overloaded functions to read or set application state.
-   *
-   * Read application state data.
-   * Set application state data.
-   *
-   * @param key The application state key.
-   * @param value The application state value.
-   * @return Application state value or undefined if not found, when value is not provided.
-   */
-  storeState(key: string): any;
-  storeState(key: string, value: any): void;
-  storeState(key: string, value?: any): any {
-    if (value) {
-      this.store[key] = value;
-    } else {
-      return this.store[key];
-    }
   }
 
   /**

@@ -40,7 +40,7 @@ export class FuriRouter {
 
   protected readonly httpMethodMap: RouteMap[] = [];
 
-  constructor(protected app: Furi) {
+  constructor() {
     // Initialize HTTP Router lookup maps.
     Object.keys(HttpMapIndex).forEach(() => {
       this.httpMethodMap.push({ namedRoutePartitionMap: {}, staticRouteMap: {} })
@@ -494,9 +494,7 @@ export class FuriRouter {
     /**
      * Setup helper functions on application context object.
      */
-    const applicationContext = this instanceof Furi
-      ? new ApplicationContext(this, request, response)
-      : new ApplicationContext(this.app, request, response);
+    const applicationContext = new ApplicationContext(Furi.appStore, request, response);
 
     URL = urlQuery[0];
     // Remove trailing slash '/' from URL.

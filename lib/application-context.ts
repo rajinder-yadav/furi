@@ -8,7 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-import { Furi } from './furi.ts';
+import { StoreState } from "./state.ts";
 import {
   HttpRequest,
   HttpResponse,
@@ -25,7 +25,7 @@ import {
 export class ApplicationContext {
 
   constructor(
-    public app: Furi,
+    public appStore: StoreState,
     public request: HttpRequest,
     public response: HttpResponse
   ) {
@@ -100,9 +100,9 @@ export class ApplicationContext {
   storeState(key: string, value: any): void;
   storeState(key: string, value?: any): any {
     if (value) {
-      this.app.storeState(key, value);
+      this.appStore.storeState(key, value);
     } else {
-      return this.app.storeState(key);
+      return this.appStore.storeState(key);
     }
   }
 
