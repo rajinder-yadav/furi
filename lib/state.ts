@@ -1,5 +1,18 @@
+/**
+ * FURI - Fast Uniform Resource Identifier.
+ *
+ * The Fast and Furious Node.js Router.
+ * Copyright(c) 2016, 2025 Rajinder Yadav.
+ *
+ * Labs DevMentor.org Corp. <info@devmentor.org>
+ * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
+ */
 import { MapOf } from "./types.ts";
 
+/**
+ * State Management for FURI.
+ * Provides a global state management system for the application.
+ */
 export class StoreState {
 
   private readonly store: MapOf<any> = {};
@@ -13,7 +26,7 @@ export class StoreState {
    *
    * @param key The application state key.
    * @param value The application state value.
-   * @return Application state value or undefined if not found, when value is not provided.
+   * @return Application state value or undefined if not found.
    */
   storeState(key: string): any;
   storeState(key: string, value: any): void;
