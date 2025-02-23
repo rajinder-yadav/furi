@@ -9,9 +9,10 @@
  */
 
 // deno-lint-ignore-file no-process-globals no-explicit-any
+import * as fs from 'node:fs';
 import * as http from 'node:http';
 import { Server } from 'node:http';
-import process from 'node:process';
+import YAML from 'yaml';
 
 import { FuriRouter } from './furi-router.ts';
 import {
@@ -32,6 +33,7 @@ export class Furi extends FuriRouter {
 
   protected static readonly app: Furi = new Furi();
   protected server: Server | null = null;
+  protected properties: MapOf<any> = {};
 
   // Default server configuration.
   private readonly furiConfig: FuriConfig = {
@@ -46,18 +48,27 @@ export class Furi extends FuriRouter {
   constructor() {
     super(Furi.app);
 
+    // Set defaults.
     let { env, port, host, callback } = this.furiConfig;
 
-    if (Deno?.version.deno) {
-      // LOG_DEBUG('Running under Deno');
-      env = Deno.env.get('env') ?? env;
-      port = Number(Deno.env.get('port')) || port;
-      host = Deno.env.get('host') ?? host;
-    } else {
-      // LOG_DEBUG('Running under Node.js');
-      env = process.env.env ?? env;
-      port = Number(process.env.port) || port;
-      host = process.env.host ?? host;
+    /**
+     * Read server configuration properties from furi.yaml or furi.yml file.
+     */
+    try {
+      let data: string | null = null;
+      if (fs.existsSync('./furi.yaml') && fs.statSync('./furi.yaml').isFile()) {
+        data = fs.readFileSync('./furi.yaml', 'utf8');
+      } else if (fs.existsSync('./furi.yml') && fs.statSync('./furi.yml').isFile()) {
+        data = fs.readFileSync('./furi.yml', 'utf8');
+      }
+      if (data !== null) {
+        this.properties = YAML.parse(data);
+        port = this.properties?.server.port ?? port;
+        host = this.properties?.server.host ?? host;
+        env = this.properties?.server.env ?? env;
+      }
+    } catch (error) {
+      // Ignore and file errors.
     }
 
     callback = () => { console.log(this.getServerStartupMessage()); }
@@ -148,7 +159,7 @@ export class Furi extends FuriRouter {
    * @returns Instance of http.Server.
    */
   start(_callback?: () => void): Server {
-    this.server =  this.listen(this.furiConfig);
+    this.server = this.listen(this.furiConfig);
     return this.server;
   }
 
