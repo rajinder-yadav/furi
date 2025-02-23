@@ -4,7 +4,7 @@
 
 ## A Return to Simplicity
 
-FURI is Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI.
+FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI.
 
 __File: "main.ts"__
 
@@ -29,15 +29,15 @@ port=3100
 host='localhost'
 ```
 
-FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focued on the support of a simple State management store for seamless data access. Persistence using SQLite3 as the default DB engine will be the default, with a plug-in architecture for other DB engines.
+FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
 
 ![Image](./images/octopus.jpeg)
 
 ## Motivation
 
-The aim of the FURI project is to have a fast, small HTTP server that runs on small hardware with low memory. As a result scaling and performance in a mico-arcitecture is a key focus, for bigger production loads.
+The primary objective of the FURI project is to provide a fast, small HTTP server that runs on small hardware with low memory. This benefits micro-architect environments with scaling and performance, with faster load time, compact footprint to deal with bigger production loads.
 
-The aim is for small independent shops to be able to run a production server and website while keeping the cost down substantially, along with the effort to maintain the setup.
+The guiding principle of the project is to have the code base self contain with no external dependencies. This allows for easy deployment and maintenance on any platform that supports Node.js. The aim is for small independent shops to be able to run a production server and website while keeping the cost down substantially, along with the effort to maintain the setup.
 
 ## Why
 
