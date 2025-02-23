@@ -17,7 +17,7 @@ import { Buffer } from 'node:buffer';
 const furi = Furi.create();
 const USER_AGENT: string = "FURI Node Server (v0.1)";
 
-furi.storeState("db", { database: "Sqlite3" });
+Furi.appStore.storeState("db", { database: "Sqlite3" });
 
 furi.get("/", (ctx: ApplicationContext) => {
 

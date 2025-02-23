@@ -19,8 +19,7 @@ Deno.test("ApplicationContext: check for valid app object", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
-  assertEquals(appContext.app, furi);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 });
 
 Deno.test("ApplicationContext::queryStringToObject simple", async () => {
@@ -28,7 +27,7 @@ Deno.test("ApplicationContext::queryStringToObject simple", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
   const result: MapOf<QueryParamTypes> | null = appContext.queryStringToObject();
 
@@ -44,7 +43,7 @@ Deno.test("ApplicationContext::queryStringToObject not simple", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
   const result: MapOf<QueryParamTypes> | null = appContext.queryStringToObject(false);
 
@@ -60,7 +59,7 @@ Deno.test("ApplicationContext::sessionState string values", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.sessionState("animal"));
   assertFalse(appContext.sessionState("colour"));
   assertFalse(appContext.sessionState("planet"));
@@ -81,7 +80,7 @@ Deno.test("ApplicationContext::sessionState number values", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.sessionState("count"));
   assertFalse(appContext.sessionState("balance"));
 
@@ -100,7 +99,7 @@ Deno.test("ApplicationContext::sessionState update value", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.sessionState("count"));
   appContext.sessionState("count", 12);
   assertEquals(appContext.sessionState("count"), 12);
@@ -114,14 +113,14 @@ Deno.test("ApplicationContext::sessionState across calls", async () => {
   const httpRequest1 = new HttpRequest(new Socket());
   const httpResponse1 = new HttpResponse(httpRequest1);
 
-  const appContext1 = new ApplicationContext(furi, httpRequest1, httpResponse1);
+  const appContext1 = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
   assertFalse(appContext1.sessionState("count"));
   appContext1.sessionState("count", 12);
   assertEquals(appContext1.sessionState("count"), 12);
 
   const httpRequest2 = new HttpRequest(new Socket());
   const httpResponse2 = new HttpResponse(httpRequest1);
-  const appContext2 = new ApplicationContext(furi, httpRequest2, httpResponse2);
+  const appContext2 = new ApplicationContext(Furi.appStore, httpRequest2, httpResponse2);
   assertNotEquals(appContext2.sessionState("count"), 12);
   assertFalse(appContext2.sessionState("count"));
 
@@ -132,7 +131,7 @@ Deno.test("ApplicationContext::storeState values", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.storeState("count"));
   appContext.storeState("count", 12);
   assertEquals(appContext.storeState("count"), 12);
@@ -147,14 +146,14 @@ Deno.test("ApplicationContext::storeState across calls", async () => {
   const httpRequest1 = new HttpRequest(new Socket());
   const httpResponse1 = new HttpResponse(httpRequest1);
 
-  const appContext1 = new ApplicationContext(furi, httpRequest1, httpResponse1);
+  const appContext1 = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
   assertFalse(appContext1.storeState("count2"));
   appContext1.storeState("count", 12);
   assertEquals(appContext1.storeState("count"), 12);
 
   const httpRequest2 = new HttpRequest(new Socket());
   const httpResponse2 = new HttpResponse(httpRequest1);
-  const appContext2 = new ApplicationContext(furi, httpRequest2, httpResponse2);
+  const appContext2 = new ApplicationContext(Furi.appStore, httpRequest2, httpResponse2);
   assertEquals(appContext2.storeState("count"), 12);
 
 });
@@ -169,7 +168,7 @@ Deno.test.ignore("ApplicationContext::cookies", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertEquals("","TO DO: cookie");
 
 });
@@ -178,7 +177,7 @@ Deno.test("ApplicationContext::requestHeader", async () => {
   const furi = new Furi();
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   // We need an initialized request headers for this test to pass.
   httpRequest.headers = {};
   appContext.requestHeader("content-type", "application/json");
@@ -191,7 +190,7 @@ Deno.test("ApplicationContext::responseHeader", async () => {
   const furi = new Furi();
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
-  const appContext = new ApplicationContext(furi, httpRequest, httpResponse);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   appContext.responseHeader("content-type", "application/json");
   appContext.responseHeader("authorization", "Bearer token");
   assertEquals(appContext.responseHeader("content-type"), "application/json");

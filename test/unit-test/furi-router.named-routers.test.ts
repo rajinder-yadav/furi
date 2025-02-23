@@ -25,7 +25,7 @@ class TestFuriRouter extends FuriRouter {
 
 Deno.test('FuriRouter: add middleware to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -45,7 +45,7 @@ Deno.test('FuriRouter: add middleware to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -68,7 +68,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -93,7 +93,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -121,7 +121,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -149,7 +149,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -180,7 +180,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -206,7 +206,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -235,7 +235,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -264,7 +264,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -296,7 +296,7 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -340,8 +340,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add routeless middleware', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   // No top-level middleware.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
@@ -379,8 +379,8 @@ Deno.test('FuriRouter: add routeless middleware', () => {
 
 Deno.test('FuriRouter: add two routless middleware', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
   assertFalse(httpMap1.staticRouteMap['/']);
@@ -425,8 +425,8 @@ Deno.test('FuriRouter: add two routless middleware', () => {
 
 Deno.test('FuriRouter: add middleware to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   // Make sure routes are empty.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
@@ -461,8 +461,8 @@ Deno.test('FuriRouter: add middleware to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -495,8 +495,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -530,8 +530,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -568,8 +568,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -606,8 +606,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -647,8 +647,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -688,8 +688,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -732,8 +732,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -776,8 +776,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:named', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -823,8 +823,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -883,8 +883,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add routeless middleware', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
   assertFalse(httpMap1.staticRouteMap['/']);
@@ -918,8 +918,8 @@ Deno.test('FuriRouter: add routeless middleware', () => {
 
 Deno.test('FuriRouter: add two routless middleware', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   // Make sure routes are empty.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
@@ -958,8 +958,8 @@ Deno.test('FuriRouter: add two routless middleware', () => {
 
 Deno.test('FuriRouter: add middleware to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   // Make sure routes are empty.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
@@ -997,8 +997,8 @@ Deno.test('FuriRouter: add middleware to a route', () => {
 
 Deno.test('FuriRouter: add middleware to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   // Make sure routes are empty.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
@@ -1037,8 +1037,8 @@ Deno.test('FuriRouter: add middleware to a route', () => {
 
 Deno.test('FuriRouter: add middleware to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   // Make sure routes are empty.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
@@ -1076,8 +1076,8 @@ Deno.test('FuriRouter: add middleware to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1110,8 +1110,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1150,8 +1150,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1191,8 +1191,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1235,8 +1235,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1271,8 +1271,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1308,8 +1308,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1345,8 +1345,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1384,8 +1384,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1422,8 +1422,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1461,8 +1461,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1500,8 +1500,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1540,8 +1540,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -1580,8 +1580,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1624,8 +1624,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1668,8 +1668,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1712,8 +1712,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1756,8 +1756,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1800,8 +1800,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1844,8 +1844,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1891,8 +1891,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1938,8 +1938,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test/:route1', (ctx: ApplicationContext) => {
     ctx.end('Route');
@@ -1985,8 +1985,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add 2 middlewares to a route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware');
@@ -2044,8 +2044,8 @@ Deno.test('FuriRouter: add 2 middlewares to a route', () => {
 
 Deno.test('FuriRouter: add router with middleware to another router', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2065,8 +2065,8 @@ Deno.test('FuriRouter: add router with middleware to another router', () => {
 
 Deno.test('FuriRouter: add router with 2  middlewares to another router', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Middleware 1');
@@ -2089,8 +2089,8 @@ Deno.test('FuriRouter: add router with 2  middlewares to another router', () => 
 
 Deno.test('FuriRouter: add router with 2 routes to another router', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/one', (ctx: ApplicationContext) => {
     ctx.end('Middleware 1');
@@ -2121,8 +2121,8 @@ Deno.test('FuriRouter: add router with 2 routes to another router', () => {
 
 Deno.test('FuriRouter: add router with duplicate routes to another router', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/one', (ctx: ApplicationContext) => {
     ctx.end('Middleware 1');
@@ -2162,8 +2162,8 @@ Deno.test('FuriRouter: add router with duplicate routes to another router', () =
 
 Deno.test('FuriRouter: add router with duplicate routes to another router on a path', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/one', (ctx: ApplicationContext) => {
     ctx.end('Middleware 1');
@@ -2211,8 +2211,8 @@ Deno.test('FuriRouter: add router with duplicate routes to another router on a p
 
 Deno.test('FuriRouter: add router with middleware on same route to another router', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/one', (ctx: ApplicationContext) => {
     ctx.end('Middleware 1');
@@ -2248,8 +2248,8 @@ Deno.test('FuriRouter: add router with middleware on same route to another route
 
 Deno.test('FuriRouter: add router with middleware on same route to another router on a path', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/one', (ctx: ApplicationContext) => {
     ctx.end('Middleware 1');
@@ -2286,8 +2286,8 @@ Deno.test('FuriRouter: add router with middleware on same route to another route
 
 Deno.test('FuriRouter: add router with middleware to another router on a path', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use((ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2313,8 +2313,8 @@ Deno.test('FuriRouter: add router with middleware to another router on a path', 
 
 Deno.test('FuriRouter: add router with middleware on a route to another router on ', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2345,8 +2345,8 @@ Deno.test('FuriRouter: add router with middleware on a route to another router o
 
 Deno.test('FuriRouter: router will route middleware added as middleware to route', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.use('/one', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2384,7 +2384,7 @@ Deno.test('FuriRouter: router will route middleware added as middleware to route
 
 Deno.test('FuriRouter: add handler to GET path', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.get('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2405,8 +2405,8 @@ Deno.test('FuriRouter: add handler to GET path', () => {
 
 Deno.test('FuriRouter: add handler to GET path', () => {
   const furi = new Furi();
-  const router1 = new TestFuriRouter(furi);
-  const router2 = new TestFuriRouter(furi);
+  const router1 = new TestFuriRouter();
+  const router2 = new TestFuriRouter();
 
   router1.get('/one', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2448,7 +2448,7 @@ Deno.test('FuriRouter: add handler to GET path', () => {
 
 Deno.test('FuriRouter: add handler to POST path', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.post('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2469,7 +2469,7 @@ Deno.test('FuriRouter: add handler to POST path', () => {
 
 Deno.test('FuriRouter: add handler to PUT path', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.put('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2490,7 +2490,7 @@ Deno.test('FuriRouter: add handler to PUT path', () => {
 
 Deno.test('FuriRouter: add handler to PATCH path', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.patch('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2511,7 +2511,7 @@ Deno.test('FuriRouter: add handler to PATCH path', () => {
 
 Deno.test('FuriRouter: add handler to DELETE path', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.delete('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2532,7 +2532,7 @@ Deno.test('FuriRouter: add handler to DELETE path', () => {
 
 Deno.test('FuriRouter: add handler to ALL path', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.all('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2553,7 +2553,7 @@ Deno.test('FuriRouter: add handler to ALL path', () => {
 
 Deno.test('FuriRouter: add 2 handlers', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.get('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
@@ -2570,7 +2570,7 @@ Deno.test('FuriRouter: add 2 handlers', () => {
 
 Deno.test('FuriRouter: add 3 handlers, 2 to named routes', () => {
   const furi = new Furi();
-  const router = new TestFuriRouter(furi);
+  const router = new TestFuriRouter();
 
   router.get('/test', (ctx: ApplicationContext) => {
     ctx.end('Hello World');
