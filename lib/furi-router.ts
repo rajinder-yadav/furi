@@ -395,7 +395,8 @@ export class FuriRouter {
       // Partition by '/' count, optimize lookup.
       const bucket = pathNames.length;
       const { key, params } = this.createNamedRouteSearchKey(pathNames);
-      // LOG_DEBUG(('regex>', useRegex, '\tpathNames>', pathNames);
+      // LOG_DEBUG('regex>', useRegex, '\tpathNames>', pathNames);
+      // LOG_DEBUG('key>', key, '\tparams>', >', params);
 
       if (!routeMap.namedRoutePartitionMap[bucket]) {
         routeMap.namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
@@ -403,7 +404,6 @@ export class FuriRouter {
         routeMap.namedRoutePartitionMap[bucket].push({ key, params, callbacks, pathNames, useRegex });
       }
     }
-    // LOG_DEBUG('rv: '+JSON.stringify(method.named_param[bucket]));
     return this;
   }
 
@@ -445,12 +445,12 @@ export class FuriRouter {
     keyNames: string[],
     request: HttpRequest
   ): boolean {
-    // LOG_DEBUG(('pathNames>', pathNames);
-    // LOG_DEBUG(('keyName>  ', keyName);
+    // LOG_DEBUG('pathNames>', pathNames);
+    // LOG_DEBUG('keyNames>  ', keyNames);
 
     let didMatch: boolean = true;
     if (keyNames.length === pathNames.length) {
-      // LOG_DEBUG(('Equal token count');
+      // LOG_DEBUG('Equal token count');
       for (let i = pathNames.length - 1; i >= 0; i--) {
         if (pathNames[i] !== keyNames[i] && keyNames[i][0] !== ':') {
           didMatch = false;
@@ -458,7 +458,7 @@ export class FuriRouter {
         } else if (keyNames[i][0] === ':') {
           const key = keyNames[i].substring(1); // remove ':' from start of string.
           request.params[key] = pathNames[i];
-          // LOG_DEBUG((`param ${keyName[i]}=${pathNames[i]}`);
+          // LOG_DEBUG(`param ${keyNames[i]}=${pathNames[i]}`);
         }
       }
     } else {
@@ -533,8 +533,8 @@ export class FuriRouter {
         const pathNames = URL.replace(/(^\/)|(\/$)/g, '').split('/');
         // Partition index.
         const bucket = pathNames.length;
-        // LOG_DEBUG(('pathNames>', pathNames);
-        // LOG_DEBUG(('bucket>', bucket);
+        // LOG_DEBUG('pathNames>', pathNames);
+        // LOG_DEBUG('bucket>', bucket);
 
         if (routeMap.namedRoutePartitionMap[bucket]) {
           if (!request.params) { request.params = {}; }
