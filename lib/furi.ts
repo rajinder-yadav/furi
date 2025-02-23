@@ -12,7 +12,7 @@
 import * as fs from 'node:fs';
 import * as http from 'node:http';
 import { Server } from 'node:http';
-import YAML from 'yaml';
+import YAML from 'npm:yaml';
 
 import { FuriRouter } from './furi-router.ts';
 import {
