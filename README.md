@@ -6,10 +6,31 @@
 
 FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI.
 
+### Coding with JavaScript
+
+__File: "main.js"__
+
+```ts
+import { Furi } from '@furi-server/furi';
+const furi = Furi.create();
+
+furi.get('/', (ctx) => {
+    return { message: 'Hello World' };
+});
+
+furi.start();
+```
+
+### Coding with TypeScript
+
+You can use TypeScript with Node.js, but you will need to compile the TypeScript code to JavaScript before running it with Node.js.
+
+With Deno it is simpler, as it will run the TypeScript code without needing a separate compile step.
+
 __File: "main.ts"__
 
 ```ts
-import { Furi, ApplicationContext } from 'furi.ts';
+import { Furi, ApplicationContext } from '@furi-server/furi';
 const furi = Furi.create();
 
 furi.get('/', (ctx: ApplicationContext) => {
@@ -19,7 +40,23 @@ furi.get('/', (ctx: ApplicationContext) => {
 furi.start();
 ```
 
-If you want to configure the default server settings, you can use the `.env` file.
+### Using NPM and Node.js
+
+To install the NPM package, use:
+
+```sh
+npm install @furi-server/furi
+```
+
+### Using Deno
+
+If you are using Deno, add the package with:
+
+```sh
+deno add npm:@furi-server/furi
+```
+
+Under Deno, if you want to configure the default server settings, you can use the "__.env__" file, and pass it the, "__--env-file__" flag.
 
 __File: ".env" (optional)__
 
