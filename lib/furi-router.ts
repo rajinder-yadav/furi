@@ -15,12 +15,9 @@ import {
   HttpMapIndex,
   HttpRequest,
   HttpResponse,
-  MapOf,
   LOG_ERROR,
   LOG_WARN,
-  NamedRouteCallback,
   HandlerFunction,
-  StaticRouteCallback,
   RouteMap,
 } from './types.ts';
 
@@ -95,21 +92,19 @@ export class FuriRouter {
       for (let mapIndex = 0; mapIndex < routeMap.length; ++mapIndex) {
 
         // Map static paths.
-        const mapOfStaticRouteCallback: MapOf<StaticRouteCallback> = {};
         for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
           const prefixKey = mapIndex === 0 ? key : path.join(uri, key).replace(/\/$/, '');
           this.buildRequestMap(mapIndex, prefixKey, staticRouteMap.callbacks);
         }
 
         // Map named paths.
-        const mapOfNamedRouteCallback: MapOf<NamedRouteCallback[]> = {};
-        for (const [k, v] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
-          const buckets = routeMap[mapIndex].namedRoutePartitionMap[k].length;
+        for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+          const buckets = routeMap[mapIndex].namedRoutePartitionMap[key].length;
           for (let bucketIndex = 0; bucketIndex < buckets; ++bucketIndex) {
-            const keySrc = routeMap[mapIndex].namedRoutePartitionMap[k][bucketIndex].pathNames.join('/');
+            const keySrc = routeMap[mapIndex].namedRoutePartitionMap[key][bucketIndex].pathNames.join('/');
             const keyDest = path.join(uri, keySrc).replace(/\/$/, '');
 
-            this.buildRequestMap(mapIndex, keyDest, v[bucketIndex].callbacks);
+            this.buildRequestMap(mapIndex, keyDest, namedRoutePartitionMap[bucketIndex].callbacks);
           }
         }
       }
@@ -391,6 +386,7 @@ export class FuriRouter {
       const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
       const useRegex = !regexCheckNamedPath.test(uri);
 
+      // Remove leading and trailing slash '/'.
       const pathNames: string[] = uri.replace(/(^\/)|(\/$)/g, '').split('/');
       // Partition by '/' count, optimize lookup.
       const bucket = pathNames.length;
