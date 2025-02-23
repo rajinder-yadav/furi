@@ -95,31 +95,40 @@ export class FuriRouter {
       for (let mapIndex = 0; mapIndex < routeMap.length; ++mapIndex) {
 
         // Map static paths.
-        let changed = false;
+        // let changed = false;
         const mapOfStaticRouteCallback: MapOf<StaticRouteCallback> = {};
         for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
           const prefixKey = mapIndex === 0 ? key : path.join(uri, key).replace(/\/$/, '');
-          mapOfStaticRouteCallback[prefixKey] = staticRouteMap;
-          changed = true;
-        }
-        if (changed) {
-          // Router map is empty, create a new entry.
-          if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
-            // Create a new entry.
-            this.httpMethodMap[mapIndex].staticRouteMap = {};
-          }
+          this.buildRequestMap(mapIndex, prefixKey, staticRouteMap.callbacks);
 
-          for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
-            if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
-              this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.push(...staticRouteMap.callbacks);
-            } else {
-              this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
-            }
-          }
+          // OLD DEPRECATED CODE FOR MERGING ROUTER MAPS
+          // mapOfStaticRouteCallback[prefixKey] = staticRouteMap;
+          // changed = true;
         }
+
+        /**
+         * OLD DEPRECATED CODE FOR MERGING ROUTER MAPS
+         * OLD DEPRECATED CODE FOR MERGING ROUTER MAPS
+         * OLD DEPRECATED CODE FOR MERGING ROUTER MAPS
+         */
+        // if (changed) {
+        //   // Router map is empty, create a new entry.
+        //   if (Object.keys(this.httpMethodMap[mapIndex].staticRouteMap).length === 0) {
+        //     // Create a new entry.
+        //     this.httpMethodMap[mapIndex].staticRouteMap = {};
+        //   }
+
+        //   for (const [key, staticRouteMap] of Object.entries(mapOfStaticRouteCallback)) {
+        //     if (this.httpMethodMap[mapIndex].staticRouteMap[key]?.callbacks.length > 0) {
+        //       this.httpMethodMap[mapIndex].staticRouteMap[key].callbacks.push(...staticRouteMap.callbacks);
+        //     } else {
+        //       this.httpMethodMap[mapIndex].staticRouteMap[key] = staticRouteMap;
+        //     }
+        //   }
+        // }
 
         // Map named paths.
-        changed = false;
+        let changed = false;
         const mapOfNamedRouteCallback: MapOf<NamedRouteCallback[]> = {};
         for (const [k, v] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
           const buckets = routeMap[mapIndex].namedRoutePartitionMap[k].length;
@@ -127,36 +136,43 @@ export class FuriRouter {
             const keySrc = routeMap[mapIndex].namedRoutePartitionMap[k][bucketIndex].pathNames.join('/');
             const keyDest = path.join(uri, keySrc).replace(/\/$/, '');
 
-            const callbacks = v[bucketIndex].callbacks;
+            this.buildRequestMap(mapIndex, keyDest, v[bucketIndex].callbacks);
 
-            const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
-            const useRegex = !regexCheckNamedPath.test(keyDest);
-            const pathNames: string[] = keyDest.replace(/(^\/)|(\/$)/g, '').split('/');
-            // Partition by '/' count, optimize lookup.
-            const bucket = pathNames.length;
-            const { key, params } = this.createNamedRouteSearchKey(pathNames);
+            /**
+             * OLD DEPRECATED CODE FOR MERGING ROUTER MAPS
+             * OLD DEPRECATED CODE FOR MERGING ROUTER MAPS
+             * OLD DEPRECATED CODE FOR MERGING ROUTER MAPS
+             */
+            // const callbacks = v[bucketIndex].callbacks;
 
-            changed = true;
-            if (!mapOfNamedRouteCallback[bucket]) {
-              mapOfNamedRouteCallback[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
-            } else {
-              mapOfNamedRouteCallback[bucket].push({ key, params, callbacks, pathNames, useRegex });
-            }
+            // const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
+            // const useRegex = !regexCheckNamedPath.test(keyDest);
+            // const pathNames: string[] = keyDest.replace(/(^\/)|(\/$)/g, '').split('/');
+            // // Partition by '/' count, optimize lookup.
+            // const bucket = pathNames.length;
+            // const { key, params } = this.createNamedRouteSearchKey(pathNames);
+
+            // changed = true;
+            // if (!mapOfNamedRouteCallback[bucket]) {
+            //   mapOfNamedRouteCallback[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
+            // } else {
+            //   mapOfNamedRouteCallback[bucket].push({ key, params, callbacks, pathNames, useRegex });
+            // }
           }
 
-          if (changed) {
-            // Named route map is empty, so we can just merge a new map.
-            for (const [bucket, namedRoutePartitionMap] of Object.entries(mapOfNamedRouteCallback)) {
-              if (!this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket]) {
-                this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket] = [];
-              }
+          // if (changed) {
+          //   // Named route map is empty, so we can just merge a new map.
+          //   for (const [bucket, namedRoutePartitionMap] of Object.entries(mapOfNamedRouteCallback)) {
+          //     if (!this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket]) {
+          //       this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket] = [];
+          //     }
 
-              for (const namedRouteCallback of namedRoutePartitionMap) {
-                this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket].push(namedRouteCallback);
-              }
-            }
+          //     for (const namedRouteCallback of namedRoutePartitionMap) {
+          //       this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket].push(namedRouteCallback);
+          //     }
+          //   }
 
-          }
+          // }
         }
       }
       return this;
