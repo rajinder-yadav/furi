@@ -1,24 +1,13 @@
 {
   "tasks": {
-    "d": "deno run --inspact --watch --allow-all --env-file ./src/app.ts",
-    "dd": "deno run --inspect-brk --watch --allow-all --env-file ./src/app.ts",
-    "dev": "deno run --watch --allow-all --env-file ./src/app.ts",
-    "play": "deno run --watch --allow-all --env-file ./sandbox/play.ts",
-    "debug": "deno run --inspect-brk --watch --allow-all --env-file ./src/app.ts",
-    "break": "deno run --inspect-brk --watch --allow-all --env-file ./src/app.ts",
-    "bench": "deno -A --env-file ./benchmark/bench.ts",
+    "dev": "deno run --watch --allow-all ./src/app.ts",
     "testf": "deno test --allow-all ./test/functional-test/",
-    "testff": "deno test --inspect-brk --allow-all ./test/functional-test/",
-    "test": "deno test --allow-all --watch ./test/unit-test/",
-    "t": "deno test --allow-all --watch ./test/unit-test/furi-router.static-router.test.ts",
-    "tt": "deno test --inspect-brk --allow-all --watch ./test/unit-test/furi-router.static-router.test.ts",
-    "r": "deno test --allow-all --watch ./test/unit-test/debug.test.ts",
-    "rr": "deno test --inspect-brk --allow-all --watch ./test/unit-test/debug.test.ts",
-    "build": "deno run -A npm-package/build_npm.ts 0.1.0"
+    "test": "deno test --allow-all --watch ./test/unit-test/"
   },
   "imports": {
     "@deno/dnt": "jsr:@deno/dnt@^0.41.3",
     "@std/assert": "jsr:@std/assert@^1.0.11",
-    "@types/node": "npm:@types/node@^22.13.5"
+    "@types/node": "npm:@types/node@^22.13.5",
+    "yaml": "npm:yaml@^2.7.0"
   }
 }
