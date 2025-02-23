@@ -8,7 +8,6 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-// deno-lint-ignore-file no-process-globals no-explicit-any
 import * as fs from 'node:fs';
 import * as http from 'node:http';
 import { Server } from 'node:http';
