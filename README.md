@@ -4,7 +4,17 @@
 
 ## A Return to Simplicity
 
-FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI.
+FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI. If you love plain JavaScript, you will love coding in FURI, you get to decide.
+
+The design has been kept as close to the Node.js API without using external dependencies. The Router coded from the ground up in TypeScript, is the core of the framework, with a blazing fast lookup algorithm.
+
+Zero useless abstraction, simple clean coding, designed for hardware with small resources. Perfect for micro-architecture. Very little between your code and the Node.js API to minimize performance overhead.
+
+Router have been battle tested with unit tests and functional tests.
+
+A self contained design and zero external dependencies mean less surface areas for bugs and security issues to hide and creep in. There is less likelihood for working code to break after pulling in updates. Having to maintain perfect working code broken due to an update is an anti-pattern and an insane mindset to develop software.
+
+FURI will keep simple things simple and make hard things easier.
 
 ### Coding with JavaScript
 
@@ -58,7 +68,7 @@ deno add npm:@furi-server/furi
 
 ### Configuration file
 
-Furi lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
+FURI lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
 
 __File: "furi.yaml" (optional)__
 
@@ -75,13 +85,13 @@ FURI is currently under development. However it is feature complete with respect
 
 ## Motivation
 
-The primary objective of the FURI project is to provide a fast, small HTTP server that runs on small hardware with low memory. This benefits micro-architect environments with scaling and performance, with faster load time, compact footprint to deal with bigger production loads.
+The primary objective of the FURI project is to provide a fast, small HTTP server that runs on small hardware with low memory. This benefits micro-architect environments with scaling and performance, with faster load time, compact footprint to maximize bigger production workloads.
 
 The guiding principle of the project is to have the code base self contain with no external dependencies. This allows for easy deployment and maintenance on any platform that supports Node.js. The aim is for small independent shops to be able to run a production server and website while keeping the cost down substantially, along with the effort to maintain the setup.
 
 ## Why
 
-A fast, responsive and lightweight framework that is easy to use. FURI keeps your code simple, avoids useless abstraction and does not get in the way with also working with Node.js core APIs should you ever need to.
+A fast, responsive and lightweight framework that is easy to use. FURI keeps your code simple, avoids useless abstraction and does not get in the way with working with Node.js core APIs should you ever need to.
 
 Inspired by Express.js and Koa.
 
