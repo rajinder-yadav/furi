@@ -6,15 +6,33 @@
 
 FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI. If you love plain JavaScript, you will love coding in FURI, you get to decide.
 
-The design has been kept as close to the Node.js API without using external dependencies. The Router coded from the ground up in TypeScript, is the core of the framework, with a blazing fast lookup algorithm.
+The design has been kept as close to the Node.js API without using external dependencies, using modern JavaScript and the latest Node.js APIs.
+
+ The Router was coded from the ground up in TypeScript, it is the core of the framework, with a blazing fast lookup and matching algorithm.
 
 Zero useless abstraction, simple clean coding, designed for hardware with small resources. Perfect for micro-architecture. Very little between your code and the Node.js API to minimize performance overhead.
 
-Router have been battle tested with unit tests and functional tests.
+Router has been battle tested with unit tests and functional tests.
 
-A self contained design and zero external dependencies mean less surface areas for bugs and security issues to hide and creep in. There is less likelihood for working code to break after pulling in updates. Having to maintain perfect working code broken due to an update is an anti-pattern and an insane mindset to develop software.
+A self contained design and zero external dependencies means there is  less surface area for bugs and security issues to hide and creep in. There is less likelihood for working code to break after pulling in updates. Having to maintain perfect working code broken due to an update is an anti-pattern and an insane mindset to develop software.
 
-FURI will keep simple things simple and make hard things easier.
+FURI will keep simple things simple and make hard things easier without breaking your working code. It is however still in the early preview stage so expect changes as I explore design ideas.
+
+### BOM - Bill of Material
+
+The following tools, technologies and software was used in the development of FURI (v0.1.0).
+
+Item | Version | Description
+--- | --- | ---
+TypeScript | 5.7.3 | A superset of JavaScript that adds static typing and other features to the language.
+Deno | 2.2.1 | A runtime environment for JavaScript that aims to be secure and fast.
+Node.js | 20.18.3 LTS | The runtime environment for JavaScript.
+yaml | 2.7.0 | A library for parsing YAML used to read FURI configuration file.
+@deno/dnt | 0.41.3 | A tool for building NPM packages.
+@std/assert | 1.0.11 | Deno standard library for assertions, used in test code.
+Linux | 6.13.1-1-default | openSUSE Tumbleweed with KDE desktop.
+
+__NOTE__: See Changelog for additional details on changes and updates. ✅
 
 ### Coding with JavaScript
 
