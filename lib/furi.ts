@@ -149,7 +149,8 @@ export class Furi extends FuriRouter {
    */
   private getServerStartupMessage() {
     const { env, port, host } = this.furiConfig;
-    return `FURI Server { host: '${host}', port: ${port}, mode: '${env}' }`
+
+    return `FURI Server (v${API_VERSION}) { host: '${host}', port: ${port}, mode: '${env}' }`
   }
 
 }
