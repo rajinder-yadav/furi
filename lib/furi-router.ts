@@ -116,7 +116,7 @@ export class FuriRouter {
       if (fn.length === 0) {
         throw new Error('No middleware callback function provided');
       }
-      return this.all(uri, ...fn);
+      return this.all(uri, ...(fn.flat(Infinity)));
     }
 
     // Top level based middleware.
@@ -136,17 +136,17 @@ export class FuriRouter {
       throw new Error('No callback function provided');
     }
 
-    this.get(uri, ...fn);
-    this.post(uri, ...fn);
-    this.put(uri, ...fn);
-    this.patch(uri, ...fn);
-    this.delete(uri, ...fn);
+    // TODO: Delete once functional testing complete.
+    // this.get(uri, ...fn);
+    // this.post(uri, ...fn);
+    // this.put(uri, ...fn);
+    // this.patch(uri, ...fn);
+    // this.delete(uri, ...fn);
 
-    // TODO: Learn why this is doing something strange.
-    // const count = Object.keys(HttpMapIndex).length;
-    // for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
-    //   this.buildRequestMap(mapIndex, uri, fn);
-    // }
+    const count = Object.keys(HttpMapIndex).length;
+    for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
+      this.buildRequestMap(mapIndex, uri, fn.flat(Infinity));
+    }
     return this;
   }
 
@@ -293,7 +293,7 @@ export class FuriRouter {
    */
   protected createNamedRouteSearchKey(tokens: string[]): { params: string[], key: string } {
 
-    if (!tokens || tokens?.length === 0) {
+    if (tokens.length === 0) {
       return { params: [], key: '' };
     }
 
@@ -367,12 +367,12 @@ export class FuriRouter {
      * Static URI characters
      */
     const regexCheckStaticURL = /^\/?([~\w/.-]+)\/?$/;
-    const useStaticPath = regexCheckStaticURL.test(uri);
+    const useDirectLookup = regexCheckStaticURL.test(uri);
 
     /**
      * Check if URI is a static path.
      */
-    if (useStaticPath) {
+    if (useDirectLookup) {
       // Static path, we can use direct lookup.
       if (!routeMap.staticRouteMap[uri]) {
         routeMap.staticRouteMap[uri] = { callbacks };
@@ -381,8 +381,7 @@ export class FuriRouter {
         routeMap.staticRouteMap[uri].callbacks.push(...callbacks);
       }
     } else {
-
-      // Dynamic path with named parameters or Regex.
+      // Dynamic path with named parameters or Regex path.
       const regexCheckNamedPath = /^\/?([:~\w/.-]+)\/?$/;
       const useRegex = !regexCheckNamedPath.test(uri);
 
@@ -625,9 +624,6 @@ export class FuriRouter {
           this.httpMethodMap[mapIndex].namedRoutePartitionMap[bucket].push(namedRouteCallback);
         }
       }
-
-
-
     }
   }
 
