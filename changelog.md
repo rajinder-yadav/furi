@@ -16,3 +16,8 @@ Date in ISO format: YYYY-MM-DD
 - Ongoing unit tests and functional tests.
 - Early State Management for seamless data access.
 - Uses a Context Application for unified functionality.
+
+## v0.1.4 (2024-02-24)
+
+- Added version info to server startup message.
+- Fixed laten bug, flatten array of arrays in router map merge.
