@@ -443,23 +443,21 @@ export class FuriRouter {
     // LOG_DEBUG('pathNames>', pathNames);
     // LOG_DEBUG('keyNames>  ', keyNames);
 
-    let didMatch: boolean = true;
-    if (keyNames.length === pathNames.length) {
-      // LOG_DEBUG('Equal token count');
-      for (let i = pathNames.length - 1; i >= 0; i--) {
-        if (pathNames[i] !== keyNames[i] && keyNames[i][0] !== ':') {
-          didMatch = false;
-          break;
-        } else if (keyNames[i][0] === ':') {
-          const key = keyNames[i].substring(1); // remove ':' from start of string.
-          request.params[key] = pathNames[i];
-          // LOG_DEBUG(`param ${keyNames[i]}=${pathNames[i]}`);
-        }
-      }
-    } else {
-      didMatch = false;
+    if (keyNames.length !== pathNames.length) {
+      return false;
     }
-    return didMatch;
+    // LOG_DEBUG('Equal token count');
+    for (let i = pathNames.length - 1; i >= 0; i--) {
+      if (pathNames[i] !== keyNames[i] && keyNames[i][0] !== ':') {
+        return false;
+      } else if (keyNames[i][0] === ':') {
+        // remove ':' from start of string.
+        const key = keyNames[i].substring(1);
+        request.params[key] = pathNames[i];
+        // LOG_DEBUG(`param ${keyNames[i]}=${pathNames[i]}`);
+      }
+    }
+    return true;
   }
 
   /**
@@ -490,14 +488,14 @@ export class FuriRouter {
       request.query = new URLSearchParams(urlQuery[1]);
     }
 
+    URL = urlQuery[0];
+    // Remove trailing slash '/' from URL.
+    if (URL.length > 1 && URL[URL.length - 1] === '/') { URL = URL.substring(0, URL.length - 1); }
+
     /**
      * Setup helper functions on application context object.
      */
     const applicationContext = new ApplicationContext(Furi.appStore, request, response);
-
-    URL = urlQuery[0];
-    // Remove trailing slash '/' from URL.
-    if (URL.length > 1 && URL[URL.length - 1] === '/') { URL = URL.substring(0, URL.length - 1); }
 
     try {
       if (routeMap.staticRouteMap[URL]) {
@@ -549,8 +547,7 @@ export class FuriRouter {
                     const callback = namedRouteParam.callbacks[callbackNamedRouteIndex++];
                     const rv = callback(applicationContext, nextNamedRoute);
                     if (rv) {
-                      applicationContext.end(rv);
-                      return;
+                      return applicationContext.end(rv);
                     }
 
                   }
