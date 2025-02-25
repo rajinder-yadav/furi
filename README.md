@@ -24,8 +24,6 @@ The following tools, technologies and software was used in the development of FU
 
 Item | Version | Description
 --- | --- | ---
-Item | Version | Description
---- | --- | ---
 TypeScript | 5.7.3 | A superset of JavaScript that adds static typing and other features to the language.
 yaml | 2.7.0 | A library for parsing YAML used to read FURI configuration file.
 @deno/dnt | 0.41.3 | A tool for building NPM packages.
