@@ -62,9 +62,10 @@ export class FuriRouter {
     * before other all routes, irrespective of their path. Otherwise the
     * middleware will be called in the order of registration for each route.
     *
-    * @param uri  Optional String value of URI.
-    * @param fn   Reference to callback functions of type RequestHandlerFunc.
-    * @returns    Reference to self, allows method chaining.
+    * @param router  Router with mapped paths.
+    * @param uri     Optional String value of URI.
+    * @param fn      Reference to callback functions of type RequestHandlerFunc.
+    * @returns       Reference to self, allows method chaining.
     */
   use(router: FuriRouter): FuriRouter;
   use(uri: string, router: FuriRouter): FuriRouter;
@@ -76,51 +77,48 @@ export class FuriRouter {
       throw new Error('No Middleware callback function provided');
     }
 
-    let uri = TopLevelMiddleware;
-    let fn: HandlerFunction[];
-
     if (arguments[0] instanceof FuriRouter) {
       // Mounting router as top level middleware.
       this.mergeRouterMaps(arguments[0].httpMethodMap);
       return this;
     } else if (arguments[1] instanceof FuriRouter) {
       // Mounting router to a path.
-      uri = arguments[0] as string;
+      const uri = arguments[0] as string;
       const routeMap: RouteMap[] = arguments[1].httpMethodMap;
 
       // Map all keys from supplied router with a prefix and save to this router map.
       for (let mapIndex = 0; mapIndex < routeMap.length; ++mapIndex) {
 
         // Map static paths.
-        for (const [key, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
-          const prefixKey = mapIndex === 0 ? key : path.join(uri, key).replace(/\/$/, '');
-          this.buildRequestMap(mapIndex, prefixKey, staticRouteMap.callbacks);
+        for (const [keySrc, staticRouteMap] of Object.entries(routeMap[mapIndex].staticRouteMap)) {
+          const keyDest = mapIndex === HttpMapIndex.MIDDLEWARE ? keySrc : path.join(uri, keySrc).replace(/\/$/, '');
+          this.buildRequestMap(mapIndex, keyDest, staticRouteMap.callbacks);
         }
 
         // Map named paths.
-        for (const [key, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
-          const buckets = routeMap[mapIndex].namedRoutePartitionMap[key].length;
-          for (let bucketIndex = 0; bucketIndex < buckets; ++bucketIndex) {
-            const keySrc = routeMap[mapIndex].namedRoutePartitionMap[key][bucketIndex].pathNames.join('/');
+        for (const [bucket, namedRoutePartitionMap] of Object.entries(routeMap[mapIndex].namedRoutePartitionMap)) {
+          const routes = routeMap[mapIndex].namedRoutePartitionMap[bucket].length;
+          for (let routeIndex = 0; routeIndex < routes; ++routeIndex) {
+            const keySrc = routeMap[mapIndex].namedRoutePartitionMap[bucket][routeIndex].pathNames.join('/');
             const keyDest = path.join(uri, keySrc).replace(/\/$/, '');
 
-            this.buildRequestMap(mapIndex, keyDest, namedRoutePartitionMap[bucketIndex].callbacks);
+            this.buildRequestMap(mapIndex, keyDest, namedRoutePartitionMap[routeIndex].callbacks);
           }
         }
       }
       return this;
     } else if (typeof arguments[0] === 'string') {
       // Route based middleware.
-      uri = arguments[0];
-      fn = Array.from(arguments).slice(1);
-      if (fn.length === 0) {
+      const uri = arguments[0];
+      const callbacks: HandlerFunction[] = Array.from(arguments).slice(1);
+      if (callbacks.length === 0) {
         throw new Error('No middleware callback function provided');
       }
-      return this.all(uri, ...(fn.flat(Infinity)));
+      return this.all(uri, ...callbacks);
     }
 
     // Top level based middleware.
-    return this.buildRequestMap(HttpMapIndex.MIDDLEWARE, uri, Array.from(arguments));
+    return this.buildRequestMap(HttpMapIndex.MIDDLEWARE, TopLevelMiddleware, Array.from(arguments));
   }
 
   /**
@@ -144,8 +142,9 @@ export class FuriRouter {
     // this.delete(uri, ...fn);
 
     const count = Object.keys(HttpMapIndex).length;
-    for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
-      this.buildRequestMap(mapIndex, uri, fn.flat(Infinity));
+    for (let mapIndex = 0; mapIndex < count; ++mapIndex) {
+      if (mapIndex === HttpMapIndex.MIDDLEWARE) { continue; }
+      this.buildRequestMap(mapIndex, uri, fn);
     }
     return this;
   }
@@ -233,8 +232,8 @@ export class FuriRouter {
   /**
    * Dispatches incoming HTTP requests to the appropriate handler function.
    *
-   * @param request HTTP request.
-   * @param response HTTP response.
+   * @param incomingMessage HTTP request.
+   * @param response        HTTP response.
    * @returns void.
    */
   public dispatch(
@@ -288,24 +287,24 @@ export class FuriRouter {
    * params => ['one', 'two']
    * return => { params: ['one', 'two'], key: '/aa/(\w+)/bb/cc/(\w+)/e' }
    *
-   * @param  uri URI with segment names.
+   * @param  pathNames URI with segment names.
    * @return Object with regex key and array with param names.
    */
-  protected createNamedRouteSearchKey(tokens: string[]): { params: string[], key: string } {
+  protected createSearchKeyFromNamedRoute(pathNames: string[]): { params: string[], key: string } {
 
-    if (tokens.length === 0) {
+    if (pathNames.length === 0) {
       return { params: [], key: '' };
     }
 
     const params: string[] = [];
     let key: string = '';
 
-    for (const token of tokens) {
-      if (token.startsWith(':')) {
-        params.push(token.substring(1));
+    for (const pathName of pathNames) {
+      if (pathName.startsWith(':')) {
+        params.push(pathName.substring(1));
         key = `${key}/([\\w-.~]+)`;
       } else {
-        key = `${key}/${token}`;
+        key = `${key}/${pathName}`;
       }
     }
 
@@ -313,15 +312,15 @@ export class FuriRouter {
   }
 
   /**
-   * Match URI with named segments and return param object containing
-   * the property of each named segment and its value on the request object.
+   * Match URI with named path and return param object containing
+   * the property of each named param and its value on the request object.
    *
    * @param uri Path URI to be matched.
    * @param pk  Path object with RegEx key and segments.
    * @return    null If URI doesn't match Path Object.
    * @return    param Object containing property and its value for each segment from Path object.
    */
-  protected attachPathParamsToRequestIfExists(
+  protected attachRouteParamsToRequestIfPathMatched(
     uri: string,
     pk: { params: string[], key: string },
     request: HttpRequest
@@ -336,9 +335,9 @@ export class FuriRouter {
 
     if (match) {
       // LOG_DEBUG( 'URI with segment(s) matched: ' + JSON.stringify( pk ) );
-      for (const [i, segment] of pk.params.entries()) {
-        // LOG_DEBUG( 'segment: ' + segment );
-        request.params[segment] = match[i + 1];
+      for (let i = 0; i < pk.params.length; ++i) {
+        const paramName = pk.params[i];
+        request.params[paramName] = match[i + 1];
       }
       // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
       return true;
@@ -351,13 +350,13 @@ export class FuriRouter {
    *
    * @param mapIndex  The URI Map used to look up callbacks.
    * @param uri       String value of URI.
-   * @param callbacks Reference to callback functions of type RequestHandlerFunc.
+   * @param handlers  Reference to callback functions of type RequestHandlerFunc.
    * @returns         Reference to self, allows method chaining.
    */
   protected buildRequestMap(
     mapIndex: number,
     uri: string,
-    callbacks: HandlerFunction[]
+    handlers: HandlerFunction[]
   ): FuriRouter {
     // LOG_DEBUG(uri);
 
@@ -368,7 +367,7 @@ export class FuriRouter {
      */
     const regexCheckStaticURL = /^\/?([~\w/.-]+)\/?$/;
     const useDirectLookup = regexCheckStaticURL.test(uri);
-
+    const callbacks: HandlerFunction[] = handlers.flat(Infinity);
     /**
      * Check if URI is a static path.
      */
@@ -389,7 +388,7 @@ export class FuriRouter {
       const pathNames: string[] = uri.replace(/(^\/)|(\/$)/g, '').split('/');
       // Partition by '/' count, optimize lookup.
       const bucket = pathNames.length;
-      const { key, params } = this.createNamedRouteSearchKey(pathNames);
+      const { key, params } = this.createSearchKeyFromNamedRoute(pathNames);
       // LOG_DEBUG('regex>', useRegex, '\tpathNames>', pathNames);
       // LOG_DEBUG('key>', key, '\tparams>', >', params);
 
@@ -534,7 +533,7 @@ export class FuriRouter {
           if (!namedRouteParams || namedRouteParams?.length === 0) { return; }
           for (const namedRouteParam of namedRouteParams) {
             if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.pathNames, request) ||
-              namedRouteParam.useRegex && this.attachPathParamsToRequestIfExists(URL, namedRouteParam, request)) {
+              namedRouteParam.useRegex && this.attachRouteParamsToRequestIfPathMatched(URL, namedRouteParam, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
               this.callTopLevelMiddlewares(applicationContext);
               // Execute path callback chain.
@@ -593,7 +592,7 @@ export class FuriRouter {
    * Merge given router maps into existing top-level router map.
    * This will occur when the caller adds a route-less router middleware.
    *
-   * @param routeMap UriMap[] to merge into the current httpMaps.
+   * @param routeMap RouteMap[] to merge into the current httpMaps.
    * @return void
    */
   protected mergeRouterMaps(routeMap: RouteMap[]): void {
