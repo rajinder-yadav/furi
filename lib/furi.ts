@@ -85,6 +85,10 @@ export class Furi extends FuriRouter {
     return new Furi();
   }
 
+  /**
+   * Create a new router.
+   * @return Instance of class FuriRouter.
+   */
   static router(): FuriRouter {
     return new FuriRouter();
   }

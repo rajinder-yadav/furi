@@ -404,6 +404,7 @@ export class FuriRouter {
   /**
    * Execute all top level middlewares.
    * @param applicationContext Application context object.
+   * @return void.
    */
   protected callTopLevelMiddlewares(applicationContext: ApplicationContext): void {
     const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
@@ -466,6 +467,7 @@ export class FuriRouter {
    * @param mapIndex  The URI Map used to look up callbacks.
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
+   * @return void.
    */
   protected processHTTPMethod(
     mapIndex: number,

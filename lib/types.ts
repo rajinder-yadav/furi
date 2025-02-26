@@ -79,6 +79,9 @@ export interface NamedRouteCallback {
  * Matching Rules:
  * For URI direct matches, the callbacks will be found in uri_map.
  * For URI with named segments, the callbacks will be found under named_param.
+ *
+ * The key for staticRouteMap will be a path string.
+ * The key for namedRoutePartitionMap will be the bucket value, which is a count of path segements.
  */
 export interface RouteMap {
   staticRouteMap: MapOf<StaticRouteCallback>;

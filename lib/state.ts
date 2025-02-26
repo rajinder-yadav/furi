@@ -7,6 +7,7 @@
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
+
 import { MapOf } from "./types.ts";
 
 /**
