@@ -104,11 +104,13 @@ export class FuriRouter {
       if (routerConfig?.routes && routerConfig.routes.length > 0) {
         for (const route of routerConfig.routes) {
 
-          const fn: HandlerFunction | HandlerFunction[] | BaseRouterHandler | RouterHanderConstructor<BaseRouterHandler>  = route.controller;
+          // const ClassRef: HandlerFunction | HandlerFunction[] | RouterHanderConstructor<BaseRouterHandler>  = route.controller;
+          const ClassRef: unknown = route.controller;
 
           let handlers: HandlerFunction[] | null = null;
-          if (fn && typeof fn === 'function' && fn.prototype instanceof BaseRouterHandler) {
-            handlers = [(new fn()).handle] as HandlerFunction[];
+          if (ClassRef && typeof ClassRef === 'function' && ClassRef.prototype instanceof BaseRouterHandler) {
+            const ClassRouterHandlerRef: RouterHanderConstructor<BaseRouterHandler> = ClassRef as RouterHanderConstructor<BaseRouterHandler>;
+            handlers = [(new ClassRouterHandlerRef()).handle] as HandlerFunction[];
           }
           else if (Array.isArray(route.controller)) {
             handlers = route.controller;

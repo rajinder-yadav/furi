@@ -147,12 +147,6 @@ export interface FuriConfig {
 export abstract class BaseRouterHandler {
   abstract handle(ctx: ApplicationContext, next: () => void): any;
 }
-// export class BaseRouterHandler {
-//   constructor() { }
-//   handle(ctx: ApplicationContext, next: () => void): void {
-//     next();
-//    }
-// }
 
 /**
  * Generic Constructor function.
