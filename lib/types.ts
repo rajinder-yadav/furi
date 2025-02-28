@@ -46,7 +46,7 @@ export type QueryParamTypes = string | string[] | number;
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type HandlerFunction = (ctx: ApplicationContext, next: () => void) => any | void;
+export type HandlerFunction = (ctx: ApplicationContext, next: () => void) => any;
 
 /**
  * Static route handler callback functions.
@@ -139,4 +139,63 @@ export interface FuriConfig {
   port?: number;                  // Port server will listen for connection requests.
   host?: string;                  // host server will listen for connection requests.
   callback?: null | (() => void); // Callback function that will be called when server is ready.
+}
+
+/**
+ * Base class for Class based router handlers.
+ */
+export abstract class BaseRouterHandler {
+  abstract handle(ctx: ApplicationContext, next: () => void): any;
+}
+// export class BaseRouterHandler {
+//   constructor() { }
+//   handle(ctx: ApplicationContext, next: () => void): void {
+//     next();
+//    }
+// }
+
+/**
+ * Generic Constructor function.
+ */
+export type RouterHanderConstructor<T> = {
+  new(...args: any[]): T;
+};
+
+/**
+ * Router reuqest handler definition.
+ */
+export type Route = {
+  path: string;
+  method: string;
+  controller: HandlerFunction | HandlerFunction[] | RouterHanderConstructor<BaseRouterHandler>;
+};
+
+/**
+ * Router configuration.
+ */
+export type RouterConfig = {
+  middleware?: HandlerFunction[];
+  routes?: Route[];
+};
+/**
+ * Export type alias for Routes to be used by developers.
+ */
+export type Routes = RouterConfig;
+
+/**
+ * Helper function to check type Routes.
+ * Properties 'middleware' or 'routes' are optional, but not both.
+ */
+export function isTypeRouterConfig(value: unknown): value is RouterConfig {
+  const middleswares: boolean = typeof value === 'object'
+    && value !== null
+    && 'middleware' in value
+    && Array.isArray(value.middleware);
+
+  const routes: boolean = typeof value === 'object'
+    && value !== null
+    && 'routes' in value
+    && Array.isArray(value.routes)
+
+  return middleswares || routes;
 }

@@ -12,13 +12,17 @@ import { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 
 import {
+  BaseRouterHandler,
+  HandlerFunction,
   HttpMapIndex,
   HttpRequest,
   HttpResponse,
+  isTypeRouterConfig,
   LOG_ERROR,
   LOG_WARN,
-  HandlerFunction,
   RouteMap,
+  RouterConfig,
+  RouterHanderConstructor,
 } from './types.ts';
 
 import { ApplicationContext } from './application-context.ts';
@@ -71,13 +75,75 @@ export class FuriRouter {
   use(uri: string, router: FuriRouter): FuriRouter;
   use(...fn: HandlerFunction[]): FuriRouter;
   use(uri: string, ...fn: HandlerFunction[]): FuriRouter;
+  use(routes: RouterConfig): FuriRouter;
+  use(uri: string, routes: RouterConfig): FuriRouter;
   use(): FuriRouter {
 
     if (arguments.length === 0) {
       throw new Error('No Middleware callback function provided');
     }
 
-    if (arguments[0] instanceof FuriRouter) {
+    if (isTypeRouterConfig(arguments[0]) || isTypeRouterConfig(arguments[1])) {
+      // Type is a router array
+      let pathPrefix = '';
+      let routerConfig: RouterConfig | null = null;
+
+      if (typeof arguments[0] === 'string') {
+        pathPrefix = arguments[0];
+        routerConfig = arguments[1];
+      } else {
+        routerConfig = arguments[0];
+      }
+
+      // Add top-level middleswares.
+      if (routerConfig?.middleware && routerConfig.middleware.length > 0) {
+        this.buildRequestMap(HttpMapIndex.MIDDLEWARE, TopLevelMiddleware, routerConfig.middleware);
+      }
+
+      // Add route handlers.
+      if (routerConfig?.routes && routerConfig.routes.length > 0) {
+        for (const route of routerConfig.routes) {
+
+          const fn: HandlerFunction | HandlerFunction[] | BaseRouterHandler | RouterHanderConstructor<BaseRouterHandler>  = route.controller;
+
+          let handlers: HandlerFunction[] | null = null;
+          if (fn && typeof fn === 'function' && fn.prototype instanceof BaseRouterHandler) {
+            handlers = [(new fn()).handle] as HandlerFunction[];
+          }
+          else if (Array.isArray(route.controller)) {
+            handlers = route.controller;
+          } else {
+            handlers = [route.controller] as HandlerFunction[];
+          }
+
+          const routePath = path.join(pathPrefix, route.path).replace(/\/$/, '');
+
+          switch (route.method.toLowerCase()) {
+            case 'get':
+              this.buildRequestMap(HttpMapIndex.GET, routePath, handlers);
+              break;
+            case 'post':
+              this.buildRequestMap(HttpMapIndex.POST, routePath, handlers);
+              break;
+            case 'put':
+              this.buildRequestMap(HttpMapIndex.PUT, routePath, handlers);
+              break;
+            case 'patch':
+              this.buildRequestMap(HttpMapIndex.PATCH, routePath, handlers);
+              break;
+            case 'delete':
+              this.buildRequestMap(HttpMapIndex.DELETE, routePath, handlers);
+              break;
+            case 'all':
+              this.all(routePath, ...handlers);
+              break;
+            default:
+              throw new Error(`Invalid HTTP method: ${route.method}`);
+          }
+        }
+      }
+      return this;
+    } else if (arguments[0] instanceof FuriRouter) {
       // Mounting router as top level middleware.
       this.mergeRouterMaps(arguments[0].httpMethodMap);
       return this;
@@ -312,7 +378,7 @@ export class FuriRouter {
   }
 
   /**
-   * Match URI with named path and return param object containing
+   * Match URI with named path and attaches param object containing
    * the property of each named param and its value on the request object.
    *
    * @param uri Path URI to be matched.
@@ -320,7 +386,7 @@ export class FuriRouter {
    * @return    null If URI doesn't match Path Object.
    * @return    param Object containing property and its value for each segment from Path object.
    */
-  protected attachRouteParamsToRequestIfPathMatched(
+  protected regexPathMatch(
     uri: string,
     pk: { params: string[], key: string },
     request: HttpRequest
@@ -427,8 +493,8 @@ export class FuriRouter {
   }
 
   /**
-   * Check if each path token matches its ordinal key values,
-   * named path segments always match and are saved to request.params.
+   * Check if each path name matches its ordinal key value,
+   * named path params are attached to request.params.
    *
    * @param pathNames Array of path segments.
    * @param keyNames  Array of key names.
@@ -531,21 +597,21 @@ export class FuriRouter {
         if (routeMap.namedRoutePartitionMap[bucket]) {
           if (!request.params) { request.params = {}; }
 
-          const namedRouteParams = routeMap.namedRoutePartitionMap[bucket];
-          if (!namedRouteParams || namedRouteParams?.length === 0) { return; }
-          for (const namedRouteParam of namedRouteParams) {
-            if (!namedRouteParam.useRegex && this.fastPathMatch(pathNames, namedRouteParam.pathNames, request) ||
-              namedRouteParam.useRegex && this.attachRouteParamsToRequestIfPathMatched(URL, namedRouteParam, request)) {
+          const namedRouteCallbacks = routeMap.namedRoutePartitionMap[bucket];
+          if (!namedRouteCallbacks || namedRouteCallbacks?.length === 0) { return; }
+          for (const namedRouteCallback of namedRouteCallbacks) {
+            if (!namedRouteCallback.useRegex && this.fastPathMatch(pathNames, namedRouteCallback.pathNames, request) ||
+              namedRouteCallback.useRegex && this.regexPathMatch(URL, namedRouteCallback, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
               this.callTopLevelMiddlewares(applicationContext);
               // Execute path callback chain.
-              if (namedRouteParam?.callbacks.length > 0) {
+              if (namedRouteCallback?.callbacks.length > 0) {
 
                 let callbackNamedRouteIndex = 0;
 
                 const nextNamedRoute = (): void => {
-                  if (callbackNamedRouteIndex < namedRouteParam.callbacks.length) {
-                    const callback = namedRouteParam.callbacks[callbackNamedRouteIndex++];
+                  if (callbackNamedRouteIndex < namedRouteCallback.callbacks.length) {
+                    const callback = namedRouteCallback.callbacks[callbackNamedRouteIndex++];
                     const rv = callback(applicationContext, nextNamedRoute);
                     if (rv) {
                       return applicationContext.end(rv);
