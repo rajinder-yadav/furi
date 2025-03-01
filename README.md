@@ -2,7 +2,7 @@
 
 ![Image](./images/dolphin.jpeg)
 
-## A Return to Simplicity
+## A Return to Simplicity ✅
 
 FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI. If you love plain JavaScript, you will love coding in FURI, you get to decide.
 
@@ -24,7 +24,7 @@ The following tools, technologies and software was used in the development of FU
 
 Item | Version | Description
 --- | --- | ---
-TypeScript | 5.7.3 | A superset of JavaScript that adds static typing and other features to the language.
+TypeScript | 5.7.3 | A super-set of JavaScript that adds static typing and other features to the language.
 yaml | 2.7.0 | A library for parsing YAML used to read FURI configuration file.
 @deno/dnt | 0.41.3 | A tool for building NPM packages.
 @std/assert | 1.0.11 | Deno standard library for assertions, used in test code.
@@ -99,9 +99,64 @@ server:
 
 FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
 
-![Image](./images/octopus.jpeg)
+## Super fast stream logging ⚡
+
+FURI supports fist-class logging at the code. Logging is fast and takes place on a background worker-thread, so the main thread never blocks. Logging can be buffered, or immediately written to file. Logging behavior can be configured in FURI's configuration YAML file.
+
+Logging uses the latest Node.js features. Since logging is the core functionality of FURI, there is very little code overhead compared to existing logging libraries.
+
+### Logger configuration
+
+Here are the configurable logging options:
+
+- flushPeriod: Control time to flush buffered log messages.
+- maxCount: Maximum number of log messages before flushing.
+- mode: Can be one of "stream" or "buffered".
+
+- level: Can be one of "debug", "info", "log", "warn", "error", "critical" or "fatal".
+
+The level is used to filter log messages based on their severity. Only messages at or above the configured level will be logged.
+
+```yaml
+logger:
+  enabled: true
+  flushPeriod: 1000
+  logFile: furi.log
+  maxCount: 100
+  mode: stream
+  level: info
+```
+
+### Log levels
+
+It is suggested for Users application code, you log at the "log" level. The framework logs at the "info" level, to provide additional information on the request. However should you ever want to limit logging to your own  application code while developing, it will help reduce the log noise.
+
+The following log levels are supported, list in increasing order of severity:
+
+Level | Description
+------|-------------
+debug | Verbose output for debugging purposes.
+info  | Default log, details operations information.
+log | General User application level logging.
+warn | State that is not a normal operation.
+error | Application level error needing investigation.
+critical | System level error that may cause application to fail.
+fatal | Unrecoverable error causing application to terminate.
+
+### Sample log output
+
+```txt
+2025-03-01T18:31:34.979Z, INFO, FURI Server (v0.2.0) started { host: 'localhost', port: 3030, mode: 'development' }
+2025-03-01T18:31:37.842Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38684, http: 1.1, method: GET, url: /
+2025-03-01T18:31:37.855Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38694, http: 1.1, method: GET, url: /
+2025-03-01T18:31:37.856Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38696, http: 1.1, method: GET, url: /about
+2025-03-01T18:31:37.858Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38706, http: 1.1, method: GET, url: /about/
+2025-03-01T18:31:37.859Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38710, http: 1.1, method: GET, url: /about/raj12
+```
 
 ## Motivation
+
+![Image](./images/octopus.jpeg)
 
 The primary objective of the FURI project is to provide a fast, small HTTP server that runs on small hardware with low memory. This benefits micro-architect environments with scaling and performance, with faster load time, compact footprint to maximize bigger production workloads.
 
@@ -113,7 +168,7 @@ A fast, responsive and lightweight framework that is easy to use. FURI keeps you
 
 Inspired by Express.js and Koa.
 
-## Benchmarks
+## Benchmarks 🚀
 
 FURI outperformed both Fastify and Express.js 5.0 in a benchmark test.
 Below are the benchmarks results.
