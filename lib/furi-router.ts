@@ -312,7 +312,7 @@ export class FuriRouter {
     const request = new HttpRequest(incomingMessage);
 
     if(Furi.bufferedLogger) {
-      Furi.bufferedLogger.log(`host: ${request.headers.host}, remote-ip: ${request.socket.remoteAddress}, remote-port: ${request.socket.remotePort}, http: ${request.httpVersion}, method: ${request.method}, url: ${request.url}`);
+      Furi.bufferedLogger.info(`host: ${request.headers.host}, remote-ip: ${request.socket.remoteAddress}, remote-port: ${request.socket.remotePort}, http: ${request.httpVersion}, method: ${request.method}, url: ${request.url}`);
     }
 
     switch (request.method) {

@@ -109,6 +109,7 @@ export const HttpMapIndex = {
 export const LogLevels = {
   DEBUG: 'DEBUG',
   INFO: 'INFO',
+  LOG: 'LOG',
   WARN: 'WARN',
   ERROR: 'ERROR',
   CRITICAL: 'CRITICAL',
@@ -121,10 +122,11 @@ export const LogLevels = {
 export const LogLevelsRank = {
   DEBUG: 0,
   INFO: 1,
-  WARN: 2,
-  ERROR: 3,
-  CRITICAL: 4,
-  FATAL: 5
+  LOG: 2,
+  WARN: 3,
+  ERROR: 4,
+  CRITICAL: 5,
+  FATAL: 6
 };
 
 /**
@@ -139,6 +141,8 @@ export function mapToLogLevelRank(logLevel: string): number {
       return LogLevelsRank.DEBUG;
     case 'INFO':
       return LogLevelsRank.INFO;
+    case 'LOG':
+      return LogLevelsRank.LOG;
     case 'WARN':
       return LogLevelsRank.WARN;
     case 'ERROR':

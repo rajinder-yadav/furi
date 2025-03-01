@@ -33,7 +33,7 @@ export * from './furi-router.ts';
 
 process.once('SIGINT', () => {
   if (Furi.bufferedLogger) {
-    Furi.bufferedLogger.log('SIGINT signal received, goodbye!');
+    Furi.bufferedLogger.info('SIGINT signal received, goodbye!');
     Furi.bufferedLogger.close();
   }
   setTimeout(() => { process.exit(1); }, 1000); // Forcibly exit if not exited after 250ms
@@ -127,7 +127,7 @@ export class Furi extends FuriRouter {
     this.furiConfig.server.callback = () => {
       const message = this.getServerStartupMessage();
       if (Furi.bufferedLogger) {
-        Furi.bufferedLogger.log(message);
+        Furi.bufferedLogger.info(message);
       }
       console.log(message);
     }

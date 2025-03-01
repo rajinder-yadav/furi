@@ -63,18 +63,23 @@ export class BufferedLogger {
 
   close() {
     // Send a null message to the worker to signal it to stop processing and exit.
-    this.log('BufferedLogger closed.');
-    this.log(null);
+    this.info('BufferedLogger closed.');
+    this.info(null);
   }
 
-  log(message: string | null) {
+  debug(message: string | null) {
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.DEBUG) {
+      this.worker.postMessage({ level: LogLevels.DEBUG, message });
+    }
+  }
+  info(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.INFO) {
       this.worker.postMessage({ level: LogLevels.INFO, message });
     }
   }
-  debug(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.DEBUG) {
-      this.worker.postMessage({ level: LogLevels.DEBUG, message });
+  log(message: string | null) {
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.LOG) {
+      this.worker.postMessage({ level: LogLevels.LOG, message });
     }
   }
   warm(message: string | null) {
