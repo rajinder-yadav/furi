@@ -37,9 +37,9 @@ class LoggerWorker {
   /**
    * Configurable settings.
    */
-  static maxLogCount: number = 100;
-  static flushPeriod: number = 1000;
-  static logMode: string = 'buffered';
+  static logMaxCount: number = workerData.maxLogCount ?? 100;
+  static flushPeriod: number = workerData.flushPeriod ?? 1000;
+  static logMode: string = workerData?.logMode ?? 'buffered';
 
   /**
    * Following settings should not be changed.
@@ -57,7 +57,7 @@ class LoggerWorker {
     if (LoggerWorker.logMode === 'buffered') {
       LoggerWorker.logBuffer.push(logEntry);
 
-      if (LoggerWorker.logBuffer.length >= LoggerWorker.maxLogCount) {
+      if (LoggerWorker.logBuffer.length >= LoggerWorker.logMaxCount) {
         LoggerWorker.flush();
       }
 

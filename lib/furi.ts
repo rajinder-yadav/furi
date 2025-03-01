@@ -11,6 +11,7 @@
 import * as fs from 'node:fs';
 import * as http from 'node:http';
 import { Server } from 'node:http';
+import process from "node:process";
 import YAML from 'npm:yaml';
 
 import { FuriRouter } from './furi-router.ts';
@@ -21,16 +22,25 @@ import {
 } from './types.ts';
 
 import { StoreState } from './state.ts';
+import { BufferedLogger } from './utils/buffered-logger.ts';
 
 // Re-export types and classes for applications
 export * from './types.ts';
 export * from './application-context.ts';
 export * from './furi-router.ts';
 
+process.once('SIGINT', () => {
+  Furi.bufferedLogger.log('SIGINT signal received, goodbye!');
+  Furi.bufferedLogger.close();
+  setTimeout(() => { process.exit(1); }, 1000); // Forcibly exit if not exited after 250ms
+});
+
 /**
  * Router Class, matches URI for fast dispatch to handler.
  */
 export class Furi extends FuriRouter {
+
+  static bufferedLogger: BufferedLogger;
 
   static readonly appStore: StoreState = new StoreState();
 
@@ -38,11 +48,18 @@ export class Furi extends FuriRouter {
   protected properties: MapOf<any> = {};
 
   // Default server configuration.
-  private readonly furiConfig: FuriConfig = {
+  private furiConfig: FuriConfig = {
     env: 'development',
     port: 3030,
     host: 'localhost',
-    callback: null
+    callback: null,
+    logger: {
+      enabled: false,
+      flushPeriod: 1000,
+      logFile: 'furi.log',
+      maxCount: 100,
+      mode: 'buffered' as const,
+    },
   };
 
   constructor() {
@@ -66,13 +83,33 @@ export class Furi extends FuriRouter {
         port = this.properties?.server.port ?? port;
         host = this.properties?.server.host ?? host;
         env = this.properties?.server.env ?? env;
+
+        this.furiConfig.logger.enabled = this.properties?.logger.enabled ?? this.furiConfig.logger.enabled;
+        this.furiConfig.logger.flushPeriod = this.properties?.logger.flushPeriod ?? this.furiConfig.logger.flushPeriod;
+        this.furiConfig.logger.maxCount = this.properties?.logger.maxCount ?? this.furiConfig.logger.maxCount;
+        this.furiConfig.logger.mode = this.properties?.logger.mode ?? this.furiConfig.logger.mode;
+        this.furiConfig.logger.logFile = this.properties?.logger.logFile ?? this.furiConfig.logger.logFile;
       }
+
+      Furi.bufferedLogger = new BufferedLogger(
+        process.cwd(),
+        this.furiConfig.logger.logFile,
+        this.furiConfig.logger.enabled,
+        this.furiConfig.logger.flushPeriod,
+        this.furiConfig.logger.maxCount,
+        this.furiConfig.logger.mode
+      );
     } catch (error) {
       // Ignore and file errors.
     }
 
-    callback = () => { console.log(this.getServerStartupMessage()); }
-    this.furiConfig = { env, port, host, callback };
+    callback = () => {
+      const message = this.getServerStartupMessage();
+      Furi.bufferedLogger.log(message);
+      console.log(message);
+    }
+    this.furiConfig = { ...this.furiConfig, env, port, host, callback };
+
   }
 
   /**
@@ -154,7 +191,7 @@ export class Furi extends FuriRouter {
   private getServerStartupMessage() {
     const { env, port, host } = this.furiConfig;
 
-    return `FURI Server (v${API_VERSION}) { host: '${host}', port: ${port}, mode: '${env}' }`
+    return `FURI Server (v${API_VERSION}) started { host: '${host}', port: ${port}, mode: '${env}' }`
   }
 
 }

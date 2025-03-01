@@ -22,12 +22,20 @@ export class BufferedLogger {
 
   constructor(
     protected readonly logDirectory: string,
-    protected readonly logFileName: string
+    protected readonly logFileName: string,
+    protected enabled: boolean,
+    protected flushPeriod: number,
+    protected logMaxCount: number,
+    protected logMode: 'buffered' | 'stream'
   ) {
     this.worker = new Worker(path.join(process.cwd(), 'lib/utils', 'logger-worker.ts'), {
       workerData: {
         logDirectory: this.logDirectory,
         logFileName: this.logFileName,
+        enabled: this.enabled,
+        flushPeriod: this.flushPeriod,
+        logMaxCount: this.logMaxCount,
+        logMode: this.logMode
       },
     });
 
@@ -44,11 +52,13 @@ export class BufferedLogger {
 
   close() {
     // Send a null message to the worker to signal it to stop processing and exit.
-    this.worker.postMessage('BufferedLogger closed.');
-    this.worker.postMessage(null);
+    this.log('BufferedLogger closed.');
+    this.log(null);
   }
 
-  log(message: string) {
-    this.worker.postMessage(message);
+  log(message: string | null) {
+    if (this.enabled) {
+      this.worker.postMessage(message);
+    }
   }
 }

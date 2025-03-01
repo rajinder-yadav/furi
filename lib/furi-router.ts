@@ -311,6 +311,8 @@ export class FuriRouter {
     // LOG_DEBUG( request.method, request.url );
     const request = new HttpRequest(incomingMessage);
 
+    Furi.bufferedLogger.log(`${request.method} ${request.url} HTTP ${request.httpVersion}} ${JSON.stringify(request.headers)}`);
+
     switch (request.method) {
       case 'GET':
       case 'get':
