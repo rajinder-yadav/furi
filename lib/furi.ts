@@ -32,8 +32,10 @@ export * from './application-context.ts';
 export * from './furi-router.ts';
 
 process.once('SIGINT', () => {
-  Furi.bufferedLogger.log('SIGINT signal received, goodbye!');
-  Furi.bufferedLogger.close();
+  if (Furi.bufferedLogger) {
+    Furi.bufferedLogger.log('SIGINT signal received, goodbye!');
+    Furi.bufferedLogger.close();
+  }
   setTimeout(() => { process.exit(1); }, 1000); // Forcibly exit if not exited after 250ms
 });
 
@@ -107,22 +109,26 @@ export class Furi extends FuriRouter {
         };
       }
 
-      Furi.bufferedLogger = new BufferedLogger(
-        process.cwd(),
-        logFile,
-        enabled,
-        flushPeriod,
-        maxCount,
-        mode,
-        level
-      );
+      if (this.furiConfig.logger.enabled) {
+        Furi.bufferedLogger = new BufferedLogger(
+          process.cwd(),
+          logFile,
+          enabled,
+          flushPeriod,
+          maxCount,
+          mode,
+          level
+        );
+      }
     } catch (error) {
       // Ignore and file errors.
     }
 
     this.furiConfig.server.callback = () => {
       const message = this.getServerStartupMessage();
-      Furi.bufferedLogger.log(message);
+      if (Furi.bufferedLogger) {
+        Furi.bufferedLogger.log(message);
+      }
       console.log(message);
     }
   }
