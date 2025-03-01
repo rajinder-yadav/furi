@@ -18,6 +18,7 @@ import { FuriRouter } from './furi-router.ts';
 import {
   API_VERSION,
   FuriConfig,
+  LoggerMode,
   MapOf,
 } from './types.ts';
 
@@ -49,10 +50,12 @@ export class Furi extends FuriRouter {
 
   // Default server configuration.
   private furiConfig: FuriConfig = {
-    env: 'development',
-    port: 3030,
-    host: 'localhost',
-    callback: null,
+    server: {
+      env: 'development',
+      port: 3030,
+      host: 'localhost',
+      callback: null,
+    },
     logger: {
       enabled: false,
       flushPeriod: 1000,
@@ -65,8 +68,10 @@ export class Furi extends FuriRouter {
   constructor() {
     super();
 
-    // Set defaults.
-    let { env, port, host, callback } = this.furiConfig;
+    // Read default configuration values.
+    let { env, port, host, callback } = this.furiConfig.server;
+
+    let { enabled, flushPeriod, maxCount, mode, logFile } = this.furiConfig.logger;
 
     /**
      * Read server configuration properties from furi.yaml or furi.yml file.
@@ -79,37 +84,43 @@ export class Furi extends FuriRouter {
         data = fs.readFileSync('./furi.yml', 'utf8');
       }
       if (data !== null) {
+        // Server values.
         this.properties = YAML.parse(data);
         port = this.properties?.server.port ?? port;
         host = this.properties?.server.host ?? host;
         env = this.properties?.server.env ?? env;
 
-        this.furiConfig.logger.enabled = this.properties?.logger.enabled ?? this.furiConfig.logger.enabled;
-        this.furiConfig.logger.flushPeriod = this.properties?.logger.flushPeriod ?? this.furiConfig.logger.flushPeriod;
-        this.furiConfig.logger.maxCount = this.properties?.logger.maxCount ?? this.furiConfig.logger.maxCount;
-        this.furiConfig.logger.mode = this.properties?.logger.mode ?? this.furiConfig.logger.mode;
-        this.furiConfig.logger.logFile = this.properties?.logger.logFile ?? this.furiConfig.logger.logFile;
+        // Logger values.
+        enabled = this.properties?.logger.enabled ?? enabled;
+        flushPeriod = this.properties?.logger.flushPeriod ?? flushPeriod;
+        maxCount = this.properties?.logger.maxCount ?? maxCount;
+        mode = this.properties?.logger.mode as LoggerMode ?? mode as LoggerMode;
+        logFile = this.properties?.logger.logFile ?? logFile;
+
+        // Update configuration values.
+        this.furiConfig = {
+          server: { env, port, host, callback },
+          logger: { enabled, flushPeriod, logFile, maxCount, mode }
+        };
       }
 
       Furi.bufferedLogger = new BufferedLogger(
         process.cwd(),
-        this.furiConfig.logger.logFile,
-        this.furiConfig.logger.enabled,
-        this.furiConfig.logger.flushPeriod,
-        this.furiConfig.logger.maxCount,
-        this.furiConfig.logger.mode
+        logFile,
+        enabled,
+        flushPeriod,
+        maxCount,
+        mode
       );
     } catch (error) {
       // Ignore and file errors.
     }
 
-    callback = () => {
+    this.furiConfig.server.callback = () => {
       const message = this.getServerStartupMessage();
       Furi.bufferedLogger.log(message);
       console.log(message);
     }
-    this.furiConfig = { ...this.furiConfig, env, port, host, callback };
-
   }
 
   /**
@@ -147,16 +158,16 @@ export class Furi extends FuriRouter {
    */
   listen(serverConfig: FuriConfig): Server {
 
-    let { env, port, host, callback } = serverConfig;
+    let { env, port, host, callback } = serverConfig.server;
 
     // Update running server config properties.
-    if (env) { this.furiConfig.env = env; }
-    if (port) { this.furiConfig.port = port; }
-    if (host) { this.furiConfig.host = host; }
-    if (callback) { this.furiConfig.callback = callback; }
+    if (env) { this.furiConfig.server.env = env; }
+    if (port) { this.furiConfig.server.port = port; }
+    if (host) { this.furiConfig.server.host = host; }
+    if (callback) { this.furiConfig.server.callback = callback; }
 
     if (!callback) {
-      callback = this.furiConfig.callback;
+      callback = this.furiConfig.server.callback;
     }
 
     const server: Server = http.createServer(this.handler());
@@ -189,7 +200,7 @@ export class Furi extends FuriRouter {
    * @returns Server configuration string.
    */
   private getServerStartupMessage() {
-    const { env, port, host } = this.furiConfig;
+    const { env, port, host } = this.furiConfig.server;
 
     return `FURI Server (v${API_VERSION}) started { host: '${host}', port: ${port}, mode: '${env}' }`
   }

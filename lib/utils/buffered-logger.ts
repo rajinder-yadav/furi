@@ -12,6 +12,8 @@ import path from "node:path";
 import process from "node:process";
 import { Worker } from 'node:worker_threads';
 
+import { LoggerMode } from '../types.ts';
+
 /**
  * Buffered logger class that uses a worker thread to handle logging.
  *
@@ -26,7 +28,7 @@ export class BufferedLogger {
     protected enabled: boolean,
     protected flushPeriod: number,
     protected logMaxCount: number,
-    protected logMode: 'buffered' | 'stream'
+    protected logMode: LoggerMode
   ) {
     this.worker = new Worker(path.join(process.cwd(), 'lib/utils', 'logger-worker.ts'), {
       workerData: {

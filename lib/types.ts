@@ -17,7 +17,7 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = '0.1.5';
+export const API_VERSION: string = '0.2.0';
 
 /**
  * Logging helper functions.
@@ -26,6 +26,8 @@ export const LOG_DEBUG = (...s: string[]) => console.debug('DEBUG> ', ...s);
 export const LOG_INFO = (...s: string[]) => console.info('DEBUG> ', ...s);
 export const LOG_WARN = (...s: string[]) => console.warn('WARNING> ', ...s);
 export const LOG_ERROR = (...s: string[]) => console.error('ERROR> ', ...s);
+
+export type LoggerMode = 'buffered' | 'streaming';
 
 /**
  * Map types for different indexed access.
@@ -135,16 +137,18 @@ export class HttpResponse extends ServerResponse<IncomingMessage> {
  * either from code or environment variables, or a '.env' file.
  */
 export interface FuriConfig {
-  env?: string;                    // Run-time environment (development, production).
-  port?: number;                   // Port server will listen for connection requests.
-  host?: string;                   // host server will listen for connection requests.
-  callback?: null | (() => void);  // Callback function that will be called when server is ready.
+  server: {
+  env: string;                    // Run-time environment (development, production).
+  port: number;                   // Port server will listen for connection requests.
+  host: string;                   // host server will listen for connection requests.
+  callback: null | (() => void);  // Callback function that will be called when server is ready.
+  },
   logger: {
-    enabled: boolean;               // Enable logging of requests and responses.
-    flushPeriod: number;           // Period in milliseconds between log flushes.
-    logFile: string;               // Path to log file, if logging mode is 'stream'.
-    maxCount: number;              // Maximum number of log entries before flushing.
-    mode: 'buffered' | 'stream';   // Log mode, buffered or stream.
+    enabled: boolean;             // Enable logging of requests and responses.
+    flushPeriod: number;          // Period in milliseconds between log flushes.
+    logFile: string;              // Path to log file, if logging mode is 'stream'.
+    maxCount: number;             // Maximum number of log entries before flushing.
+    mode: LoggerMode;             // Log mode, buffered or stream.
   };
 }
 
