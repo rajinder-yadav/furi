@@ -10,6 +10,7 @@
 
 import fs from 'node:fs';
 import path from "node:path";
+import { Buffer } from 'node:buffer';
 
 import { parentPort, workerData } from 'node:worker_threads';
 
@@ -18,11 +19,11 @@ import { parentPort, workerData } from 'node:worker_threads';
  * Worker thread message handler.
  */
 if (parentPort) {
-  parentPort.on('message', ({level, message}: {level: string, message: string | null}) => {
+  parentPort.on('message', ({ level, message }: { level: string, message: string | null }) => {
     if (message) {
-      LoggerWorker.log({level,  message});
+      LoggerWorker.log({ level, message });
     } else {
-      LoggerWorker.log({level, message: 'LoggerWorker closed.'});
+      LoggerWorker.log({ level, message: 'LoggerWorker closed.' });
       LoggerWorker.flush();
       LoggerWorker.stop();
     }
@@ -48,17 +49,22 @@ class LoggerWorker {
   static readonly logFilePath = path.join(workerData.logDirectory, workerData.logFileName);
   static readonly logStream = fs.createWriteStream(LoggerWorker.logFilePath, { flags: 'a' });
 
-  static logBuffer: string[] = [];
+  static readonly bufferHighMark = LoggerWorker.logMaxCount * 100;
+  static readonly bufferMaxSize = LoggerWorker.bufferHighMark * 1.25;
+
+  static logBuffer: Buffer = Buffer.alloc(LoggerWorker.bufferMaxSize);
+  static bufferOffset = 0;
+
   static timerId: number | null = null;
 
-  static log({level, message}: {level: string, message: string | null}) {
+  static log({ level, message }: { level: string, message: string | null }) {
     const timestamp = new Date().toISOString();
     const logEntry = `${timestamp}, ${level}, ${message}\n`;
 
     if (LoggerWorker.logMode === 'buffered') {
-      LoggerWorker.logBuffer.push(logEntry);
+      LoggerWorker.bufferOffset += LoggerWorker.logBuffer.write(logEntry, LoggerWorker.bufferOffset, 'utf8');
 
-      if (LoggerWorker.logBuffer.length >= LoggerWorker.logMaxCount) {
+      if (LoggerWorker.logBuffer.length >= LoggerWorker.bufferHighMark) {
         LoggerWorker.flush();
       }
 
@@ -82,13 +88,15 @@ class LoggerWorker {
     }
   }
   static resetBuffer() {
-    LoggerWorker.logBuffer = [];
+    LoggerWorker.logBuffer.fill(0);
+    // LoggerWorker.logBuffer = Buffer.alloc(100*LoggerWorker.logMaxCount*1.5);
+    LoggerWorker.bufferOffset = 0;
   }
   static flush() {
-    const buf = LoggerWorker.logBuffer;
+    // Only write the final valid data in the buffer.
+    LoggerWorker.logStream.write(LoggerWorker.logBuffer.toString().slice(0, LoggerWorker.bufferOffset));
     LoggerWorker.clearTimer();
     LoggerWorker.resetBuffer();
-    LoggerWorker.logStream.write(buf.join(''));
   }
   static stop() {
     LoggerWorker.flush();
