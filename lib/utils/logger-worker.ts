@@ -53,7 +53,7 @@ class LoggerWorker {
 
   static log({level, message}: {level: string, message: string | null}) {
     const timestamp = new Date().toISOString();
-    const logEntry = `${timestamp} ${level} - ${message}\n`;
+    const logEntry = `${timestamp}, ${level}, ${message}\n`;
 
     if (LoggerWorker.logMode === 'buffered') {
       LoggerWorker.logBuffer.push(logEntry);
