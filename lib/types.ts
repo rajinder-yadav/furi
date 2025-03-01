@@ -23,7 +23,8 @@ export const API_VERSION: string = '0.2.0';
  * Logging helper functions.
  */
 export const LOG_DEBUG = (...s: string[]) => console.debug('DEBUG> ', ...s);
-export const LOG_INFO = (...s: string[]) => console.info('DEBUG> ', ...s);
+export const LOG_INFO = (...s: string[]) => console.info('INFO> ', ...s);
+export const LOG_LOG = (...s: string[]) => console.log('LOG> ', ...s);
 export const LOG_WARN = (...s: string[]) => console.warn('WARNING> ', ...s);
 export const LOG_ERROR = (...s: string[]) => console.error('ERROR> ', ...s);
 
