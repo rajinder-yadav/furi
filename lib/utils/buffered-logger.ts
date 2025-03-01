@@ -12,7 +12,12 @@ import path from "node:path";
 import process from "node:process";
 import { Worker } from 'node:worker_threads';
 
-import { LoggerMode } from '../types.ts';
+import {
+  LoggerMode,
+  LogLevels,
+  LogLevelsRank,
+  mapToLogLevelRank
+} from '../types.ts';
 
 /**
  * Buffered logger class that uses a worker thread to handle logging.
@@ -21,6 +26,7 @@ import { LoggerMode } from '../types.ts';
 export class BufferedLogger {
 
   private readonly worker: Worker;
+  private readonly logLevelRank: number;
 
   constructor(
     protected readonly logDirectory: string,
@@ -28,8 +34,11 @@ export class BufferedLogger {
     protected enabled: boolean,
     protected flushPeriod: number,
     protected logMaxCount: number,
-    protected logMode: LoggerMode
+    protected logMode: LoggerMode,
+    protected logLevel: string
   ) {
+    this.logLevelRank = mapToLogLevelRank(logLevel);
+
     this.worker = new Worker(path.join(process.cwd(), 'lib/utils', 'logger-worker.ts'), {
       workerData: {
         logDirectory: this.logDirectory,
@@ -59,8 +68,33 @@ export class BufferedLogger {
   }
 
   log(message: string | null) {
-    if (this.enabled) {
-      this.worker.postMessage(message);
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.INFO) {
+      this.worker.postMessage({ level: LogLevels.INFO, message });
+    }
+  }
+  debug(message: string | null) {
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.DEBUG) {
+      this.worker.postMessage({ level: LogLevels.DEBUG, message });
+    }
+  }
+  warm(message: string | null) {
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.WARN) {
+      this.worker.postMessage({ level: LogLevels.WARN, message });
+    }
+  }
+  error(message: string | null) {
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.ERROR) {
+      this.worker.postMessage({ level: LogLevels.ERROR, message });
+    }
+  }
+  critical(message: string | null) {
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.CRITICAL) {
+      this.worker.postMessage({ level: LogLevels.CRITICAL, message });
+    }
+  }
+  fatal(message: string | null) {
+    if (this.enabled && this.logLevelRank <= LogLevelsRank.FATAL) {
+      this.worker.postMessage({ level: LogLevels.FATAL, message });
     }
   }
 }

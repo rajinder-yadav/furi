@@ -104,6 +104,55 @@ export const HttpMapIndex = {
 }
 
 /**
+ * Log level string litaral values for log messages and configuration.
+ */
+export const LogLevels = {
+  DEBUG: 'DEBUG',
+  INFO: 'INFO',
+  WARN: 'WARN',
+  ERROR: 'ERROR',
+  CRITICAL: 'CRITICAL',
+  FATAL: 'FATAL'
+};
+
+/**
+ * Log level ordinal values use for filtering log messages.
+ */
+export const LogLevelsRank = {
+  DEBUG: 0,
+  INFO: 1,
+  WARN: 2,
+  ERROR: 3,
+  CRITICAL: 4,
+  FATAL: 5
+};
+
+/**
+ * Converts a log level string to its ordinal value to help with log filtering.
+ *
+ * @param logLevel - The log level as a string.
+ * @returns Log level ordinal value.
+ */
+export function mapToLogLevelRank(logLevel: string): number {
+  switch(logLevel.toUpperCase()) {
+    case 'DEBUG':
+      return LogLevelsRank.DEBUG;
+    case 'INFO':
+      return LogLevelsRank.INFO;
+    case 'WARN':
+      return LogLevelsRank.WARN;
+    case 'ERROR':
+      return LogLevelsRank.ERROR;
+    case 'CRITICAL':
+      return LogLevelsRank.CRITICAL;
+    case 'FATAL':
+      return LogLevelsRank.FATAL;
+    default:
+      throw new Error(`Invalid log level: ${logLevel}`);
+  }
+}
+
+/**
  * HTTP Request object extending Node.js IncomingMessage.
  */
 export class HttpRequest extends IncomingMessage {
@@ -149,6 +198,7 @@ export interface FuriConfig {
     logFile: string;              // Path to log file, if logging mode is 'stream'.
     maxCount: number;             // Maximum number of log entries before flushing.
     mode: LoggerMode;             // Log mode, buffered or stream.
+    level: string;                // Log level, debug, info, warn, error.
   };
 }
 

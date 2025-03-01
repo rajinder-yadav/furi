@@ -20,6 +20,7 @@ import {
   FuriConfig,
   LoggerMode,
   MapOf,
+  LogLevels,
 } from './types.ts';
 
 import { StoreState } from './state.ts';
@@ -62,6 +63,7 @@ export class Furi extends FuriRouter {
       logFile: 'furi.log',
       maxCount: 100,
       mode: 'buffered' as const,
+      level: LogLevels.INFO,
     },
   };
 
@@ -71,7 +73,7 @@ export class Furi extends FuriRouter {
     // Read default configuration values.
     let { env, port, host, callback } = this.furiConfig.server;
 
-    let { enabled, flushPeriod, maxCount, mode, logFile } = this.furiConfig.logger;
+    let { enabled, flushPeriod, maxCount, mode, logFile, level } = this.furiConfig.logger;
 
     /**
      * Read server configuration properties from furi.yaml or furi.yml file.
@@ -96,11 +98,12 @@ export class Furi extends FuriRouter {
         maxCount = this.properties?.logger.maxCount ?? maxCount;
         mode = this.properties?.logger.mode as LoggerMode ?? mode as LoggerMode;
         logFile = this.properties?.logger.logFile ?? logFile;
+        level = this.properties?.logger.level.toUpperCase() ?? level;
 
         // Update configuration values.
         this.furiConfig = {
           server: { env, port, host, callback },
-          logger: { enabled, flushPeriod, logFile, maxCount, mode }
+          logger: { enabled, flushPeriod, logFile, maxCount, mode, level },
         };
       }
 
@@ -110,7 +113,8 @@ export class Furi extends FuriRouter {
         enabled,
         flushPeriod,
         maxCount,
-        mode
+        mode,
+        level
       );
     } catch (error) {
       // Ignore and file errors.

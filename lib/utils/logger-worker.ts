@@ -13,15 +13,16 @@ import path from "node:path";
 
 import { parentPort, workerData } from 'node:worker_threads';
 
+
 /**
  * Worker thread message handler.
  */
 if (parentPort) {
-  parentPort.on('message', (message) => {
+  parentPort.on('message', ({level, message}: {level: string, message: string | null}) => {
     if (message) {
-      LoggerWorker.log(message);
+      LoggerWorker.log({level,  message});
     } else {
-      LoggerWorker.log('LoggerWorker closed.');
+      LoggerWorker.log({level, message: 'LoggerWorker closed.'});
       LoggerWorker.flush();
       LoggerWorker.stop();
     }
@@ -50,9 +51,9 @@ class LoggerWorker {
   static logBuffer: string[] = [];
   static timerId: number | null = null;
 
-  static log(message: string) {
+  static log({level, message}: {level: string, message: string | null}) {
     const timestamp = new Date().toISOString();
-    const logEntry = `${timestamp} - ${message}\n`;
+    const logEntry = `${timestamp} ${level} - ${message}\n`;
 
     if (LoggerWorker.logMode === 'buffered') {
       LoggerWorker.logBuffer.push(logEntry);
