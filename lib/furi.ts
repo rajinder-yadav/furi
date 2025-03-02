@@ -64,7 +64,7 @@ export class Furi extends FuriRouter {
       flushPeriod: 1000,
       logFile: 'furi.log',
       maxCount: 100,
-      mode: 'buffered' as const,
+      mode: 'buffer' as const,
       level: LogLevels.INFO,
     },
   };

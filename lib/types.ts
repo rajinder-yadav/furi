@@ -17,7 +17,7 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = '0.2.4';
+export const API_VERSION: string = '0.2.5';
 
 /**
  * Logging helper functions.
@@ -28,7 +28,7 @@ export const LOG_LOG = (...s: string[]) => console.log('LOG> ', ...s);
 export const LOG_WARN = (...s: string[]) => console.warn('WARNING> ', ...s);
 export const LOG_ERROR = (...s: string[]) => console.error('ERROR> ', ...s);
 
-export type LoggerMode = 'buffered' | 'streaming';
+export type LoggerMode = 'buffer' | 'stream';
 
 /**
  * Map types for different indexed access.
@@ -37,7 +37,15 @@ export interface MapOf<T1> {
   [key: string]: T1;
 }
 
+/**
+ * Query parameter types.
+ */
 export type QueryParamTypes = string | string[] | number;
+
+/**
+ * Middleware function signature..
+ */
+export type Middleware = () => void;
 
 /**
  * Function prototype for Request Handler callback function.
@@ -49,7 +57,7 @@ export type QueryParamTypes = string | string[] | number;
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type HandlerFunction = (ctx: ApplicationContext, next: () => void) => any;
+export type HandlerFunction = (ctx: ApplicationContext, next: Middleware) => any;
 
 /**
  * Static route handler callback functions.
@@ -211,7 +219,7 @@ export interface FuriConfig {
  * Base class for Class based router handlers.
  */
 export abstract class BaseRouterHandler {
-  abstract handle(ctx: ApplicationContext, next: () => void): any;
+  abstract handle(ctx: ApplicationContext, next: Middleware): any;
 }
 
 /**
