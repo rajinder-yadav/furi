@@ -2,6 +2,39 @@
 
 ![Image](./images/dolphin.jpeg)
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [FURI - Fast Uniform Resource Identifier](#furi---fast-uniform-resource-identifier)
+  - [A Return to Simplicity ✅](#a-return-to-simplicity-)
+    - [BOM - Bill of Material](#bom---bill-of-material)
+    - [Coding with JavaScript](#coding-with-javascript)
+    - [Coding with TypeScript](#coding-with-typescript)
+    - [Using NPM and Node.js](#using-npm-and-nodejs)
+    - [Using Deno](#using-deno)
+  - [Declare a named route](#declare-a-named-route)
+    - [Use a router to declare routes](#use-a-router-to-declare-routes)
+    - [Mounting top-level middlewares](#mounting-top-level-middlewares)
+    - [Declaring route based middlewares](#declaring-route-based-middlewares)
+  - [Array based routing](#array-based-routing)
+    - [Declaring a Handler Class](#declaring-a-handler-class)
+    - [Declaring top-level middleware](#declaring-top-level-middleware)
+    - [Declaring route-level middleware](#declaring-route-level-middleware)
+    - [Configuration file](#configuration-file)
+  - [Super fast stream logging ⚡](#super-fast-stream-logging-)
+    - [Logger configuration](#logger-configuration)
+    - [Log levels](#log-levels)
+    - [Sample log output](#sample-log-output)
+  - [Motivation](#motivation)
+  - [Why](#why)
+  - [Benchmarks 🚀](#benchmarks-)
+    - [FURI Benchmark](#furi-benchmark)
+    - [Fastify Benchmark](#fastify-benchmark)
+    - [Express Benchmark](#express-benchmark)
+
+<!-- /code_chunk_output -->
+
 ## A Return to Simplicity ✅
 
 FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI. If you love plain JavaScript, you will love coding in FURI, you get to decide.
@@ -84,9 +117,101 @@ If you are using Deno, add the package with:
 deno add npm:@furi-server/furi
 ```
 
+## Declare a named route
+
+The code below shows how to declare a named route, and also how to read the named route parameters from the hanlder function, using the `ApplicationContext` object.
+
+```ts
+furi.get("/about/:user_id", (ctx: ApplicationContext) => {
+
+  ctx.response.writeHead(200, {
+    "Content-Type": "text/html",
+    "User-Agent": USER_AGENT
+  });
+
+  ctx.end(`<p>User page for: ${ctx.request.params.user_id}</p>\n`);
+});
+```
+
+### Use a router to declare routes
+
+Below we declare a route honder on a router, then we mouth the router to the Furi instance.
+
+```ts
+const furi = Furi.create();
+const router = Furi.router();
+
+router.get('/home', (ctx: ApplicationContext) => {
+  ctx.response.writeHead(200, {
+    'Content-Type': 'text/html',
+    'User-Agent': USER_AGENT
+  });
+  ctx.send('<h1>Home Page</h1>\n');
+  ctx.send('<p>Welcome to the home page.</p>\n');
+  ctx.end();
+});
+
+furi.use(router);
+```
+
+Mounting to a route path:
+
+This will mount the router to the "__/v1/api__" path. The "__/home__" route will be accessible at "__/v1/api/home__".
+
+```ts
+furi.use('/v1/api', router);
+```
+
+### Mounting top-level middlewares
+
+You can mount top-level middlewares to the Furi instance. These middlewares will be executed for every request.
+
+1. A top-level middleware is mounted using "__use()__" method.
+1. The handler function take two arguments:
+    - Application context object.
+    - Next function to call the next middleware or handler.
+
+__NOTE__: The last handler function must end the request with a call to "__end()__", or returning a value.
+
+```ts
+router.use((ctx: ApplicationContext, next) => {
+  ctx.send('Top-level Middleware 1\n');
+  next();
+});
+router.use((ctx: ApplicationContext, next) => {
+  ctx.send('Top-level Middleware 2\n');
+  next();
+});
+```
+
+### Declaring route based middlewares
+
+```ts
+router.get('/home', (ctx: ApplicationContext, next) => {
+  ctx.send('Middleware 1\n');
+  next();
+});
+router.get('/home', (ctx: ApplicationContext, next) => {
+  ctx.send('Middleware 2\n');
+  next();
+});
+router.get('/home', (ctx: ApplicationContext, next) => {
+  ctx.send('<h1>Home Page</h1>\n');
+  ctx.end('<p>Welcome to the home page.</p>\n');
+});
+```
+
 ## Array based routing
 
-FURI now supports array based routes.
+FURI now supports array based routes. You declare one or more routes in the "routes" array.
+
+Each route entry requires three properties:
+
+1. method
+1. path
+1. controller
+
+__NOTE__: the "__controller__" property can be a single handler function, or multiple handlers declared inside the "controller" array. See: [Declaring route-level middleware](#declaring-route-level-middleware).
 
 Here is an example of a route with an inline lambda handler:
 
@@ -128,14 +253,14 @@ router.use(routes);
 furi.use('/admin',router);
 ```
 
-__NOTE__: Top-level middlewares, even when mounted to a router, that are then mounted to the route-path will always remain top-level middlewares.
+__NOTE__: Top-level middlewares, even when mounted to a router, that are then mounted to the route-path will always remain top-level middlewares. Array based middleware routes are declared further below.
 
 ### Declaring a Handler Class
 
 To declare the class based handler, you will need to:
 
 1. Subclass "__BaseRouterHandler__".
-2. Override the "handle" method.
+2. Override the "__handle()__" method.
 
 __NOTE__: You can also declare a class based middleware, the handler function will also need to accept the "__next__" argument.
 
@@ -153,7 +278,7 @@ class HelloWordHandler extends BaseRouterHandler {
 }
 ```
 
-In the route array, you simply pass the class name to the controller property:
+In the router array, you simply pass the class name to the controller property:
 
 ```ts
 const routes: Routes = {
@@ -232,6 +357,36 @@ const routes: Routes = {
 };
 ```
 
+Since you are declaring  multiple route handlers on the same route, you can simplify the declaration. Just combine the handler functions in the "__controller__" array, like this:
+
+```ts
+const routes: Routes = {
+  routes: [
+    {
+      method: 'get',
+      path: '/one',
+      controller: [
+        (ctx: ApplicationContext, next) => {
+          ctx.response.writeHead(200, {
+            'Content-Type': 'text/html',
+            'User-Agent': USER_AGENT
+          });
+          ctx.send('Middleware Pre!\n');
+          next();
+        },
+        (ctx: ApplicationContext, next) => {
+          ctx.response.writeHead(200, {
+            'Content-Type': 'text/html',
+            'User-Agent': USER_AGENT
+          });
+          ctx.end('Hello World!\n');
+        }
+      ]
+    },
+  ]
+};
+```
+
 ### Configuration file
 
 FURI lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
@@ -253,26 +408,44 @@ FURI supports fist-class logging at the code. Logging is fast and takes place on
 
 Logging uses the latest Node.js features. Since logging is the core functionality of FURI, there is very little code overhead compared to existing logging libraries.
 
+Note file logging is disabled by default, you must enable it in FURI YAML configuration file.
+
 ### Logger configuration
 
 Here are the configurable logging options:
 
-- flushPeriod: Control time to flush buffered log messages.
-- maxCount: Maximum number of log messages before flushing.
-- mode: Can be one of "stream" or "buffered".
-
-- level: Can be one of "debug", "info", "log", "warn", "error", "critical" or "fatal".
+- __flushPeriod__: Control time to flush buffered log messages.
+- __maxCount__: Maximum number of log messages before flushing.
+- __mode__: Can be one of "stream" or "buffered".
+- __level__: Can be one of "debug", "info", "log", "warn", "error", "critical" or "fatal".
 
 The level is used to filter log messages based on their severity. Only messages at or above the configured level will be logged.
+
+If you do not declare any logger settings, the following are the default setting values:
+
+```yaml
+logger:
+  enabled: false
+  flushPeriod: 1000
+  logFile: furi.log
+  maxCount: 100
+  mode: buffered
+  level: info
+```
+
+To enable logging you only need to change one setting:
 
 ```yaml
 logger:
   enabled: true
-  flushPeriod: 1000
-  logFile: furi.log
-  maxCount: 100
+```
+
+This will result in buffered logging, if you want to view immediate logging, you can switch to stream mode:
+
+```yaml
+logger:
+  enabled: true
   mode: stream
-  level: info
 ```
 
 ### Log levels
@@ -325,11 +498,11 @@ Below are the benchmarks results.
 1. Total time taken in seconds.
 1. Requests handled in 1 second.
 
-| Framework | Requests | Total Time | Requests handled / sec  |
-| - | - | - | - |
-| FURI | 100,000 | 12.670 s | 7892.63 |
-| Fastify | 100,000 | 14.486 s | 7124.84 |
-| Express.js v5.0 | 100,000 | 13.882 s | 7203.31 |
+Framework | Requests | Total Time | Requests handled / sec
+-|-|-|-
+FURI | 100,000 | 12.670 s | 7892.63
+Fastify | 100,000 | 14.486 s | 7124.84
+Express.js v5.0 | 100,000 | 13.882 s | 7203.31
 
 ### FURI Benchmark
 
