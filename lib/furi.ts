@@ -132,13 +132,16 @@ export class Furi extends FuriRouter {
       const serverMessage = this.getServerStartupMessage();
       const serverInfoMessage = this.getServerInfoMessage();
       const loggerInfoMessage = this.getLoggerInfoMessage();
+      const runtimeInfoMessage = this.getRuntimeMessage();
       if (Furi.bufferedLogger) {
         Furi.bufferedLogger.info(serverMessage);
         Furi.bufferedLogger.info(serverInfoMessage);
+        Furi.bufferedLogger.info(runtimeInfoMessage);
         Furi.bufferedLogger.info(loggerInfoMessage);
       }
       console.log(serverMessage);
       console.log(serverInfoMessage);
+      console.log(runtimeInfoMessage);
       console.log(loggerInfoMessage);
     }
   }
@@ -220,7 +223,7 @@ export class Furi extends FuriRouter {
    * @returns Server message string.
    */
   private getServerStartupMessage() {
-    return  `FURI Server (v${API_VERSION}) started.`;
+    return `FURI Server (v${API_VERSION}) started.`;
   }
 
   /**
@@ -230,7 +233,7 @@ export class Furi extends FuriRouter {
    */
   private getServerInfoMessage() {
     const { env, port, host } = this.furiConfig.server;
-    return `Server Info { host: '${host}', port: ${port}, mode: '${env} }'`;
+    return `Server Info { host: ${host}, port: ${port}, mode: ${env} }`;
   }
 
   /**
@@ -241,6 +244,23 @@ export class Furi extends FuriRouter {
   private getLoggerInfoMessage() {
     const { enabled, flushPeriod, logFile, maxCount, mode, level } = this.furiConfig.logger;
     return `Logger Info { enabled: ${enabled}, flushPeriod: ${flushPeriod}, logFile: ${logFile}, maxCount: ${maxCount}, mode: ${mode}, level: ${level} }`;
+  }
+
+  /**
+   * Startup runtime info Furi is running under.
+   *
+   * @returns Runtime info string.
+   */
+  private getRuntimeMessage() {
+    let runtimeMessage: string;
+    if (globalThis.Deno) {
+      const { deno, v8, typescript } = globalThis.Deno.version;
+      runtimeMessage = `Runtime Info { deno: ${deno}, v8: ${v8}, typescript: ${typescript} }`;
+    } else {
+      const { node, v8 } = process.versions;
+      runtimeMessage = `Runtime Info { node: ${node}, v8: ${v8} }`;
+    }
+    return runtimeMessage;
   }
 
 }
