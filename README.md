@@ -13,6 +13,7 @@
     - [Coding with TypeScript](#coding-with-typescript)
     - [Using NPM and Node.js](#using-npm-and-nodejs)
     - [Using Deno](#using-deno)
+  - [Startup message](#startup-message)
   - [Declare a named route](#declare-a-named-route)
     - [Use a router to declare routes](#use-a-router-to-declare-routes)
     - [Mounting top-level middlewares](#mounting-top-level-middlewares)
@@ -116,6 +117,19 @@ If you are using Deno, add the package with:
 ```sh
 deno add npm:@furi-server/furi
 ```
+
+## Startup message
+
+When you run the server application, you will see a similar output in your terminal:
+
+```sh
+FURI Server (v0.2.4) started.
+Server { host: localhost, port: 3030, mode: development }
+Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
+Logger { enabled: false, level: INFO, logFile: furi.log, mode: buffered, flushPeriod: 1000ms, maxCount: 100 }
+```
+
+This can help you quickly identify that your server is running, configuration settings and the runtime environment details.
 
 ## Declare a named route
 
@@ -467,12 +481,15 @@ fatal | Unrecoverable error causing application to terminate.
 ### Sample log output
 
 ```txt
-2025-03-01T18:31:34.979Z, INFO, FURI Server (v0.2.0) started { host: 'localhost', port: 3030, mode: 'development' }
-2025-03-01T18:31:37.842Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38684, http: 1.1, method: GET, url: /
-2025-03-01T18:31:37.855Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38694, http: 1.1, method: GET, url: /
-2025-03-01T18:31:37.856Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38696, http: 1.1, method: GET, url: /about
-2025-03-01T18:31:37.858Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38706, http: 1.1, method: GET, url: /about/
-2025-03-01T18:31:37.859Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 38710, http: 1.1, method: GET, url: /about/raj12
+2025-03-02T21:33:03.426Z, INFO, FURI Server (v0.2.4) started.
+2025-03-02T21:33:03.427Z, INFO, Server { host: localhost, port: 3030, mode: development }
+2025-03-02T21:33:03.427Z, INFO, Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
+2025-03-02T21:33:03.428Z, INFO, Logger { enabled: true, level: INFO, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+2025-03-02T21:33:12.216Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47052, http: 1.1, method: GET, url: /
+2025-03-02T21:33:12.230Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47056, http: 1.1, method: GET, url: /
+2025-03-02T21:33:12.232Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47068, http: 1.1, method: GET, url: /about
+2025-03-02T21:33:12.233Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47070, http: 1.1, method: GET, url: /about/
+2025-03-02T21:33:12.234Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47072, http: 1.1, method: GET, url: /about/raj12
 ```
 
 ## Motivation
