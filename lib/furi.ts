@@ -90,17 +90,21 @@ export class Furi extends FuriRouter {
       if (data !== null) {
         // Server values.
         this.properties = YAML.parse(data);
-        port = this.properties?.server.port ?? port;
-        host = this.properties?.server.host ?? host;
-        env = this.properties?.server.env ?? env;
+        if (this.properties.server) {
+          port = this.properties.server.port ?? port;
+          host = this.properties.server.host ?? host;
+          env = this.properties.server.env ?? env;
+        }
 
         // Logger values.
-        enabled = this.properties?.logger.enabled ?? enabled;
-        flushPeriod = this.properties?.logger.flushPeriod ?? flushPeriod;
-        maxCount = this.properties?.logger.maxCount ?? maxCount;
-        mode = this.properties?.logger.mode as LoggerMode ?? mode as LoggerMode;
-        logFile = this.properties?.logger.logFile ?? logFile;
-        level = this.properties?.logger.level.toUpperCase() ?? level;
+        if (this.properties.logger) {
+          enabled = this.properties.logger.enabled ?? enabled;
+          flushPeriod = this.properties.logger.flushPeriod ?? flushPeriod;
+          maxCount = this.properties.logger.maxCount ?? maxCount;
+          mode = this.properties.logger.mode as LoggerMode ?? mode as LoggerMode;
+          logFile = this.properties.logger.logFile ?? logFile;
+          level = this.properties.logger.level?.toUpperCase() ?? level;
+        }
 
         // Update configuration values.
         this.furiConfig = {
@@ -125,11 +129,17 @@ export class Furi extends FuriRouter {
     }
 
     this.furiConfig.server.callback = () => {
-      const message = this.getServerStartupMessage();
+      const serverMessage = this.getServerStartupMessage();
+      const serverInfoMessage = this.getServerInfoMessage();
+      const loggerInfoMessage = this.getLoggerInfoMessage();
       if (Furi.bufferedLogger) {
-        Furi.bufferedLogger.info(message);
+        Furi.bufferedLogger.info(serverMessage);
+        Furi.bufferedLogger.info(serverInfoMessage);
+        Furi.bufferedLogger.info(loggerInfoMessage);
       }
-      console.log(message);
+      console.log(serverMessage);
+      console.log(serverInfoMessage);
+      console.log(loggerInfoMessage);
     }
   }
 
@@ -205,14 +215,32 @@ export class Furi extends FuriRouter {
   }
 
   /**
-   * Startup message based on current server configuration.
+   * Startup server message based on current server configuration.
+   *
+   * @returns Server message string.
+   */
+  private getServerStartupMessage() {
+    return  `FURI Server (v${API_VERSION}) started.`;
+  }
+
+  /**
+   * Startup Server info message based on current server configuration.
    *
    * @returns Server configuration string.
    */
-  private getServerStartupMessage() {
+  private getServerInfoMessage() {
     const { env, port, host } = this.furiConfig.server;
+    return `Server Info { host: '${host}', port: ${port}, mode: '${env} }'`;
+  }
 
-    return `FURI Server (v${API_VERSION}) started { host: '${host}', port: ${port}, mode: '${env}' }`
+  /**
+   * Startup Logger info message based on current server configuration.
+   *
+   * @returns Logger configuration string.
+   */
+  private getLoggerInfoMessage() {
+    const { enabled, flushPeriod, logFile, maxCount, mode, level } = this.furiConfig.logger;
+    return `Logger Info { enabled: ${enabled}, flushPeriod: ${flushPeriod}, logFile: ${logFile}, maxCount: ${maxCount}, mode: ${mode}, level: ${level} }`;
   }
 
 }
