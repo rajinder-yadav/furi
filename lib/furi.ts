@@ -233,7 +233,7 @@ export class Furi extends FuriRouter {
    */
   private getServerInfoMessage() {
     const { env, port, host } = this.furiConfig.server;
-    return `Server Info { host: ${host}, port: ${port}, mode: ${env} }`;
+    return `Server { host: ${host}, port: ${port}, mode: ${env} }`;
   }
 
   /**
@@ -243,7 +243,7 @@ export class Furi extends FuriRouter {
    */
   private getLoggerInfoMessage() {
     const { enabled, flushPeriod, logFile, maxCount, mode, level } = this.furiConfig.logger;
-    return `Logger Info { enabled: ${enabled}, flushPeriod: ${flushPeriod}, logFile: ${logFile}, maxCount: ${maxCount}, mode: ${mode}, level: ${level} }`;
+    return `Logger { enabled: ${enabled}, level: ${level}, logFile: ${logFile}, mode: ${mode}, flushPeriod: ${flushPeriod}ms, maxCount: ${maxCount} }`;
   }
 
   /**
@@ -255,10 +255,10 @@ export class Furi extends FuriRouter {
     let runtimeMessage: string;
     if (globalThis.Deno) {
       const { deno, v8, typescript } = globalThis.Deno.version;
-      runtimeMessage = `Runtime Info { deno: ${deno}, v8: ${v8}, typescript: ${typescript} }`;
+      runtimeMessage = `Runtime { deno: ${deno}, v8: ${v8}, typescript: ${typescript} }`;
     } else {
       const { node, v8 } = process.versions;
-      runtimeMessage = `Runtime Info { node: ${node}, v8: ${v8} }`;
+      runtimeMessage = `Runtime { node: ${node}, v8: ${v8} }`;
     }
     return runtimeMessage;
   }
