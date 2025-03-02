@@ -2,6 +2,35 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.2.4 (2025-03-02)
+
+- Fixed logfile not getting created when using a NPM package.
+- Fixed crash when reading YAML property values that was undefined.
+- New feature, added runtime and logger info to log and console output.
+
+## v0.2.0 (2025-02-25)
+
+- New feature, specify routes using an array.
+- New feature, class based route handler.
+- New feature, core logging.
+- New feature, fast buffered logger.
+- New feature, logger worker thread.
+- New feature, logger configuration from YAML file.
+- New feature, logger level filtering.
+- Graceful shutdown on SIGINT signal.
+- Fixed lingering TypeScript typing error.
+- Corrected some magic number code.
+- Centralized array flattening on calls to build router map.
+- Improved function names.
+- Improved perform in loop creating path params.
+- Refactor, switched from using string array to Buffer.
+- Fix, no log file creation when logger is disabled.
+
+## v0.1.4 (2025-02-24)
+
+- Added version info to server startup message.
+- Fixed laten bug, flatten array of arrays in router map merge.
+
 ## v0.1.0 (2025-02-23)
 
 - Initial preview release of FURI.
@@ -16,8 +45,3 @@ Date in ISO format: YYYY-MM-DD
 - Ongoing unit tests and functional tests.
 - Early State Management for seamless data access.
 - Uses a Context Application for unified functionality.
-
-## v0.1.4 (2024-02-24)
-
-- Added version info to server startup message.
-- Fixed laten bug, flatten array of arrays in router map merge.
