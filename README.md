@@ -84,6 +84,154 @@ If you are using Deno, add the package with:
 deno add npm:@furi-server/furi
 ```
 
+## Array based routing
+
+FURI now supports array based routes.
+
+Here is an example of a route with an inline lambda handler:
+
+```ts
+import { Furi } from '@furi-server/furi';
+const furi = Furi.create();
+
+const routes: Routes = {
+  routes: [
+    {
+      method: 'get',
+      path: '/one',
+      controller: (ctx: ApplicationContext, next) => {
+        ctx.response.writeHead(200, {
+          'Content-Type': 'text/html',
+          'User-Agent': USER_AGENT
+        });
+        ctx.end('Middleware Pre!\n');
+      }
+    }
+  ]
+}
+
+furi.use(routes);
+```
+
+You can also mount the array route on a path:
+
+```ts
+furi.use('/v1/api', routes);
+```
+
+You can also mount the array on a router and then mount that to the app:
+
+```ts
+const router = Furi.router();
+router.use(routes);
+
+furi.use('/admin',router);
+```
+
+__NOTE__: Top-level middlewares, even when mounted to a router, that are then mounted to the route-path will always remain top-level middlewares.
+
+### Declaring a Handler Class
+
+To declare the class based handler, you will need to:
+
+1. Subclass "__BaseRouterHandler__".
+2. Override the "handle" method.
+
+__NOTE__: You can also declare a class based middleware, the handler function will also need to accept the "__next__" argument.
+
+```ts
+class HelloWordHandler extends BaseRouterHandler {
+
+   override handle(ctx: ApplicationContext): any {
+        ctx.response.writeHead(200, {
+            'Content-Type': 'text/plain',
+            'User-Agent': USER_AGENT
+        });
+        // ctx.end('HelloWordHandler\n');
+        return 'HelloWordHandler\n';
+    }
+}
+```
+
+In the route array, you simply pass the class name to the controller property:
+
+```ts
+const routes: Routes = {
+  routes: [
+    {
+      method: 'get',
+      path: '/helloworld',
+      controller: HelloWordMiddlewareHandler
+    }
+  ]
+};
+
+const router = Furi.router();
+router.use(routes);
+```
+
+### Declaring top-level middleware
+
+Remember will middleware, from the handler function you will need to call "next()" to pass control to the next middleware or handler.
+
+```ts
+function myMiddleware(ctx: ApplicationContext, next) {
+  ctx.response.writeHead(200, {
+    'Content-Type': 'text/html',
+    'User-Agent': USER_AGENT
+  });
+  ctx.send('Middleware Pre!\n');
+  next();
+}
+```
+
+In the router array, the top-level middlewares are declared in the middleware array:
+
+```ts
+const routes: Routes = {
+  middleware: [
+    myMiddleware
+  ],
+  routes: [
+    ...
+  ]
+};
+```
+
+### Declaring route-level middleware
+
+As with the function based routes, you can also declare route-level middleware in route array:
+
+```ts
+const routes: Routes = {
+  routes: [
+    {
+      method: 'get',
+      path: '/one',
+      controller: (ctx: ApplicationContext, next) => {
+        ctx.response.writeHead(200, {
+          'Content-Type': 'text/html',
+          'User-Agent': USER_AGENT
+        });
+        ctx.send('Middleware Pre!\n');
+        next();
+      }
+    },
+    {
+      method: 'get',
+      path: '/one',
+      controller: (ctx: ApplicationContext, next) => {
+        ctx.response.writeHead(200, {
+          'Content-Type': 'text/html',
+          'User-Agent': USER_AGENT
+        });
+        ctx.end('Hello World!\n');
+      }
+    },
+  ]
+};
+```
+
 ### Configuration file
 
 FURI lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
