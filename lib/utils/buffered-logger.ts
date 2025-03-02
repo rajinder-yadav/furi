@@ -9,7 +9,6 @@
  */
 
 import path from "node:path";
-import process from "node:process";
 import { Worker } from 'node:worker_threads';
 
 import {
@@ -39,7 +38,9 @@ export class BufferedLogger {
   ) {
     this.logLevelRank = mapToLogLevelRank(logLevel);
 
-    this.worker = new Worker(path.join(process.cwd(), 'lib/utils', 'logger-worker.ts'), {
+    const dirName = (import.meta || globalThis.Deno) ? import.meta.dirname ?? '' : path.dirname(__filename);
+
+    this.worker = new Worker(path.join(dirName, 'logger-worker.js'), {
       workerData: {
         logDirectory: this.logDirectory,
         logFileName: this.logFileName,
