@@ -1,5 +1,5 @@
 /**
- * FURI - Fast Uniform Resource Identifier.
+ * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
  * Copyright(c) 2016, 2025 Rajinder Yadav.
@@ -17,7 +17,7 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = '0.2.6';
+export const API_VERSION: string = '0.2.7';
 
 /**
  * Logging helper functions.
@@ -194,7 +194,7 @@ export class HttpResponse extends ServerResponse<IncomingMessage> {
 }
 
 /**
- * FURI Server Configuration properties.
+ * Furi Server Configuration properties.
  * The properties are assigned default values, but can be overridden,
  * either from code or environment variables, or a '.env' file.
  */

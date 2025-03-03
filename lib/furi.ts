@@ -1,5 +1,5 @@
 /**
- * FURI - Fast Uniform Resource Identifier.
+ * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
  * Copyright(c) 2016, 2025 Rajinder Yadav.
@@ -170,7 +170,7 @@ export class Furi extends FuriRouter {
    * @returns API version as a string.
    */
   static getApiVersion(): string {
-    return `FURI (v${API_VERSION})`;
+    return `Furi (v${API_VERSION})`;
   }
 
   /**
@@ -223,7 +223,7 @@ export class Furi extends FuriRouter {
    * @returns Server message string.
    */
   private getServerStartupMessage() {
-    return `FURI Server (v${API_VERSION}) started.`;
+    return `Furi Server (v${API_VERSION}) started.`;
   }
 
   /**

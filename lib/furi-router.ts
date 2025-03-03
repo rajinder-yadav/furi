@@ -1,5 +1,5 @@
 /**
- * FURI - Fast Uniform Resource Identifier.
+ * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
  * Copyright(c) 2016, 2025 Rajinder Yadav.

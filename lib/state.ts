@@ -1,5 +1,5 @@
 /**
- * FURI - Fast Uniform Resource Identifier.
+ * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
  * Copyright(c) 2016, 2025 Rajinder Yadav.
@@ -11,7 +11,7 @@
 import { MapOf } from "./types.ts";
 
 /**
- * State Management for FURI.
+ * State Management for Furi.
  * Provides a global state management system for the application.
  */
 export class StoreState {
