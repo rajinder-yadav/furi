@@ -1,4 +1,4 @@
-# Furi - Fast Uniform Resource Identifier
+# Furi - Fast HTTP Server framework
 
 ![Image](./images/dolphin.jpeg)
 
@@ -6,7 +6,7 @@
 
 <!-- code_chunk_output -->
 
-- [Furi - Fast Uniform Resource Identifier](#furi---fast-uniform-resource-identifier)
+- [Furi - Fast HTTP Server framework](#furi---fast-http-server-framework)
   - [A Return to Simplicity ✅](#a-return-to-simplicity-)
   - [BOM - Bill of Material](#bom---bill-of-material)
   - [Example source code](#example-source-code)
@@ -71,7 +71,13 @@ __NOTE__: See Changelog for additional details on changes and updates. ✅
 
 ## Example source code
 
-You can find example source code in the [Gihub repository here](https://github.com/rajinder-yadav/furi/tree/main/furi-examples).
+You can find example source code at the [Github furi-examples repository](https://github.com/rajinder-yadav/furi-examples).
+
+You can download the example source use using git:
+
+```sh
+git clone https://github.com/rajinder-yadav/furi-examples.git
+```
 
 The examples are easy to follow and should give you to a good understanding of how to use the Furi framework.
 
