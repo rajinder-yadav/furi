@@ -126,7 +126,7 @@ When you run the server application, you will see a similar output in your termi
 FURI Server (v0.2.4) started.
 Server { host: localhost, port: 3030, mode: development }
 Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
-Logger { enabled: false, level: INFO, logFile: furi.log, mode: buffered, flushPeriod: 1000ms, maxCount: 100 }
+Logger { enabled: false, level: INFO, logFile: furi.log, mode: buffer, flushPeriod: 1000ms, maxCount: 100 }
 ```
 
 This can help you quickly identify that your server is running, configuration settings and the runtime environment details.
@@ -188,11 +188,11 @@ You can mount top-level middlewares to the Furi instance. These middlewares will
 __NOTE__: The last handler function must end the request with a call to "__end()__", or returning a value.
 
 ```ts
-router.use((ctx: ApplicationContext, next) => {
+router.use((ctx: ApplicationContext, next: Middleware) => {
   ctx.send('Top-level Middleware 1\n');
   next();
 });
-router.use((ctx: ApplicationContext, next) => {
+router.use((ctx: ApplicationContext, next: Middleware) => {
   ctx.send('Top-level Middleware 2\n');
   next();
 });
@@ -201,15 +201,15 @@ router.use((ctx: ApplicationContext, next) => {
 ### Declaring route based middlewares
 
 ```ts
-router.get('/home', (ctx: ApplicationContext, next) => {
+router.get('/home', (ctx: ApplicationContext, next: Middleware) => {
   ctx.send('Middleware 1\n');
   next();
 });
-router.get('/home', (ctx: ApplicationContext, next) => {
+router.get('/home', (ctx: ApplicationContext, next: Middleware) => {
   ctx.send('Middleware 2\n');
   next();
 });
-router.get('/home', (ctx: ApplicationContext, next) => {
+router.get('/home', (ctx: ApplicationContext, next: Middleware) => {
   ctx.send('<h1>Home Page</h1>\n');
   ctx.end('<p>Welcome to the home page.</p>\n');
 });
@@ -238,7 +238,7 @@ const routes: Routes = {
     {
       method: 'get',
       path: '/one',
-      controller: (ctx: ApplicationContext, next) => {
+      controller: (ctx: ApplicationContext, next: Middleware) => {
         ctx.response.writeHead(200, {
           'Content-Type': 'text/html',
           'User-Agent': USER_AGENT
@@ -314,7 +314,7 @@ router.use(routes);
 Remember will middleware, from the handler function you will need to call "next()" to pass control to the next middleware or handler.
 
 ```ts
-function myMiddleware(ctx: ApplicationContext, next) {
+function myMiddleware(ctx: ApplicationContext, next: Middleware) {
   ctx.response.writeHead(200, {
     'Content-Type': 'text/html',
     'User-Agent': USER_AGENT
@@ -347,7 +347,7 @@ const routes: Routes = {
     {
       method: 'get',
       path: '/one',
-      controller: (ctx: ApplicationContext, next) => {
+      controller: (ctx: ApplicationContext, next: Middleware) => {
         ctx.response.writeHead(200, {
           'Content-Type': 'text/html',
           'User-Agent': USER_AGENT
@@ -359,7 +359,7 @@ const routes: Routes = {
     {
       method: 'get',
       path: '/one',
-      controller: (ctx: ApplicationContext, next) => {
+      controller: (ctx: ApplicationContext, next: Middleware) => {
         ctx.response.writeHead(200, {
           'Content-Type': 'text/html',
           'User-Agent': USER_AGENT
@@ -380,7 +380,7 @@ const routes: Routes = {
       method: 'get',
       path: '/one',
       controller: [
-        (ctx: ApplicationContext, next) => {
+        (ctx: ApplicationContext, next: Middleware) => {
           ctx.response.writeHead(200, {
             'Content-Type': 'text/html',
             'User-Agent': USER_AGENT
@@ -388,7 +388,7 @@ const routes: Routes = {
           ctx.send('Middleware Pre!\n');
           next();
         },
-        (ctx: ApplicationContext, next) => {
+        (ctx: ApplicationContext, next: Middleware) => {
           ctx.response.writeHead(200, {
             'Content-Type': 'text/html',
             'User-Agent': USER_AGENT
@@ -430,7 +430,7 @@ Here are the configurable logging options:
 
 - __flushPeriod__: Control time to flush buffered log messages.
 - __maxCount__: Maximum number of log messages before flushing.
-- __mode__: Can be one of "stream" or "buffered".
+- __mode__: Can be one of "stream" or "buffer".
 - __level__: Can be one of "debug", "info", "log", "warn", "error", "critical" or "fatal".
 
 The level is used to filter log messages based on their severity. Only messages at or above the configured level will be logged.
@@ -443,7 +443,7 @@ logger:
   flushPeriod: 1000
   logFile: furi.log
   maxCount: 100
-  mode: buffered
+  mode: buffer
   level: info
 ```
 
