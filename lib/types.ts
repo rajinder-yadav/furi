@@ -267,3 +267,18 @@ export function isTypeRouterConfig(value: unknown): value is RouterConfig {
 
   return middleswares || routes;
 }
+
+/**
+ * Create and instance of the class and return bound handler function.
+ *
+ * @param ClassRef
+ * @returns handler function bound to instace of the class.
+ */
+export function ClassHandler(ClassRef: unknown): HandlerFunction {
+  if (ClassRef && typeof ClassRef === 'function' && ClassRef.prototype instanceof BaseRouterHandler) {
+    const ClassRouterHandlerRef: RouterHanderConstructor<BaseRouterHandler> = ClassRef as RouterHanderConstructor<BaseRouterHandler>;
+    const instanceRef = new ClassRouterHandlerRef();
+    return instanceRef.handle.bind(instanceRef);
+  }
+  throw new Error("Invalid class reference. Please provide a valid class that extends BaseRouterHandler.");
+}
