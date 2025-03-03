@@ -2,6 +2,11 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.2.6 (2025-03-02)
+
+- Feat, new function to allow Class based hander to be used with original
+  call based handler methods.
+
 ## v0.2.4 (2025-03-02)
 
 - Fixed logfile not getting created when using a NPM package.
