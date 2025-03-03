@@ -1,4 +1,4 @@
-# FURI - Fast Uniform Resource Identifier
+# Furi - Fast Uniform Resource Identifier
 
 ![Image](./images/dolphin.jpeg)
 
@@ -6,10 +6,11 @@
 
 <!-- code_chunk_output -->
 
-- [FURI - Fast Uniform Resource Identifier](#furi---fast-uniform-resource-identifier)
+- [Furi - Fast Uniform Resource Identifier](#furi---fast-uniform-resource-identifier)
   - [A Return to Simplicity ✅](#a-return-to-simplicity-)
-    - [BOM - Bill of Material](#bom---bill-of-material)
-    - [Coding with JavaScript](#coding-with-javascript)
+  - [BOM - Bill of Material](#bom---bill-of-material)
+  - [Example source code](#example-source-code)
+  - [Coding with JavaScript](#coding-with-javascript)
     - [Coding with TypeScript](#coding-with-typescript)
     - [Using NPM and Node.js](#using-npm-and-nodejs)
     - [Using Deno](#using-deno)
@@ -30,7 +31,7 @@
   - [Motivation](#motivation)
   - [Why](#why)
   - [Benchmarks 🚀](#benchmarks-)
-    - [FURI Benchmark](#furi-benchmark)
+    - [Furi Benchmark](#furi-benchmark)
     - [Fastify Benchmark](#fastify-benchmark)
     - [Express Benchmark](#express-benchmark)
 
@@ -38,7 +39,7 @@
 
 ## A Return to Simplicity ✅
 
-FURI is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with FURI. If you love plain JavaScript, you will love coding in FURI, you get to decide.
+Furi is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with Furi. If you love plain JavaScript, you will love coding in Furi, you get to decide.
 
 The design has been kept as close to the Node.js API without using external dependencies, using modern JavaScript and the latest Node.js APIs.
 
@@ -50,16 +51,16 @@ Router has been battle tested with unit tests and functional tests.
 
 A self contained design and zero external dependencies means there is  less surface area for bugs and security issues to hide and creep in. There is less likelihood for working code to break after pulling in updates. Having to maintain perfect working code broken due to an update is an anti-pattern and an insane mindset to develop software.
 
-FURI will keep simple things simple and make hard things easier without breaking your working code. It is however still in the early preview stage so expect changes as I explore design ideas.
+Furi will keep simple things simple and make hard things easier without breaking your working code. It is however still in the early preview stage so expect changes as I explore design ideas.
 
-### BOM - Bill of Material
+## BOM - Bill of Material
 
-The following tools, technologies and software was used in the development of FURI (v0.1.4).
+The following tools, technologies and software was used in the development of Furi (v0.1.4).
 
 Item | Version | Description
 --- | --- | ---
 TypeScript | 5.7.3 | A super-set of JavaScript that adds static typing and other features to the language.
-yaml | 2.7.0 | A library for parsing YAML used to read FURI configuration file.
+yaml | 2.7.0 | A library for parsing YAML used to read Furi configuration file.
 @deno/dnt | 0.41.3 | A tool for building NPM packages.
 @std/assert | 1.0.11 | Deno standard library for assertions, used in test code.
 Deno | 2.2.1 | A runtime environment for JavaScript that aims to be secure and fast.
@@ -68,7 +69,17 @@ Linux | 6.13.1-1-default | openSUSE Tumbleweed with KDE desktop
 
 __NOTE__: See Changelog for additional details on changes and updates. ✅
 
-### Coding with JavaScript
+## Example source code
+
+You can find example source code in the [Gihub repository here](https://github.com/rajinder-yadav/furi/tree/main/furi-examples).
+
+The examples are easy to follow and should give you to a good understanding of how to use the Furi framework.
+
+Most of the Typescript examples will require you to install and use Deno to run them.
+The first example in folder, "01-simple-js-node" shows you how to use Node.js with plain JavaScript.
+The examples are number to help you quick start from basic and move to advanced usage.
+
+## Coding with JavaScript
 
 __File: "main.js"__
 
@@ -123,7 +134,7 @@ deno add npm:@furi-server/furi
 When you run the server application, you will see a similar output in your terminal:
 
 ```sh
-FURI Server (v0.2.4) started.
+Furi Server (v0.2.4) started.
 Server { host: localhost, port: 3030, mode: development }
 Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
 Logger { enabled: false, level: INFO, logFile: furi.log, mode: buffer, flushPeriod: 1000ms, maxCount: 100 }
@@ -133,7 +144,7 @@ This can help you quickly identify that your server is running, configuration se
 
 ## Declare a named route
 
-The code below shows how to declare a named route, and also how to read the named route parameters from the hanlder function, using the `ApplicationContext` object.
+The code below shows how to declare a named route, and also how to read the named route parameters from the handler function, using the `ApplicationContext` object.
 
 ```ts
 furi.get("/about/:user_id", (ctx: ApplicationContext) => {
@@ -149,7 +160,7 @@ furi.get("/about/:user_id", (ctx: ApplicationContext) => {
 
 ### Use a router to declare routes
 
-Below we declare a route honder on a router, then we mouth the router to the Furi instance.
+Below we declare a route handler on a router, then we mouth the router to the Furi instance.
 
 ```ts
 const furi = Furi.create();
@@ -217,7 +228,7 @@ router.get('/home', (ctx: ApplicationContext, next: Middleware) => {
 
 ## Array based routing
 
-FURI now supports array based routes. You declare one or more routes in the "routes" array.
+Furi now supports array based routes. You declare one or more routes in the "routes" array.
 
 Each route entry requires three properties:
 
@@ -403,7 +414,7 @@ const routes: Routes = {
 
 ### Configuration file
 
-FURI lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
+Furi lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
 
 __File: "furi.yaml" (optional)__
 
@@ -414,15 +425,15 @@ server:
   env: development
 ```
 
-FURI is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
+Furi is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
 
 ## Super fast stream logging ⚡
 
-FURI supports fist-class logging at the code. Logging is fast and takes place on a background worker-thread, so the main thread never blocks. Logging can be buffered, or immediately written to file. Logging behavior can be configured in FURI's configuration YAML file.
+Furi supports fist-class logging at the code. Logging is fast and takes place on a background worker-thread, so the main thread never blocks. Logging can be buffered, or immediately written to file. Logging behavior can be configured in Furi's configuration YAML file.
 
-Logging uses the latest Node.js features. Since logging is the core functionality of FURI, there is very little code overhead compared to existing logging libraries.
+Logging uses the latest Node.js features. Since logging is the core functionality of Furi, there is very little code overhead compared to existing logging libraries.
 
-Note file logging is disabled by default, you must enable it in FURI YAML configuration file.
+Note file logging is disabled by default, you must enable it in Furi YAML configuration file.
 
 ### Logger configuration
 
@@ -481,7 +492,7 @@ fatal | Unrecoverable error causing application to terminate.
 ### Sample log output
 
 ```txt
-2025-03-02T21:33:03.426Z, INFO, FURI Server (v0.2.4) started.
+2025-03-02T21:33:03.426Z, INFO, Furi Server (v0.2.4) started.
 2025-03-02T21:33:03.427Z, INFO, Server { host: localhost, port: 3030, mode: development }
 2025-03-02T21:33:03.427Z, INFO, Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
 2025-03-02T21:33:03.428Z, INFO, Logger { enabled: true, level: INFO, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
@@ -496,19 +507,19 @@ fatal | Unrecoverable error causing application to terminate.
 
 ![Image](./images/octopus.jpeg)
 
-The primary objective of the FURI project is to provide a fast, small HTTP server that runs on small hardware with low memory. This benefits micro-architect environments with scaling and performance, with faster load time, compact footprint to maximize bigger production workloads.
+The primary objective of the Furi project is to provide a fast, small HTTP server that runs on small hardware with low memory. This benefits micro-architect environments with scaling and performance, with faster load time, compact footprint to maximize bigger production workloads.
 
 The guiding principle of the project is to have the code base self contain with no external dependencies. This allows for easy deployment and maintenance on any platform that supports Node.js. The aim is for small independent shops to be able to run a production server and website while keeping the cost down substantially, along with the effort to maintain the setup.
 
 ## Why
 
-A fast, responsive and lightweight framework that is easy to use. FURI keeps your code simple, avoids useless abstraction and does not get in the way with working with Node.js core APIs should you ever need to.
+A fast, responsive and lightweight framework that is easy to use. Furi keeps your code simple, avoids useless abstraction and does not get in the way with working with Node.js core APIs should you ever need to.
 
 Inspired by Express.js and Koa.
 
 ## Benchmarks 🚀
 
-FURI outperformed both Fastify and Express.js 5.0 in a benchmark test.
+Furi outperformed both Fastify and Express.js 5.0 in a benchmark test.
 Below are the benchmarks results.
 
 1. Number of requests made: 100,000
@@ -517,13 +528,13 @@ Below are the benchmarks results.
 
 Framework | Requests | Total Time | Requests handled / sec
 -|-|-|-
-FURI | 100,000 | 12.670 s | 7892.63
+Furi | 100,000 | 12.670 s | 7892.63
 Fastify | 100,000 | 14.486 s | 7124.84
 Express.js v5.0 | 100,000 | 13.882 s | 7203.31
 
-### FURI Benchmark
+### Furi Benchmark
 
-![FURI](./images/furi-benchmark.png)
+![Furi](./images/furi-benchmark.png)
 
 ### Fastify Benchmark
 
