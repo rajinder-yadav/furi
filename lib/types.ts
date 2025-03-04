@@ -22,11 +22,11 @@ export const API_VERSION: string = '0.2.7';
 /**
  * Logging helper functions.
  */
-export const LOG_DEBUG = (...s: string[]) => console.debug('DEBUG> ', ...s);
-export const LOG_INFO = (...s: string[]) => console.info('INFO> ', ...s);
-export const LOG_LOG = (...s: string[]) => console.log('LOG> ', ...s);
-export const LOG_WARN = (...s: string[]) => console.warn('WARNING> ', ...s);
-export const LOG_ERROR = (...s: string[]) => console.error('ERROR> ', ...s);
+export const LOG_DEBUG = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
+export const LOG_INFO = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
+export const LOG_LOG = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
+export const LOG_WARN = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
+export const LOG_ERROR = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
 
 export type LoggerMode = 'buffer' | 'stream';
 
@@ -145,7 +145,7 @@ export const LogLevelsRank = {
  * @returns Log level ordinal value.
  */
 export function mapToLogLevelRank(logLevel: string): number {
-  switch(logLevel.toUpperCase()) {
+  switch (logLevel.toUpperCase()) {
     case 'DEBUG':
       return LogLevelsRank.DEBUG;
     case 'INFO':
@@ -200,13 +200,14 @@ export class HttpResponse extends ServerResponse<IncomingMessage> {
  */
 export interface FuriConfig {
   server: {
-  env: string;                    // Run-time environment (development, production).
-  port: number;                   // Port server will listen for connection requests.
-  host: string;                   // host server will listen for connection requests.
-  callback: null | (() => void);  // Callback function that will be called when server is ready.
+    env: string;                    // Run-time environment (development, production).
+    port: number;                   // Port server will listen for connection requests.
+    host: string;                   // host server will listen for connection requests.
+    callback: null | (() => void);  // Callback function that will be called when server is ready.
   },
   logger: {
-    enabled: boolean;             // Enable logging of requests and responses.
+    enabled: boolean;             // Enable file logging.
+    terminal: boolean;            // Enable terminal logging.
     flushPeriod: number;          // Period in milliseconds between log flushes.
     logFile: string;              // Path to log file, if logging mode is 'stream'.
     maxCount: number;             // Maximum number of log entries before flushing.

@@ -21,6 +21,7 @@ import {
   LoggerMode,
   MapOf,
   LogLevels,
+  LOG_INFO
 } from './types.ts';
 
 import { StoreState } from './state.ts';
@@ -30,6 +31,8 @@ import { BufferedLogger } from './utils/buffered-logger.ts';
 export * from './types.ts';
 export * from './application-context.ts';
 export * from './furi-router.ts';
+
+type CleanupHandler = () => void;
 
 /**
  * Handler Linux signal to perform clean shutdown.
@@ -52,7 +55,7 @@ export class Furi extends FuriRouter {
   protected properties: MapOf<any> = {};
 
   // Shutdown cleanup handler callback.
-  cleanupHandler: () => void | null = null;
+  cleanupHandler: CleanupHandler | null = null;
 
   // Default server configuration.
   private furiConfig: FuriConfig = {
@@ -64,6 +67,7 @@ export class Furi extends FuriRouter {
     },
     logger: {
       enabled: false,
+      terminal: false,
       flushPeriod: 1000,
       logFile: 'furi.log',
       maxCount: 100,
@@ -78,7 +82,7 @@ export class Furi extends FuriRouter {
     // Read default configuration values.
     let { env, port, host, callback } = this.furiConfig.server;
 
-    let { enabled, flushPeriod, maxCount, mode, logFile, level } = this.furiConfig.logger;
+    let { enabled, terminal, flushPeriod, maxCount, mode, logFile, level } = this.furiConfig.logger;
 
     /**
      * Read server configuration properties from furi.yaml or furi.yml file.
@@ -102,6 +106,7 @@ export class Furi extends FuriRouter {
         // Logger values.
         if (this.properties.logger) {
           enabled = this.properties.logger.enabled ?? enabled;
+          terminal = this.properties.logger.terminal ?? terminal;
           flushPeriod = this.properties.logger.flushPeriod ?? flushPeriod;
           maxCount = this.properties.logger.maxCount ?? maxCount;
           mode = this.properties.logger.mode as LoggerMode ?? mode as LoggerMode;
@@ -112,7 +117,7 @@ export class Furi extends FuriRouter {
         // Update configuration values.
         this.furiConfig = {
           server: { env, port, host, callback },
-          logger: { enabled, flushPeriod, logFile, maxCount, mode, level },
+          logger: { enabled, terminal, flushPeriod, logFile, maxCount, mode, level },
         };
       }
 
@@ -121,6 +126,7 @@ export class Furi extends FuriRouter {
           process.cwd(),
           logFile,
           enabled,
+          terminal,
           flushPeriod,
           maxCount,
           mode,
@@ -159,32 +165,39 @@ export class Furi extends FuriRouter {
     return new Furi();
   }
 
+  static info(message: string) {
+    if(Furi.bufferedLogger) {
+      Furi.bufferedLogger.info(message);
+    }
+  }
+
   /**
    * Perform clean shutdown.
    */
   static shutDown(exitTimer: number) {
-    Furi.bufferedLogger.info('SIGINT signal received, goodbye!');
-    Furi.bufferedLogger.info('Shutdown started...');
+    console.log();
+    LOG_INFO('SIGINT signal received, goodbye!');
+    LOG_INFO('Shutdown started...');
     // Close the HTTP server.
 
     // Close all Furi applications and their HTTP servers gracefully.
     Furi.httpServer.forEach((serverRef) => {
-      Furi.bufferedLogger.info('Furi server shutting down...');
+      LOG_INFO('Furi server shutting down...');
       if (serverRef.app.cleanupHandler) {
-        Furi.bufferedLogger.info('Cleanup started...');
+        LOG_INFO('Cleanup started...');
         serverRef.app.cleanupHandler();
-        Furi.bufferedLogger.info('Cleanup completed.');
+        LOG_INFO('Cleanup completed.');
       }
-
-      Furi.bufferedLogger.info('HTTP connection closing...');
+      LOG_INFO('HTTP connection closing...');
       serverRef.http.close();
-      Furi.bufferedLogger.info('HTTP connection closed.');
-
-      Furi.bufferedLogger.info('Furi server shutdown completed.');
+      LOG_INFO('HTTP connection closed.');
+      LOG_INFO('Furi server shutdown completed.');
     });
 
-    Furi.bufferedLogger.info('Shutdown completed.');
-    Furi.bufferedLogger.close();
+    LOG_INFO('Shutdown completed.');
+    if(Furi.bufferedLogger) {
+      Furi.bufferedLogger.close();
+    }
 
     // Delay to allow asynchronous processing to complete.
     setTimeout(() => {
@@ -307,7 +320,7 @@ export class Furi extends FuriRouter {
    *
    * @param callback Cleanup Function to call.
    */
-  doCleanup(callback: () => void) {
+  preShutdown(callback: () => void) {
     this.cleanupHandler = callback;
   }
 

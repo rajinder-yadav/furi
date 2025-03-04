@@ -32,6 +32,7 @@ export class BufferedLogger {
     protected readonly logDirectory: string,
     protected readonly logFileName: string,
     protected enabled: boolean,
+    protected terminal: boolean,
     protected flushPeriod: number,
     protected logMaxCount: number,
     protected logMode: LoggerMode,
@@ -64,47 +65,47 @@ export class BufferedLogger {
   }
 
   close() {
-    if(!this.closed) {
-    // Send a null message to the worker to signal it to stop processing and exit.
-    this.closed = true;
-    this.info('Buffered Logger closed.');
-    this.info(null);
+    if (!this.closed) {
+      // Send a null message to the worker to signal it to stop processing and exit.
+      this.closed = true;
+      this.info('Buffered Logger closed.');
+      this.info(null);
     }
   }
 
   debug(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.DEBUG) {
-      this.worker.postMessage({ level: LogLevels.DEBUG, message });
+      this.worker.postMessage({ level: LogLevels.DEBUG, message, terminal: this.terminal });
     }
   }
   info(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.INFO) {
-      this.worker.postMessage({ level: LogLevels.INFO, message });
+      this.worker.postMessage({ level: LogLevels.INFO, message, terminal: this.terminal });
     }
   }
   log(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.LOG) {
-      this.worker.postMessage({ level: LogLevels.LOG, message });
+      this.worker.postMessage({ level: LogLevels.LOG, message, terminal: this.terminal });
     }
   }
   warm(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.WARN) {
-      this.worker.postMessage({ level: LogLevels.WARN, message });
+      this.worker.postMessage({ level: LogLevels.WARN, message, terminal: this.terminal });
     }
   }
   error(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.ERROR) {
-      this.worker.postMessage({ level: LogLevels.ERROR, message });
+      this.worker.postMessage({ level: LogLevels.ERROR, message, terminal: this.terminal });
     }
   }
   critical(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.CRITICAL) {
-      this.worker.postMessage({ level: LogLevels.CRITICAL, message });
+      this.worker.postMessage({ level: LogLevels.CRITICAL, message, terminal: this.terminal });
     }
   }
   fatal(message: string | null) {
     if (this.enabled && this.logLevelRank <= LogLevelsRank.FATAL) {
-      this.worker.postMessage({ level: LogLevels.FATAL, message });
+      this.worker.postMessage({ level: LogLevels.FATAL, message, terminal: this.terminal });
     }
   }
 }
