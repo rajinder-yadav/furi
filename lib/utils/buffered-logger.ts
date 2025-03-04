@@ -20,12 +20,13 @@ import {
 
 /**
  * Buffered logger class that uses a worker thread to handle logging.
- *
  */
 export class BufferedLogger {
 
   private readonly worker: Worker;
   private readonly logLevelRank: number;
+
+  private closed = false;
 
   constructor(
     protected readonly logDirectory: string,
@@ -63,9 +64,12 @@ export class BufferedLogger {
   }
 
   close() {
+    if(!this.closed) {
     // Send a null message to the worker to signal it to stop processing and exit.
-    this.info('BufferedLogger closed.');
+    this.closed = true;
+    this.info('Buffered Logger closed.');
     this.info(null);
+    }
   }
 
   debug(message: string | null) {
