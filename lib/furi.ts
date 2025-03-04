@@ -31,12 +31,11 @@ export * from './types.ts';
 export * from './application-context.ts';
 export * from './furi-router.ts';
 
+/**
+ * Handler Linux signal to perform clean shutdown.
+ */
 process.once('SIGINT', () => {
-  if (Furi.bufferedLogger) {
-    Furi.bufferedLogger.info('SIGINT signal received, goodbye!');
-    Furi.bufferedLogger.close();
-  }
-  setTimeout(() => { process.exit(1); }, 1000); // Forcibly exit if not exited after 250ms
+  Furi.shutDown(5000);
 });
 
 /**
@@ -47,9 +46,13 @@ export class Furi extends FuriRouter {
   static bufferedLogger: BufferedLogger;
 
   static readonly appStore: StoreState = new StoreState();
+  static readonly httpServer: { app: Furi, http: Server }[] = [];
 
   protected server: Server | null = null;
   protected properties: MapOf<any> = {};
+
+  // Shutdown cleanup handler callback.
+  cleanupHandler: () => void | null = null;
 
   // Default server configuration.
   private furiConfig: FuriConfig = {
@@ -157,6 +160,39 @@ export class Furi extends FuriRouter {
   }
 
   /**
+   * Perform clean shutdown.
+   */
+  static shutDown(exitTimer: number) {
+    Furi.bufferedLogger.info('SIGINT signal received, goodbye!');
+    Furi.bufferedLogger.info('Shutdown started...');
+    // Close the HTTP server.
+
+    // Close all Furi applications and their HTTP servers gracefully.
+    Furi.httpServer.forEach((serverRef) => {
+      Furi.bufferedLogger.info('Furi server shutting down...');
+      if (serverRef.app.cleanupHandler) {
+        Furi.bufferedLogger.info('Cleanup started...');
+        serverRef.app.cleanupHandler();
+        Furi.bufferedLogger.info('Cleanup completed.');
+      }
+
+      Furi.bufferedLogger.info('HTTP connection closing...');
+      serverRef.http.close();
+      Furi.bufferedLogger.info('HTTP connection closed.');
+
+      Furi.bufferedLogger.info('Furi server shutdown completed.');
+    });
+
+    Furi.bufferedLogger.info('Shutdown completed.');
+    Furi.bufferedLogger.close();
+
+    // Delay to allow asynchronous processing to complete.
+    setTimeout(() => {
+      process.exit(1);
+    }, exitTimer);
+  }
+
+  /**
    * Create a new router.
    * @return Instance of class FuriRouter.
    */
@@ -214,6 +250,9 @@ export class Furi extends FuriRouter {
    */
   start(_callback?: () => void): Server {
     this.server = this.listen(this.furiConfig);
+
+    // Node.js HTTP server list used to perform a clean close before exiting the process.
+    Furi.httpServer.push({ app: this, http: this.server });
     return this.server;
   }
 
@@ -261,6 +300,15 @@ export class Furi extends FuriRouter {
       runtimeMessage = `Runtime { node: ${node}, v8: ${v8} }`;
     }
     return runtimeMessage;
+  }
+
+  /**
+   * Register cleanup handler to be called during server shutdown.
+   *
+   * @param callback Cleanup Function to call.
+   */
+  doCleanup(callback: () => void) {
+    this.cleanupHandler = callback;
   }
 
 }
