@@ -2,6 +2,17 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.2.8 (2025-03-04)
+
+- Terminal logging output is now improved.
+- Terminal logging can be enabled and disabled from the YAML config file.
+
+## v0.2.7 (2025-03-04)
+
+- Graceful shut down processing.
+- New shut down handler for custom cleanup.
+- Shutdown log message changed.
+
 ## v0.2.6 (2025-03-02)
 
 - Feat, new function to allow Class based hander to be used with original
