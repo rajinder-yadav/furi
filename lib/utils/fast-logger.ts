@@ -19,8 +19,9 @@ import {
 } from '../types.ts';
 
 /**
- * FastLogger - Stream logging class that uses a worker thread
- * and optionally buffering to perform fast asynchronous logging.
+ * Stream logging class that uses a worker thread for asynchronous logging.
+ * Optionally logs can be buffered to optimize file writes.
+ * The worker thread handles the actual writing to the filesystem.
  * It also supports different log levels and modes for handling
  * the output of the logs
  */
@@ -29,7 +30,7 @@ export class FastLogger {
   private readonly worker: Worker;
   private readonly logLevelRank: number;
 
-  private closed = false;
+  private active = true;
 
   constructor(
     protected readonly logDirectory: string,
@@ -70,9 +71,9 @@ export class FastLogger {
   }
 
   close() {
-    if (!this.closed) {
+    if (this.active) {
       // Send a null message to the worker to signal it to stop processing and exit.
-      this.closed = true;
+      this.active = false;
       this.info('Fast Logger closed.');
       this.info(null);
     }
