@@ -71,7 +71,7 @@ export class Furi extends FuriRouter {
       flushPeriod: 1000,
       logFile: 'furi.log',
       maxCount: 100,
-      mode: 'buffer' as const,
+      mode: 'stream' as const,
       level: LogLevels.INFO,
     },
   };
@@ -166,7 +166,7 @@ export class Furi extends FuriRouter {
   }
 
   static info(message: string) {
-    if(Furi.bufferedLogger) {
+    if (Furi.bufferedLogger) {
       Furi.bufferedLogger.info(message);
     }
   }
@@ -195,7 +195,7 @@ export class Furi extends FuriRouter {
     });
 
     LOG_INFO('Shutdown completed.');
-    if(Furi.bufferedLogger) {
+    if (Furi.bufferedLogger) {
       Furi.bufferedLogger.close();
     }
 
