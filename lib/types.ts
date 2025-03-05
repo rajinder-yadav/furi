@@ -17,16 +17,16 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = '0.2.8';
+export const API_VERSION: string = '0.2.9';
 
 /**
  * Logging helper functions.
  */
-export const LOG_DEBUG = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
-export const LOG_INFO = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
-export const LOG_LOG = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
-export const LOG_WARN = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
-export const LOG_ERROR = (msg: string) => { if (Furi.bufferedLogger) { Furi.bufferedLogger.info(msg); } }
+export const LOG_DEBUG = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
+export const LOG_INFO = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
+export const LOG_LOG = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
+export const LOG_WARN = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
+export const LOG_ERROR = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
 
 export type LoggerMode = 'buffer' | 'stream';
 

@@ -311,8 +311,8 @@ export class FuriRouter {
     // LOG_DEBUG( request.method, request.url );
     const request = new HttpRequest(incomingMessage);
 
-    if(Furi.bufferedLogger) {
-      Furi.bufferedLogger.info(`host: ${request.headers.host}, remote-ip: ${request.socket.remoteAddress}, remote-port: ${request.socket.remotePort}, http: ${request.httpVersion}, method: ${request.method}, url: ${request.url}`);
+    if(Furi.fastLogger) {
+      Furi.fastLogger.info(`host: ${request.headers.host}, remote-ip: ${request.socket.remoteAddress}, remote-port: ${request.socket.remotePort}, http: ${request.httpVersion}, method: ${request.method}, url: ${request.url}`);
     }
 
     switch (request.method) {

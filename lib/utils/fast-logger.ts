@@ -19,9 +19,12 @@ import {
 } from '../types.ts';
 
 /**
- * Buffered logger class that uses a worker thread to handle logging.
+ * FastLogger - Stream logging class that uses a worker thread
+ * and optionally buffering to perform fast asynchronous logging.
+ * It also supports different log levels and modes for handling
+ * the output of the logs
  */
-export class BufferedLogger {
+export class FastLogger {
 
   private readonly worker: Worker;
   private readonly logLevelRank: number;
@@ -40,12 +43,13 @@ export class BufferedLogger {
   ) {
     this.logLevelRank = mapToLogLevelRank(logLevel);
 
-    const dirName = (import.meta || globalThis.Deno) ? import.meta.dirname ?? '' : path.dirname(__filename);
+    const filename = path.join(this.logDirectory, this.logFileName);
 
+    const dirName = (import.meta || globalThis.Deno) ? import.meta.dirname ?? '' : path.dirname(__filename);
     this.worker = new Worker(path.join(dirName, 'worker-logger.js'), {
       workerData: {
-        logDirectory: this.logDirectory,
-        logFileName: this.logFileName,
+        filename: filename,
+        terminal: this.terminal,
         enabled: this.enabled,
         flushPeriod: this.flushPeriod,
         logMaxCount: this.logMaxCount,
@@ -62,50 +66,51 @@ export class BufferedLogger {
         console.error(`Logger worker stopped with exit code ${code}`);
       }
     });
+
   }
 
   close() {
     if (!this.closed) {
       // Send a null message to the worker to signal it to stop processing and exit.
       this.closed = true;
-      this.info('Buffered Logger closed.');
+      this.info('Fast Logger closed.');
       this.info(null);
     }
   }
 
   debug(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.DEBUG) {
-      this.worker.postMessage({ level: LogLevels.DEBUG, message, terminal: this.terminal });
+    if (this.logLevelRank <= LogLevelsRank.DEBUG) {
+      this.worker.postMessage({ level: LogLevels.DEBUG, message });
     }
   }
   info(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.INFO) {
-      this.worker.postMessage({ level: LogLevels.INFO, message, terminal: this.terminal });
+    if (this.logLevelRank <= LogLevelsRank.INFO) {
+      this.worker.postMessage({ level: LogLevels.INFO, message });
     }
   }
   log(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.LOG) {
-      this.worker.postMessage({ level: LogLevels.LOG, message, terminal: this.terminal });
+    if (this.logLevelRank <= LogLevelsRank.LOG) {
+      this.worker.postMessage({ level: LogLevels.LOG, message });
     }
   }
   warm(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.WARN) {
-      this.worker.postMessage({ level: LogLevels.WARN, message, terminal: this.terminal });
+    if (this.logLevelRank <= LogLevelsRank.WARN) {
+      this.worker.postMessage({ level: LogLevels.WARN, message });
     }
   }
   error(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.ERROR) {
-      this.worker.postMessage({ level: LogLevels.ERROR, message, terminal: this.terminal });
+    if (this.logLevelRank <= LogLevelsRank.ERROR) {
+      this.worker.postMessage({ level: LogLevels.ERROR, message });
     }
   }
   critical(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.CRITICAL) {
-      this.worker.postMessage({ level: LogLevels.CRITICAL, message, terminal: this.terminal });
+    if (this.logLevelRank <= LogLevelsRank.CRITICAL) {
+      this.worker.postMessage({ level: LogLevels.CRITICAL, message });
     }
   }
   fatal(message: string | null) {
-    if (this.enabled && this.logLevelRank <= LogLevelsRank.FATAL) {
-      this.worker.postMessage({ level: LogLevels.FATAL, message, terminal: this.terminal });
+    if (this.logLevelRank <= LogLevelsRank.FATAL) {
+      this.worker.postMessage({ level: LogLevels.FATAL, message });
     }
   }
 }

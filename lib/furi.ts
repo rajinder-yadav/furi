@@ -25,7 +25,7 @@ import {
 } from './types.ts';
 
 import { StoreState } from './state.ts';
-import { BufferedLogger } from './utils/buffered-logger.ts';
+import { FastLogger } from './utils/fast-logger.ts';
 
 // Re-export types and classes for applications
 export * from './types.ts';
@@ -46,7 +46,7 @@ process.once('SIGINT', () => {
  */
 export class Furi extends FuriRouter {
 
-  static bufferedLogger: BufferedLogger;
+  static fastLogger: FastLogger;
 
   static readonly appStore: StoreState = new StoreState();
   static readonly httpServer: { app: Furi, http: Server }[] = [];
@@ -121,18 +121,16 @@ export class Furi extends FuriRouter {
         };
       }
 
-      if (this.furiConfig.logger.enabled) {
-        Furi.bufferedLogger = new BufferedLogger(
-          process.cwd(),
-          logFile,
-          enabled,
-          terminal,
-          flushPeriod,
-          maxCount,
-          mode,
-          level
-        );
-      }
+      Furi.fastLogger = new FastLogger(
+        process.cwd(),
+        logFile,
+        enabled,
+        terminal,
+        flushPeriod,
+        maxCount,
+        mode,
+        level
+      );
     } catch (error) {
       // Ignore and file errors.
     }
@@ -142,11 +140,11 @@ export class Furi extends FuriRouter {
       const serverInfoMessage = this.getServerInfoMessage();
       const loggerInfoMessage = this.getLoggerInfoMessage();
       const runtimeInfoMessage = this.getRuntimeMessage();
-      if (Furi.bufferedLogger) {
-        Furi.bufferedLogger.info(serverMessage);
-        Furi.bufferedLogger.info(serverInfoMessage);
-        Furi.bufferedLogger.info(runtimeInfoMessage);
-        Furi.bufferedLogger.info(loggerInfoMessage);
+      if (Furi.fastLogger) {
+        Furi.fastLogger.info(serverMessage);
+        Furi.fastLogger.info(serverInfoMessage);
+        Furi.fastLogger.info(runtimeInfoMessage);
+        Furi.fastLogger.info(loggerInfoMessage);
       }
       console.log(serverMessage);
       console.log(serverInfoMessage);
@@ -166,8 +164,8 @@ export class Furi extends FuriRouter {
   }
 
   static info(message: string) {
-    if (Furi.bufferedLogger) {
-      Furi.bufferedLogger.info(message);
+    if (Furi.fastLogger) {
+      Furi.fastLogger.info(message);
     }
   }
 
@@ -195,8 +193,8 @@ export class Furi extends FuriRouter {
     });
 
     LOG_INFO('Shutdown completed.');
-    if (Furi.bufferedLogger) {
-      Furi.bufferedLogger.close();
+    if (Furi.fastLogger) {
+      Furi.fastLogger.close();
     }
 
     // Delay to allow asynchronous processing to complete.
