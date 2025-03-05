@@ -2,6 +2,12 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.2.9 (2025-03-05)
+
+- Log file mode renamed from "buffered" to "buffer".
+- Default log mode changed to "stream".
+- Fix file logging and console logging separation.
+
 ## v0.2.8 (2025-03-04)
 
 - Terminal logging output is now improved.
