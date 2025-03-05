@@ -42,7 +42,7 @@ export class BufferedLogger {
 
     const dirName = (import.meta || globalThis.Deno) ? import.meta.dirname ?? '' : path.dirname(__filename);
 
-    this.worker = new Worker(path.join(dirName, 'logger-worker.js'), {
+    this.worker = new Worker(path.join(dirName, 'worker-logger.js'), {
       workerData: {
         logDirectory: this.logDirectory,
         logFileName: this.logFileName,
