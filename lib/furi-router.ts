@@ -631,7 +631,7 @@ export class FuriRouter {
           } // for
         } else if (throwOnNotFound) {
           // throw new Error(`Route not found for ${URL}`);
-          LOG_WARN(`Route not found for ${URL}`);
+          LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
           response.writeHead(404, {
             'Content-Type': 'text/plain',
             'User-Agent': Furi.getApiVersion(),
@@ -641,7 +641,7 @@ export class FuriRouter {
         }
       }
     } catch (_ex) {
-      LOG_ERROR('URI Not Found.');
+      LOG_ERROR('FuriRouter::processHTTPMethod URI Not Found.');
       response.writeHead(404, {
         'Content-Type': 'text/plain',
         'User-Agent': Furi.getApiVersion(),
@@ -651,7 +651,7 @@ export class FuriRouter {
     }
     if (throwOnNotFound) {
       // throw new Error(`Route not found for ${URL}`);
-      LOG_WARN(`Route not found for ${URL}`);
+      LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
       // response.statusCode = 404;
       // response.statusMessage = 'Route not found';
       response.writeHead(404, {
