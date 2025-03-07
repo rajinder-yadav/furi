@@ -31,6 +31,8 @@ import { FastLogger } from './utils/fast-logger.ts';
 export * from './types.ts';
 export * from './application-context.ts';
 export * from './furi-router.ts';
+export * from './utils/http-cookies-store.ts';
+export * from './utils/time-period.ts';
 
 type CleanupHandler = () => void;
 
