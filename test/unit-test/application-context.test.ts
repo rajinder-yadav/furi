@@ -8,11 +8,13 @@ import { assertEquals, assertNotEquals, assertFalse } from '@std/assert';
 import {
   ApplicationContext,
   Furi,
+  HttpCookiesStore,
   HttpRequest,
   HttpResponse,
   MapOf,
   QueryParamTypes,
 } from '../../lib/furi.ts';
+import { StoreState } from "../../lib/state.ts";
 
 Deno.test("ApplicationContext: check for valid app object", async () => {
   const furi = new Furi();
@@ -155,22 +157,20 @@ Deno.test("ApplicationContext::storeState across calls", async () => {
   const httpResponse2 = new HttpResponse(httpRequest1);
   const appContext2 = new ApplicationContext(Furi.appStore, httpRequest2, httpResponse2);
   assertEquals(appContext2.storeState("count"), 12);
-
 });
 
-/**
- * To do: Working with Cookies, and completed cookies test cases.
- * To do: Working with Cookies, and completed cookies test cases.
- * To do: Working with Cookies, and completed cookies test cases.
- */
-Deno.test.ignore("ApplicationContext::cookies", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::cookies", async () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
+  const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
-  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
-  assertEquals("","TO DO: cookie");
-
+  const store = new HttpCookiesStore();
+  store.cookie('name', 'yadav');
+  store.cookie('user', 'dev12');
+  store.setCookies(ctx);
+  const setCookies: string[] = ctx.response.getHeader('Set-Cookie') as string[];
+  assertEquals(setCookies.includes('name=yadav'), true);
+  assertEquals(setCookies.includes('user=dev12'), true);
 });
 
 Deno.test("ApplicationContext::requestHeader", async () => {

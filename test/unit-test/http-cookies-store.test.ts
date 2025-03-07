@@ -1,10 +1,15 @@
 import {
   assertArrayIncludes,
   assertEquals,
+  assertExists,
+  assertFalse,
 } from '@std/assert';
 
 import { HttpCookiesStore } from '../../lib/utils/http-cookies-store.ts';
 import { TimePeriod } from '../../lib/utils/time-period.ts';
+import { StoreState } from "../../lib/state.ts";
+import { ApplicationContext, Furi, HttpRequest, HttpResponse } from "../../lib/furi.ts";
+import { Socket } from "node:net";
 
 
 Deno.test('TimePeriod: expires 1 min', () => {
@@ -34,6 +39,33 @@ Deno.test('TimePeriod: expires multiple options', () => {
 Deno.test('HttpCookiesStore: new store', () => {
   const store = new HttpCookiesStore();
   assertEquals(store.cookies, {});
+});
+
+Deno.test('HttpCookiesStore::isSiteValue', () => {
+  const store = new HttpCookiesStore();
+  assertExists(store.isSiteValue('Lax'));
+  assertExists(store.isSiteValue('Strict'));
+  assertExists(store.isSiteValue('None'));
+  // This will show linting error because 'Invalid' is not a valid SameSite value.
+  assertFalse(store.isSiteValue('Invalid'));
+});
+
+Deno.test('HttpCookiesStore::signCookie+verify', () => {
+  const store = new HttpCookiesStore();
+  const signature = store.signCookie('name=yadav', 'super-duper-secret');
+  assertEquals(store.verifyCookie('name=yadav', signature, 'super-duper-secret'), true);
+  assertFalse(store.verifyCookie('name=yadav', signature, 'super-secret'));
+});
+
+Deno.test('HttpCookiesStore::sign+verify', () => {
+  const store = new HttpCookiesStore();
+  store.cookie('name', 'yadav');
+  store.cookie('userId', 'devguy');
+  store.cookie('role', 'developer');
+  store.sign('name', 'super-duper-secret');
+  assertEquals(store.cookie('name'), 'yadav');
+  assertEquals(store.verify('name', 'super-duper-secret'), true);
+  assertEquals(store.verify('name', 'super-secret'), false);
 });
 
 Deno.test('HttpCookiesStore: new cookie', () => {
@@ -84,6 +116,16 @@ Deno.test('HttpCookiesStore: expires - object', () => {
   assertEquals(store.generateCookieHeaders(), [`name=yadav; Expires=${encodeURIComponent(new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toUTCString())}`]);
 });
 
+Deno.test('HttpCookiesStore: maxAGE', () => {
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 123)
+    .maxAge('user', 3600);
+
+  assertEquals(store.maxAge('user'), 3600);
+  assertArrayIncludes(store.generateCookieHeaders(), ['user=123; Max-Age=3600']);
+});
+
 Deno.test('HttpCookiesStore: domain', () => {
   const store = new HttpCookiesStore();
   store.cookie('role', 'dev')
@@ -102,13 +144,22 @@ Deno.test('HttpCookiesStore: firstPartyDomain', () => {
   assertEquals(store.generateCookieHeaders(), ['role=dev; firstPartyDomain=example2.com']);
 });
 
-Deno.test('HttpCookiesStore: httpOnly', () => {
+Deno.test('HttpCookiesStore: httpOnly true', () => {
   const store = new HttpCookiesStore();
   store.cookie('user', 'test123');
   store.httpOnly('user', true);
 
   assertEquals(store.httpOnly('user'), true);
   assertEquals(store.generateCookieHeaders(), ['user=test123; HttpOnly']);
+});
+
+Deno.test('HttpCookiesStore: httpOnly false', () => {
+  const store = new HttpCookiesStore();
+  store.cookie('user', 'test123');
+  store.httpOnly('user', false);
+
+  assertEquals(store.httpOnly('user'), undefined);
+  assertEquals(store.generateCookieHeaders(), ['user=test123']);
 });
 
 Deno.test('HttpCookiesStore: httpOnly + generateCookieHeader', () => {
@@ -122,13 +173,13 @@ Deno.test('HttpCookiesStore: httpOnly + generateCookieHeader', () => {
 
 Deno.test('HttpCookiesStore: path + generateCookieHeader', () => {
   const store = new HttpCookiesStore();
-  store.cookie('user', 'admin').path('user','/api');
+  store.cookie('user', 'admin').path('user', '/api');
 
   assertEquals(store.path('user'), '/api');
   assertEquals(store.generateCookieHeaders(), [`user=admin; Path=${encodeURIComponent('/api')}`]);
 });
 
-Deno.test('HttpCookiesStore: secure + generateCookieHeader', () => {
+Deno.test('HttpCookiesStore: secure true + generateCookieHeader', () => {
   const store = new HttpCookiesStore();
   store.cookie('user', 'admin').secure('user', true);
 
@@ -136,11 +187,13 @@ Deno.test('HttpCookiesStore: secure + generateCookieHeader', () => {
   assertEquals(store.generateCookieHeaders(), [`user=admin; Secure`]);
 });
 
-Deno.test('HttpCookiesStore: secure + generateCookieHeader', () => {
+Deno.test('HttpCookiesStore: secure false + generateCookieHeader', () => {
   const store = new HttpCookiesStore();
-  store.cookie('user', 'admin').secure(true);
+  store.cookie('user', 'admin').secure(false);
 
   assertEquals(store.cookie('user'), 'admin');
+  assertEquals(store.secure('user'), undefined);
+  assertEquals(store.generateCookieHeaders(), [`user=admin`]);
 });
 
 Deno.test('HttpCookiesStore: parse active', () => {
@@ -175,17 +228,42 @@ Deno.test('HttpCookiesStore: parse name', () => {
   assertEquals(store.expires('name'), 'Thu, 06 Mar 2025 03:52:29 GMT');
 });
 
+Deno.test('HttpCookiesStore::setCookies', () => {
+  const httpRequest = new HttpRequest(new Socket());
+  const httpResponse = new HttpResponse(httpRequest);
+  const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
+
+  const store = new HttpCookiesStore();
+  store.cookie('name', 'yadav');
+  store.setCookies(ctx);
+  const setCookies: string[] = ctx.response.getHeader('Set-Cookie') as string[];
+  assertEquals(setCookies.includes('name=yadav'), true);
+});
+
+Deno.test('HttpCookiesStore::setCookies', () => {
+  const request = new HttpRequest(new Socket());
+  const response = new HttpResponse(request);
+  const ctx = new ApplicationContext(new StoreState(), request, response);
+  const store = new HttpCookiesStore();
+  store.cookie('name', 'yadav');
+  store.cookie('role', 'admin');
+  store.setCookies(ctx);
+  const setCookies: string[] = ctx.response.getHeader('Set-Cookie') as string[];
+  assertEquals(setCookies.includes('name=yadav'), true);
+  assertEquals(setCookies.includes('role=admin'), true);
+});
+
 Deno.test('HttpCookiesStore: parse', () => {
   const store = new HttpCookiesStore();
   store
-    .cookie('user', '123')
+    .cookie('user', 123)
     .expires('user', { minutes: 15 })
     .cookie('name', 'yadav')
     .cookie('active', true)
     .secure('name', true)
     .httpOnly('active', true);
 
-  assertEquals(store.cookie('user'), '123');
+  assertEquals(store.cookie('user'), 123);
   assertEquals(store.cookie('name'), 'yadav');
   assertEquals(store.cookie('active'), true);
 
@@ -200,8 +278,8 @@ Deno.test('HttpCookiesStore: parse', () => {
 Deno.test('HttpCookiesStore: signed', () => {
   const store = new HttpCookiesStore();
   store
-  .cookie('user', '123')
-  .sign('user', 'xyz123');
+    .cookie('user', 123)
+    .sign('user', 'xyz123');
 
   assertEquals(store.verify('user', 'xyz123'), true);
 });
@@ -209,7 +287,7 @@ Deno.test('HttpCookiesStore: signed', () => {
 Deno.test('HttpCookiesStore: signed no signature', () => {
   const store = new HttpCookiesStore();
   store
-  .cookie('user', '123');
+    .cookie('user', 123);
 
   assertEquals(store.verify('user', 'xyz123'), false);
 });
@@ -217,13 +295,104 @@ Deno.test('HttpCookiesStore: signed no signature', () => {
 Deno.test('HttpCookiesStore: parse signed cookie', () => {
   const store = new HttpCookiesStore();
   store
-  .cookie('user', '123')
-  .sign('user', 'xyz123');
+    .cookie('user', 123)
+    .sign('user', 'xyz123');
 
   const signedCookie = store.generateCookieString('user');
   store.clear();
   assertEquals(store.cookies, {});
 
+  assertExists(signedCookie);
   store.parseCookies(signedCookie);
   assertEquals(store.verify('user', 'xyz123'), true);
+});
+
+Deno.test('HttpCookiesStore: sameSite valid Strict', () => {
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 123)
+    .sameSite('user', 'Strict');
+
+  assertArrayIncludes(store.generateCookieHeaders(), ['user=123; SameSite=Strict']);
+});
+
+Deno.test('HttpCookiesStore: sameSite valid Lax', () => {
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 123)
+    .sameSite('user', 'Lax');
+
+  assertArrayIncludes(store.generateCookieHeaders(), ['user=123; SameSite=Lax']);
+});
+
+Deno.test('HttpCookiesStore: sameSite valid None', () => {
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 123)
+    .sameSite('user', 'None');
+
+  assertArrayIncludes(store.generateCookieHeaders(), ['user=123; SameSite=None']);
+});
+
+Deno.test('HttpCookiesStore: sameSite valid Stric', () => {
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 123)
+    .sameSite('user', 'Super');
+
+  assertArrayIncludes(store.generateCookieHeaders(), ['user=123']);
+});
+
+
+
+// Cookies
+
+Deno.test('HttpCookiesStore: cookie single', () => {
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 1289);
+
+  assertEquals(store.cookie('user'), 1289);
+  assertArrayIncludes(store.generateCookieHeaders(), ['user=1289']);
+});
+
+Deno.test('HttpCookiesStore: cookie multiple', () => {
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 1289)
+    .cookie('role', 'devops');
+
+  assertEquals(store.cookie('user'), 1289);
+  assertEquals(store.cookie('role'), 'devops');
+  assertArrayIncludes(store.generateCookieHeaders(), ['user=1289', 'role=devops']);
+});
+
+Deno.test('HttpCookiesStore: cookie with all options', () => {
+  const date = new Date(Date.now() + 3600 * 1000);
+  const store = new HttpCookiesStore();
+  store
+    .cookie('user', 1289)
+    .cookie('role', 'devops',
+      {
+        Domain: 'www.example.com',
+        Path: '/',
+        HttpOnly: true,
+        Secure: true,
+        SameSite: 'Strict',
+        'Max-Age': 3600,
+        Expires: date
+      });
+
+  assertEquals(store.cookie('user'), 1289);
+  assertEquals(store.cookie('role'), 'devops');
+
+  const headers = store.generateCookieHeaders();
+  assertArrayIncludes(headers, ['user=1289']);
+  assertExists(headers.includes('HttpOnly'));
+  assertExists(headers.includes('Secure'));
+  assertExists(headers.includes('SameSite=Strict'));
+  assertExists(headers.includes('Max-Age=3600'));
+  assertExists(headers.includes(encodeURIComponent('Path=/')));
+  assertExists(headers.includes(encodeURIComponent('Expires=`${date.toUTCString()}`')));
+  assertExists(headers.includes(encodeURIComponent('Domain=www.example.com')));
 });
