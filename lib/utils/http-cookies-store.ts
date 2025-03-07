@@ -420,7 +420,7 @@ export class HttpCookiesStore {
       resultCookie.options['SameSite'] &&
       !this.isSiteValue(resultCookie.options['SameSite'] as SameSiteValues)
     ) {
-      LOG_ERROR(`HttpCookiesStore::cookie cookies ${name} does not exist`);
+      LOG_ERROR(`HttpCookiesStore::cookie cookies ${cookie} does not exist`);
     }
 
     if (cookieName) {
