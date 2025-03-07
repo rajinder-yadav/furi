@@ -11,20 +11,27 @@
 /**
  * RFC: 6265 HTTP State Management Mechanism
  * https://datatracker.ietf.org/doc/html/rfc6265
+ *
+ *
+ * MDN :https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
  */
+
 import { createHmac } from 'node:crypto';
 
 import { ApplicationContext } from '../application-context.ts';
 import { MapOf, LOG_ERROR, LOG_DEBUG, LOG_WARN } from '../types.ts';
 import { TimePeriod } from './time-period.ts';
 
+// deno-lint-ignore-file no-explicit-any
+
 /**
  * Cookie defined types.
  */
-type CookieOptions = MapOf<string|boolean|number>;
-type CookieItem = { value: string, signature?: string, options?: CookieOptions };
+type CookieTypes = string | number | boolean;
+type CookieOptions = MapOf<CookieTypes>;
+type CookieItem = { value: CookieTypes, signature?: string, options?: CookieOptions };
 type Cookie = MapOf<CookieItem>;
-
+type SameSiteValues = 'Strict' | 'Lax' | 'None';
 /**
  * Cookie options.
  */
@@ -57,13 +64,14 @@ const CookieOptions = [
  */
 export class HttpCookiesStore {
 
+  // Cookie store state.
   cookies: Cookie = {};
 
   /**
    * Clears cookie store.
    * Removes all cookies from the store.
    *
-   * @return - None.
+   * @returns - Current this reference to HttpCookiesStore instance.
    */
   clear(): HttpCookiesStore {
     this.cookies = {};
@@ -74,16 +82,14 @@ export class HttpCookiesStore {
    * Set cookine to expire immediately.
    * This will tell the web browser to delete the cookie.
    *
-   * @return - None.
+   * @returns - Current this reference to HttpCookiesStore instance.
    */
   delete(name: string): HttpCookiesStore {
-    if (this.cookies[name].options) {
-      // Update options property.
-      this.cookies[name].options['Max-Age'] = 0;
-    } else {
-      // Create options property.
-      this.cookies[name].options = { 'Max-Age': 0 };
+    if (!this.cookies[name]) {
+      LOG_ERROR(`HttpCookiesStore::delete Cookie ${name} does not exist`);
+      return this;
     }
+    this.cookies[name].options!['Max-Age'] = 0;
     return this;
   }
 
@@ -100,23 +106,41 @@ export class HttpCookiesStore {
   expires(name: string, value?: string): any;
   expires(name: string, value?: object): any;
   expires(name: string, value?: unknown): any {
-    if (!this?.cookies[name]) {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::expires Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value === undefined) {
-      return this.cookies[name].options['Expires'] as string;
+      return this.cookies[name].options!['Expires'] as string;
     } else if (typeof value === 'number') {
-      this.cookies[name].options['Expires'] = new Date(value).toUTCString();
+      this.cookies[name].options!['Expires'] = new Date(value).toUTCString();
     } else if (typeof value === 'string') {
-      this.cookies[name].options['Expires'] = value;
+      this.cookies[name].options!['Expires'] = value;
     } else if (typeof value === 'object' && value) {
-      this.cookies[name].options['Expires'] = TimePeriod.expiresUTC(value as TimePeriod);
+      this.cookies[name].options!['Expires'] = TimePeriod.expiresUTC(value as TimePeriod);
     } else {
       LOG_ERROR('HttpCookiesStore::expires Invalid value passed as argument for expires.');
+    }
+    return this;
+  }
+
+  /**
+   * Overloaded function to get and set Max-Age cookie option.
+   *
+   * @param name  Cookie name.
+   * @param value Time value in Linux UCT time format.
+   * @returns - Max-Age cookie option.
+   * @returns - Current this reference to HttpCookiesStore instance.
+   */
+  maxAge(name: string, value?: number): any {
+    if (!this.cookies[name]) {
+      LOG_ERROR(`HttpCookiesStore::maxAge Cookie ${name} does not exist`);
+      return this;
+    }
+    if (value) {
+      this.cookies[name].options!['Max-Age'] = value;
+    } else {
+      return this.cookies[name].options!['Max-Age'];
     }
     return this;
   }
@@ -130,17 +154,14 @@ export class HttpCookiesStore {
    */
   // domain(value?: string): string | HttpCookiesStore | undefined {
   domain(name: string, value?: string): any {
-    if (!this?.cookies[name]) {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::domain Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value) {
-      this.cookies[name].options['Domain'] = value;
+      this.cookies[name].options!['Domain'] = value;
     } else {
-      return this.cookies[name].options['Domain'] as string;
+      return this.cookies[name].options!['Domain'] as string;
     }
     return this;
   }
@@ -149,22 +170,19 @@ export class HttpCookiesStore {
    * Overloaded function to get and set cookie first party domain.
    *
    * @param value - String representing the first party domain.
-   * @returns - Ccurrent first party domain of the cookie or undefined.
+   * @returns - Current first party domain of the cookie or undefined.
    * @returns - Current this reference to HttpCookiesStore instance.
    */
   // firstPartyDomain(value?: string): string | HttpCookiesStore | undefined {
   firstPartyDomain(name: string, value?: string): any {
-    if (!this?.cookies[name]) {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::firstPartyDomain Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value) {
-      this.cookies[name].options['firstPartyDomain'] = value;
+      this.cookies[name].options!['firstPartyDomain'] = value;
     } else {
-      return this.cookies[name].options['firstPartyDomain'] as string;
+      return this.cookies[name].options!['firstPartyDomain'] as string;
     }
     return this;
   }
@@ -178,17 +196,14 @@ export class HttpCookiesStore {
    */
   // httpOnly(value?: boolean): boolean | HttpCookiesStore | undefined {
   httpOnly(name: string, value?: boolean): any {
-    if (!this?.cookies[name]) {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::httpOnly Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value) {
-      this.cookies[name].options['HttpOnly'] = value;
+      this.cookies[name].options!['HttpOnly'] = value;
     } else {
-      return this.cookies[name].options['HttpOnly'] as boolean;
+      return this.cookies[name].options!['HttpOnly'] as boolean;
     }
     return this;
   }
@@ -202,17 +217,14 @@ export class HttpCookiesStore {
    */
   // path(value?: string): string | HttpCookiesStore | undefined {
   path(name: string, value?: string): any {
-    if (!this?.cookies[name]) {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::path Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value) {
-      this.cookies[name].options['Path'] = value;
+      this.cookies[name].options!['Path'] = value;
     } else {
-      return this.cookies[name].options['Path'] as string;
+      return this.cookies[name].options!['Path'] as string;
     }
     return this;
   }
@@ -226,17 +238,14 @@ export class HttpCookiesStore {
    */
   // secure(value?: boolean): boolean | HttpCookiesStore | undefined {
   secure(name: string, value?: boolean): any {
-    if (!this?.cookies[name]) {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::secure Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value) {
-      this.cookies[name].options['Secure'] = value;
+      this.cookies[name].options!['Secure'] = value;
     } else {
-      return this.cookies[name].options['Secure'] as boolean;
+      return this.cookies[name].options!['Secure'] as boolean;
     }
     return this;
   }
@@ -249,18 +258,16 @@ export class HttpCookiesStore {
    * @returns - Current this reference to HttpCookiesStore instance.
    */
   // session(value?: boolean): boolean | HttpCookiesStore | undefined {
+  // TODO! Learn more about Session flag.
   session(name: string, value?: string): any {
-    if (!this?.cookies[name]) {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::session Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value) {
-      this.cookies[name].options['sessionId'] = value;
+      this.cookies[name].options!['sessionId'] = value;
     } else {
-      return this.cookies[name].options['sessionId'] as boolean;
+      return this.cookies[name].options!['sessionId'] as boolean;
     }
     return this;
   }
@@ -273,23 +280,19 @@ export class HttpCookiesStore {
    * @returns - Current this reference to HttpCookiesStore instance.
    */
   // sameSite(value?: string): string | HttpCookiesStore | undefined {
-  sameSite(name: string, value?: string): any {
-    if (!this?.cookies[name]) {
+  sameSite(name: string, value?: SameSiteValues): any {
+    if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::sameSite Cookie ${name} does not exist`);
-      return;
-    }
-    if (!this.cookies[name].options) {
-      this.cookies[name].options = {};
+      return this;
     }
     if (value) {
-      const validValues = ['Strict', 'Lax', 'None'];
-      if (validValues.includes(value)) {
-        this.cookies[name].options['SameSite'] = value;
+      if (this.isSiteValue(value)) {
+        this.cookies[name].options!['SameSite'] = value;
       } else {
         LOG_ERROR('HttpCookiesStore::SameSite: Invalid SameSite flag. Must be one of "Strict", "Lax", or "None".');
       }
     } else {
-      return this.cookies[name].options['SameSite'] as string;
+      return this.cookies[name].options!['SameSite'] as string;
     }
     return this;
   }
@@ -311,19 +314,21 @@ export class HttpCookiesStore {
    * @return - Value of the cookie or undefined if not found.
    * @returns - Current this reference to HttpCookiesStore instance.
    */
-  cookie(name: string, value?: string, options?: CookieOptions): any {
+  cookie(name: string, value?: CookieTypes, options?: CookieOptions): any {
     if (value && options) {
+      if (options['SameSite'] && !this.isSiteValue(options['SameSite'] as SameSiteValues)) {
+        LOG_ERROR(`HttpCookiesStore::cookie cookies ${name} does not exist`);
+      }
       this.cookies[name] = { value, options };
     }
     else if (value) {
-      this.cookies[name] = { value };
+      this.cookies[name] = { value, options: {} };
     }
     else if (this.cookies[name]) {
       return this.cookies[name].value;
     }
     else {
       LOG_ERROR(`HttpCookiesStore::cookie cookies ${name} does not exist`);
-      return undefined;
     }
     return this;
   }
@@ -333,10 +338,10 @@ export class HttpCookiesStore {
    *
    * @returns - Cookie string for header.
    */
-  generateCookieString(name: string): string {
+  generateCookieString(name: string): string | null {
     if (!this.cookies[name]) {
       LOG_ERROR('HttpCookieStore::generateCookieString cooke ${name} does not exist');
-      return '';
+      return null;
     }
 
     const keys = ['HttpOnly', 'Secure']
@@ -366,7 +371,10 @@ export class HttpCookiesStore {
   generateCookieHeaders(): string[] {
     const cookies: string[] = [];
     Object.keys(this.cookies).forEach(name => {
-      cookies.push(this.generateCookieString(name));
+      const cookie = this.generateCookieString(name);
+      if (cookie) {
+        cookies.push(cookie);
+      }
     });
     return cookies;
   }
@@ -379,7 +387,7 @@ export class HttpCookiesStore {
    */
   parseCookies(cookie: string | undefined): void {
     if (!cookie) {
-      LOG_WARN('No cookies found');
+      LOG_WARN('HttpCookieStore::parseCookies No cookies found');
       return;
     }
     let cookieName: string | null = null;
@@ -407,13 +415,21 @@ export class HttpCookiesStore {
       }
     });
 
+    if (
+      resultCookie.options &&
+      resultCookie.options['SameSite'] &&
+      !this.isSiteValue(resultCookie.options['SameSite'] as SameSiteValues)
+    ) {
+      LOG_ERROR(`HttpCookiesStore::cookie cookies ${name} does not exist`);
+    }
+
     if (cookieName) {
       this.cookies[cookieName] = resultCookie;
     } else {
       LOG_ERROR(`HttpCookiesStore::parseCookies is missed a cookie name: ${cookie}`);
     }
 
-    LOG_DEBUG(JSON.stringify(this.cookies));
+    LOG_DEBUG(`HttpCookiesStore::parseCookies ${JSON.stringify(this.cookies)}`);
   }
 
   /**
@@ -471,9 +487,9 @@ export class HttpCookiesStore {
    * Sign cookie with the provided secret.
    * @param value  Cookie name, value pair.
    * @param secret String value.
-   * @returns
+   * @returns signed value.
    */
-  private signCookie(value: string, secret: string): string {
+  signCookie(value: string, secret: string): string {
     const hmac = createHmac('sha256', secret);
     hmac.update(value);
     return hmac.digest('hex');
@@ -484,16 +500,19 @@ export class HttpCookiesStore {
    * @param value     Cookie name, value pair.
    * @param signature Signed cookie signature.
    * @param secret    String value.
-   * @returns
+   * @returns true if valid, false otherwise.
    */
-  private verifyCookie(value: string, signature: string, secret: string): boolean {
+  verifyCookie(value: string, signature: string, secret: string): boolean {
     if (!signature) {
       return false;
     }
-    const hmac = createHmac('sha256', secret);
-    hmac.update(value);
-    const expectedSignature = hmac.digest('hex');
+    const expectedSignature = this.signCookie(value, secret);
     return signature === expectedSignature;
+  }
+
+  // Type guard function to check if a string is one of the SiteValues
+  isSiteValue(value: SameSiteValues): value is SameSiteValues {
+    return ['Lax', 'Strict', 'None'].includes(value);
   }
 
 }
