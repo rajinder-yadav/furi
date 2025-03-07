@@ -2,6 +2,15 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.3.0 (2025-03-07)
+
+- Feat, Cookie Store to work with cookies.
+- Feat, Signed cookies.
+- Feat, Time helper class to use with Cookies
+- Feat, new unit test or time helper class.
+- Feat, new unit test or Cookie store.
+- Feat, new unit test or signed cookies.
+
 ## v0.2.9 (2025-03-05)
 
 - Log file mode renamed from "buffered" to "buffer".
