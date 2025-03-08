@@ -33,6 +33,7 @@ export * from './application-context.ts';
 export * from './furi-router.ts';
 export * from './utils/http-cookies-store.ts';
 export * from './utils/time-period.ts';
+export * from './utils/body-parser.ts';
 
 type CleanupHandler = () => void;
 

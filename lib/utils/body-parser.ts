@@ -1,8 +1,24 @@
+/**
+ * Furi - Fast Uniform Resource Identifier.
+ *
+ * The Fast and Furious Node.js Router.
+ * Copyright(c) 2016, 2025 Rajinder Yadav.
+ *
+ * Labs DevMentor.org Corp. <info@devmentor.org>
+ * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
+ */
+
 import { ApplicationContext } from '../application-context.ts';
 import { Middleware } from "../types.ts";
 import { Furi, LOG_ERROR } from "../furi.ts";
 
-export function JSONBodyParserMiddleware(ctx: ApplicationContext, next: Middleware): any {
+/**
+ * Middleware function to parse JSON bodies.
+ * @param {ApplicationContext} ctx - The application context.
+ * @param {Middleware} next - The next middleware function in the chain.
+ * @returns {any}
+ */
+export function JSONBodyParser(ctx: ApplicationContext, next: Middleware): any {
   const body: Uint8Array[] = [];
 
   ctx.request
