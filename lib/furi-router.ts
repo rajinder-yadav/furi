@@ -311,7 +311,7 @@ export class FuriRouter {
     // LOG_DEBUG( request.method, request.url );
     const request = new HttpRequest(incomingMessage);
 
-    if(Furi.fastLogger) {
+    if (Furi.fastLogger) {
       Furi.fastLogger.info(`host: ${request.headers.host}, remote-ip: ${request.socket.remoteAddress}, remote-port: ${request.socket.remotePort}, http: ${request.httpVersion}, method: ${request.method}, url: ${request.url}`);
     }
 
@@ -346,7 +346,7 @@ export class FuriRouter {
           'Content-Type': 'text/plain',
           'User-Agent': Furi.getApiVersion()
         });
-        console.error(`HTTP method ${request.method} is not supported.`);
+        LOG_ERROR(`HTTP method ${request.method} is not supported.`);
         response.end();
     } // switch
   }
@@ -474,31 +474,6 @@ export class FuriRouter {
   }
 
   /**
-   * Execute all top level middlewares.
-   * @param applicationContext Application context object.
-   * @return void.
-   */
-  protected callTopLevelMiddlewares(applicationContext: ApplicationContext): void {
-    const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
-    const middleware_chain = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks;
-    if (!middleware_chain || middleware_chain?.length === 0) { return; }
-
-    let callbackMiddlewareIndex = 0;
-    const nextMiddleware = (): void => {
-      if (callbackMiddlewareIndex < middleware_chain.length) {
-        const callback = middleware_chain[callbackMiddlewareIndex++];
-        const rv = callback(applicationContext, nextMiddleware);
-        if (rv) {
-          applicationContext.end(rv);
-          return;
-        }
-
-      }
-    }
-    nextMiddleware();
-  }
-
-  /**
    * Check if each path name matches its ordinal key value,
    * named path params are attached to request.params.
    *
@@ -570,15 +545,20 @@ export class FuriRouter {
      */
     const applicationContext = new ApplicationContext(Furi.appStore, request, response);
 
+    // Set up callback chain for top-level middleware and route callbacks.
+    const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
+    const toplevelMiddlewareCallbacks = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks ?? [];
+    const staticRouteCallbacks = routeMap.staticRouteMap[URL]?.callbacks ?? [];
+    let callback_chain: HandlerFunction[] = [...toplevelMiddlewareCallbacks, ...staticRouteCallbacks];
+
     try {
       if (routeMap.staticRouteMap[URL]) {
         // Found direct match of static URI path.
-        this.callTopLevelMiddlewares(applicationContext);
-        // Execute path callback chain.
-        const callback_chain = routeMap.staticRouteMap[URL]?.callbacks;
-        if (!callback_chain || callback_chain?.length === 0) { return; }
-        let callbackIndex = 0;
 
+        if (staticRouteCallbacks.length === 0) { return; }
+
+        // Execute callback chain.
+        let callbackIndex = 0;
         const nextStatic = (): void => {
           if (callbackIndex < callback_chain.length) {
             const callback = callback_chain[callbackIndex++];
@@ -603,21 +583,23 @@ export class FuriRouter {
         if (routeMap.namedRoutePartitionMap[bucket]) {
           if (!request.params) { request.params = {}; }
 
-          const namedRouteCallbacks = routeMap.namedRoutePartitionMap[bucket];
-          if (!namedRouteCallbacks || namedRouteCallbacks?.length === 0) { return; }
-          for (const namedRouteCallback of namedRouteCallbacks) {
-            if (!namedRouteCallback.useRegex && this.fastPathMatch(pathNames, namedRouteCallback.pathNames, request) ||
-              namedRouteCallback.useRegex && this.regexPathMatch(URL, namedRouteCallback, request)) {
+          const namedRouteBuckers = routeMap.namedRoutePartitionMap[bucket];
+          if (!namedRouteBuckers || namedRouteBuckers?.length === 0) { return; }
+
+          for (const namedRouteHandlers of namedRouteBuckers) {
+            if (!namedRouteHandlers.useRegex && this.fastPathMatch(pathNames, namedRouteHandlers.pathNames, request) ||
+              namedRouteHandlers.useRegex && this.regexPathMatch(URL, namedRouteHandlers, request)) {
               // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
-              this.callTopLevelMiddlewares(applicationContext);
+
+              callback_chain = [...toplevelMiddlewareCallbacks, ...namedRouteHandlers.callbacks ?? []];
+
               // Execute path callback chain.
-              if (namedRouteCallback?.callbacks.length > 0) {
+              if (namedRouteHandlers?.callbacks.length > 0) {
 
                 let callbackNamedRouteIndex = 0;
-
                 const nextNamedRoute = (): void => {
-                  if (callbackNamedRouteIndex < namedRouteCallback.callbacks.length) {
-                    const callback = namedRouteCallback.callbacks[callbackNamedRouteIndex++];
+                  if (callbackNamedRouteIndex < callback_chain.length) {
+                    const callback = callback_chain[callbackNamedRouteIndex++];
                     const rv = callback(applicationContext, nextNamedRoute);
                     if (rv) {
                       return applicationContext.end(rv);
