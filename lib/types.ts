@@ -22,11 +22,11 @@ export const API_VERSION: string = '0.3.1';
 /**
  * Logging helper functions.
  */
-export const LOG_DEBUG = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
+export const LOG_DEBUG = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.debug(msg); } }
 export const LOG_INFO = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
-export const LOG_LOG = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
-export const LOG_WARN = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
-export const LOG_ERROR = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.info(msg); } }
+export const LOG_LOG = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.log(msg); } }
+export const LOG_WARN = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.warm(msg); } }
+export const LOG_ERROR = (msg: string) => { if (Furi.fastLogger) { Furi.fastLogger.error(msg); } }
 
 export type LoggerMode = 'buffer' | 'stream';
 
@@ -173,6 +173,7 @@ export class HttpRequest extends IncomingMessage {
   public query: URLSearchParams | null = null;
   public sessionData: MapOf<any> = {};
   public app: Furi | null = null;
+  public body: any = null;
 
   constructor(incomingMessage: Socket);
   constructor(incomingMessage: IncomingMessage);
