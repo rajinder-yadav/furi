@@ -11,9 +11,11 @@ export function JSONBodyParserMiddleware(ctx: ApplicationContext, next: Middlewa
     })
     .on("end", () => {
       try {
-        const resultBody = JSON.parse(body.concat().toString());
-        Furi.appStore.storeState('body', resultBody);
-        ctx.request.body = resultBody; // Assign parsed body to request object for easy access
+        if (body.length > 0) {
+          const resultBody = JSON.parse(body.concat().toString());
+          Furi.appStore.storeState('body', resultBody);
+          ctx.request.body = resultBody; // Assign parsed body to request object for easy access
+        }
         next();
       } catch (error) {
         LOG_ERROR(`jsonBodyParser: parsing JSON body: ${error}`);
