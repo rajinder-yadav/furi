@@ -448,7 +448,7 @@ Deno.test("PATCH: Comment how to route with a JSON body", async () => {
   });
   const response: Response = await fetch(request);
   if (response.ok) {
-    const s = '{"message":"PATCH comment with id","id":"how","text":"{\\"text\\":\\"This is a test comment.\\"}"}';
+    const s = '{"message":"PATCH comment with id","id":"how","text":{"text":"This is a test comment."}}';
     const data = await response.text();
     assertEquals(data, s);
     assertEquals(response.status, 200);
@@ -488,7 +488,7 @@ Deno.test("POST: Comment how to route", async () => {
   }
 });
 
-Deno.test("POST: Comment how to route without empty body", async () => {
+Deno.test("POST: Comment how to route with empty body", async () => {
   const request = new Request("http://localhost:3030/comment/how", {
     method: "POST",
     headers: {
