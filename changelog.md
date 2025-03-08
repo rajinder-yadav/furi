@@ -2,6 +2,14 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.4.0 (2025-03-08)
+
+- Feat, Cookie store added Max-Age
+- Feat, more Unit test coverage for Cookie Store class.
+- Fix, Middleware calling, causing bodyparsed middleware not to function correctly.
+- Improved design of calling callback chain.
+- Deleted function to call top-level middwares.
+
 ## v0.3.0 (2025-03-07)
 
 - Feat, Cookie Store to work with cookies.
