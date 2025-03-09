@@ -8,6 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
+// deno-lint-ignore-file no-explicit-any
 import { IncomingMessage, ServerResponse, } from 'node:http';
 import { Socket } from "node:net";
 
@@ -17,7 +18,7 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = '0.4.0';
+export const API_VERSION: string = '0.4.1';
 
 /**
  * Logging helper functions.

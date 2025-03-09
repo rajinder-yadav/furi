@@ -8,6 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
+// deno-lint-ignore-file no-explicit-any
 import { MapOf } from "./types.ts";
 
 /**

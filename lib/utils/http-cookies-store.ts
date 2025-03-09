@@ -16,13 +16,12 @@
  * MDN :https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
  */
 
+// deno-lint-ignore-file no-explicit-any
 import { createHmac } from 'node:crypto';
 
 import { ApplicationContext } from '../application-context.ts';
 import { MapOf, LOG_ERROR, LOG_DEBUG, LOG_WARN } from '../types.ts';
 import { TimePeriod } from './time-period.ts';
-
-// deno-lint-ignore-file no-explicit-any
 
 /**
  * Cookie defined types.
