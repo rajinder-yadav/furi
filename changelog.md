@@ -2,6 +2,17 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.4.1 (2025-03-09)
+
+- Fix, export of json body parser middleware.
+- Improved body parser middleware design, now supports:
+  - `application/json`
+  - `text/*`
+  - `application/x-www-form-urlencoded`
+- Body parses can now be access as: "Furi.BodyParser".
+- Body parsers have an optional option, currently `limit` for limiting the size of the body.
+- Default limit size for the request body is 250KB.
+
 ## v0.4.0 (2025-03-08)
 
 - Feat, Cookie store added Max-Age
