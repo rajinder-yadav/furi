@@ -2,7 +2,7 @@
 
 Date in ISO format: YYYY-MM-DD
 
-## v0.4.1 (2025-03-09)
+## v0.4.2 (2025-03-09)
 
 - Fix, export of json body parser middleware.
 - Improved body parser middleware design, now supports:
