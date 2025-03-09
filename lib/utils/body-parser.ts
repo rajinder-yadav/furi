@@ -49,7 +49,7 @@ export function BodyParserFn(bodyParserOptions?: BodyParserOptions): any {
       .on('data', (chunk: Uint8Array) => {
         currentSize += chunk.length;
         // LOG_DEBUG(`BodyParser options limit=${options.limit}, currentSize=${currentSize}`);
-        if (currentSize > options.limit) {
+        if (currentSize > options.limit!) {
           LOG_ERROR(`BodyParser exceeded buffer size limit of ${options.limit}, you can change this via options.`);
         }
         // LOG_DEBUG('BodyParser on data');
@@ -120,7 +120,7 @@ export function JSONBodyParserFn(bodyParserOptions?: BodyParserOptions): any {
       .on('data', (chunk: Uint8Array) => {
         currentSize += chunk.length;
         // LOG_DEBUG(`BodyParser options limit=${options.limit}`);
-        if (currentSize > options.limit) {
+        if (currentSize > options.limit!) {
           LOG_ERROR(`BodyParser exceeded buffer size limit of ${options.limit}, you can change this via options.`);
         }
         // LOG_DEBUG('JSONBodyParser on data');
@@ -179,7 +179,7 @@ export function UrlEncodedParserFn(bodyParserOptions?: BodyParserOptions): any {
       .on('data', (chunk: Uint8Array) => {
         currentSize += chunk.length;
         // LOG_DEBUG(`UrlEncodedParser options limit=${options.limit}`);
-        if (currentSize > options.limit) {
+        if (currentSize > options.limit!) {
           LOG_ERROR(`UrlEncodedParser exceeded buffer size limit of ${options.limit}, you can change this via options.`);
         }
         // LOG_DEBUG('JSONUrlEncodedParser on data');
