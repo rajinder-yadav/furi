@@ -67,7 +67,6 @@ Deno.test("GET: Root path with end slash", async () => {
 
 });
 
-
 Deno.test("GET: About without end slash", async () => {
   const request = new Request("http://localhost:3030/about", {
     method: "GET",
