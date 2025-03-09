@@ -21,7 +21,7 @@ export type BodyParserOptions = {
 const DefaultLimitSize = 250 * 1024;
 
 /**
- * Middleware function to parse JSON bodies.
+ * Middleware function to parse JSON, Urlencoded and Text bodies.
  * @param {ApplicationContext} ctx - The application context.
  * @param {Middleware} next - The next middleware function in the chain.
  * @returns {any}
