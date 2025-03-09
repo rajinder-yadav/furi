@@ -17,6 +17,9 @@ export type BodyParserOptions = {
   limit?: number;
 };
 
+// Default limit size (250KB) for the request body in bytes.
+const DefaultLimitSize = 250 * 1024;
+
 /**
  * Middleware function to parse JSON bodies.
  * @param {ApplicationContext} ctx - The application context.
@@ -34,9 +37,9 @@ export function BodyParserFn(bodyParserOptions?: BodyParserOptions): any {
     }
 
     // Default limit to 1MB if not provided.
-    let options = bodyParserOptions ?? { limit: 1024 * 1024 };
+    let options = bodyParserOptions ?? { limit: DefaultLimitSize };
     if (!options.limit) {
-      options = { ...options, limit: 1024 * 1024 }; // Default to 1MB if not provided.
+      options = { ...options, limit: DefaultLimitSize }; // Default to 1MB if not provided.
     }
 
     let currentSize = 0;
@@ -45,7 +48,7 @@ export function BodyParserFn(bodyParserOptions?: BodyParserOptions): any {
     ctx.request
       .on('data', (chunk: Uint8Array) => {
         currentSize += chunk.length;
-        LOG_DEBUG(`BodyParser options limit=${options.limit}`);
+        LOG_DEBUG(`BodyParser options limit=${options.limit}, currentSize=${currentSize}`);
         if (currentSize > options.limit) {
           LOG_ERROR(`BodyParser exceeded buffer size limit of ${options.limit}, you can change this via options.`);
         }
@@ -105,9 +108,9 @@ export function JSONBodyParserFn(bodyParserOptions?: BodyParserOptions): any {
     }
 
     // Default limit to 1MB if not provided.
-    let options = bodyParserOptions ?? { limit: 1024 * 1024 };
+    let options = bodyParserOptions ?? { limit: DefaultLimitSize };
     if (!options.limit) {
-      options = { ...options, limit: 1024 * 1024 }; // Default to 1MB if not provided.
+      options = { ...options, limit: DefaultLimitSize }; // Default to 1MB if not provided.
     }
 
     let currentSize = 0;
@@ -164,9 +167,9 @@ export function UrlEncodedParserFn(bodyParserOptions?: BodyParserOptions): any {
     }
 
     // Default limit to 1MB if not provided.
-    let options = bodyParserOptions ?? { limit: 1024 * 1024 };
+    let options = bodyParserOptions ?? { limit: DefaultLimitSize };
     if (!options.limit) {
-      options = { ...options, limit: 1024 * 1024 }; // Default to 1MB if not provided.
+      options = { ...options, limit: DefaultLimitSize }; // Default to 1MB if not provided.
     }
 
     let currentSize = 0;
