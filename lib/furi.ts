@@ -21,11 +21,13 @@ import {
   LoggerMode,
   MapOf,
   LogLevels,
-  LOG_INFO
+  LOG_INFO,
+  HandlerFunction
 } from './types.ts';
 
 import { StoreState } from './state.ts';
 import { FastLogger } from './utils/fast-logger.ts';
+import { BodyParser } from './utils/body-parser.ts';
 
 // Re-export types and classes for applications
 export * from './types.ts';
@@ -33,7 +35,6 @@ export * from './application-context.ts';
 export * from './furi-router.ts';
 export * from './utils/http-cookies-store.ts';
 export * from './utils/time-period.ts';
-export * from './utils/body-parser.ts';
 
 type CleanupHandler = () => void;
 
@@ -53,6 +54,7 @@ export class Furi extends FuriRouter {
 
   static readonly appStore: StoreState = new StoreState();
   static readonly httpServer: { app: Furi, http: Server }[] = [];
+  static readonly BodyParser: HandlerFunction = BodyParser;
 
   protected server: Server | null = null;
   protected properties: MapOf<any> = {};
