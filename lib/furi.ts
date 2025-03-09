@@ -8,6 +8,7 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
+// deno-lint-ignore-file no-explicit-any
 import * as fs from 'node:fs';
 import * as http from 'node:http';
 import { Server } from 'node:http';
@@ -22,12 +23,17 @@ import {
   MapOf,
   LogLevels,
   LOG_INFO,
-  HandlerFunction
+  LOG_ERROR,
 } from './types.ts';
 
 import { StoreState } from './state.ts';
 import { FastLogger } from './utils/fast-logger.ts';
-import { BodyParser } from './utils/body-parser.ts';
+import {
+  BodyParserFn,
+  JSONBodyParserFn,
+  UrlEncodedParserFn,
+  BodyParserOptions,
+} from './utils/body-parser.ts';
 
 // Re-export types and classes for applications
 export * from './types.ts';
@@ -54,7 +60,10 @@ export class Furi extends FuriRouter {
 
   static readonly appStore: StoreState = new StoreState();
   static readonly httpServer: { app: Furi, http: Server }[] = [];
-  static readonly BodyParser: HandlerFunction = BodyParser;
+
+  static readonly BodyParser: (options?: BodyParserOptions) => any = BodyParserFn;
+  static readonly JSONBodyParser: (options?: BodyParserOptions) => any = JSONBodyParserFn;
+  static readonly UrlEncodedParser: (options?: BodyParserOptions) => any = UrlEncodedParserFn;
 
   protected server: Server | null = null;
   protected properties: MapOf<any> = {};
@@ -138,6 +147,7 @@ export class Furi extends FuriRouter {
       );
     } catch (error) {
       // Ignore and file errors.
+      LOG_ERROR(`Furi::constructor error: ${JSON.stringify(error)}`);
     }
 
     this.furiConfig.server.callback = () => {
