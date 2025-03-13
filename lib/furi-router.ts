@@ -136,6 +136,9 @@ export class FuriRouter {
             case 'delete':
               this.buildRequestMap(HttpMapIndex.DELETE, routePath, handlers);
               break;
+            case 'options':
+                this.buildRequestMap(HttpMapIndex.OPTIONS, routePath, handlers);
+                break;
             case 'all':
               this.all(routePath, ...handlers);
               break;
@@ -281,6 +284,20 @@ export class FuriRouter {
    * @returns    Reference to self, allows method chaining.
    */
   delete(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+    if (fn.length === 0) {
+      throw new Error('No callback function provided');
+    }
+    return this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
+  }
+
+  /**
+   * Assign a HTTP OPTIONS handler to the provided URI lookup map.
+   *
+   * @param uri  String value of URI.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
+   * @returns    Reference to self, allows method chaining.
+   */
+  options(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('No callback function provided');
     }

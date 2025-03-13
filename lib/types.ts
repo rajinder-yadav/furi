@@ -110,7 +110,8 @@ export const HttpMapIndex = {
   POST: 2,
   PUT: 3,
   PATCH: 4,
-  DELETE: 5
+  DELETE: 5,
+  OPTIONS: 6,
 }
 
 /**
