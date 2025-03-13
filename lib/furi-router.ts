@@ -140,7 +140,7 @@ export class FuriRouter {
               this.all(routePath, ...handlers);
               break;
             default:
-              throw new Error(`Invalid HTTP method: ${route.method}`);
+              throw new Error(`Invalid or unsupported HTTP method: ${route.method}`);
           }
         }
       }
