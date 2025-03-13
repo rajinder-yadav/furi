@@ -11,7 +11,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { ApplicationContext } from "../application-context.ts";
 import { Middleware } from "../types.ts";
-import { LOG_DEBUG, LOG_ERROR } from "../furi.ts";
+import { LOG_ERROR } from "../furi.ts";
 
 export type BodyParserOptions = {
   limit?: number;

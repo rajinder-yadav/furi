@@ -1,13 +1,11 @@
 import {
   assertEquals,
-  assertNotEquals,
   assertFalse,
   assertExists
 } from '@std/assert';
 
 import {
   ApplicationContext,
-  Furi,
   FuriRouter,
   RouteMap,
   HttpMapIndex,
@@ -20,8 +18,7 @@ class TestFuriRouter extends FuriRouter {
   }
 }
 
-Deno.test('FuriRouter: add router with middleware to another router', async () => {
-  const furi = new Furi();
+Deno.test('FuriRouter: add router with middleware to another router', () => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
@@ -53,8 +50,7 @@ Deno.test('FuriRouter: add router with middleware to another router', async () =
   }
 });
 
-Deno.test('FuriRouter: add router with middleware to another router', async () => {
-  const furi = new Furi();
+Deno.test('FuriRouter: add router with middleware to another router', () => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
@@ -85,8 +81,7 @@ Deno.test('FuriRouter: add router with middleware to another router', async () =
   }
 });
 
-Deno.test('FuriRouter: add router with middleware to another router', async () => {
-  const furi = new Furi();
+Deno.test('FuriRouter: add router with middleware to another router', () => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
@@ -126,8 +121,7 @@ Deno.test('FuriRouter: add router with middleware to another router', async () =
   }
 });
 
-Deno.test('FuriRouter: add router with middleware to another router', async () => {
-  const furi = new Furi();
+Deno.test('FuriRouter: add router with middleware to another router', () => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
