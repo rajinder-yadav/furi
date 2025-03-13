@@ -10,7 +10,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { ApplicationContext } from "../../application-context.ts";
-import { Middleware } from "../../types.ts";
+import { Middleware, HandlerFunction } from "../../types.ts";
 import { LOG_DEBUG, LOG_ERROR } from "../../furi.ts";
 
 export type BodyParserOptions = {
@@ -26,7 +26,7 @@ const DefaultLimitSize = 250 * 1024;
  * @param {Middleware} next - The next middleware function in the chain.
  * @returns {any}
  */
-export function BodyParserFn(bodyParserOptions?: BodyParserOptions): any {
+export function BodyParserFn(bodyParserOptions?: BodyParserOptions): HandlerFunction {
   return function BodyParserMiddleware(ctx: ApplicationContext, next: Middleware): any {
     const contentLength = ctx.request.headers['content-length'];
     const contentType = ctx.request.headers['content-type'];
