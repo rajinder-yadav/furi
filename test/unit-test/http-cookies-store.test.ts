@@ -10,6 +10,7 @@ import { TimePeriod } from '../../lib/utils/time-period.ts';
 import { StoreState } from "../../lib/state.ts";
 import { ApplicationContext, Furi, HttpRequest, HttpResponse } from "../../lib/furi.ts";
 import { Socket } from "node:net";
+import { InvalidSiteValueError } from '../../lib/errors.ts';
 
 
 Deno.test('TimePeriod: expires 1 min', () => {
@@ -46,8 +47,18 @@ Deno.test('HttpCookiesStore::isSiteValue', () => {
   assertExists(store.isSiteValue('Lax'));
   assertExists(store.isSiteValue('Strict'));
   assertExists(store.isSiteValue('None'));
-  // This will show linting error because 'Invalid' is not a valid SameSite value.
-  assertFalse(store.isSiteValue('Invalid'));
+  try {
+    store.assertSiteValue('Invalid')
+  }
+  catch(error) {
+    if(error instanceof InvalidSiteValueError) {
+      console.log("HttpCookiesStore::isSiteValue ... Expected InvalidSiteValueError exception from assertSiteValue with value Invalid");
+    }
+    else {
+      throw new Error("HttpCookiesStore::isSiteValue ... Unknown error")
+    }
+  }
+
 });
 
 Deno.test('HttpCookiesStore::signCookie+verify', () => {

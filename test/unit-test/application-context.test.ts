@@ -3,7 +3,7 @@
  * deno test -A --env-file test/application-context.test.ts
  */
 import { Socket } from "node:net";
-import { assertEquals, assertNotEquals, assertFalse } from '@std/assert';
+import { assertEquals, assertNotEquals, assertFalse, assertInstanceOf } from '@std/assert';
 
 import {
   ApplicationContext,
@@ -14,18 +14,18 @@ import {
   MapOf,
   QueryParamTypes,
 } from '../../lib/furi.ts';
-import { StoreState } from "../../lib/state.ts";
 
-Deno.test("ApplicationContext: check for valid app object", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext: check for valid app object", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
+
+  assertInstanceOf(appContext, ApplicationContext, 'ApplicationContext: error')
+
 });
 
-Deno.test("ApplicationContext::queryStringToObject simple", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::queryStringToObject simple", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
@@ -40,8 +40,7 @@ Deno.test("ApplicationContext::queryStringToObject simple", async () => {
   assertEquals(result?.hobbies, ['reading', 'traveling']);
 });
 
-Deno.test("ApplicationContext::queryStringToObject not simple", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::queryStringToObject not simple", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
@@ -56,8 +55,7 @@ Deno.test("ApplicationContext::queryStringToObject not simple", async () => {
   assertEquals(result?.hobbies, ['reading', 'traveling']);
 });
 
-Deno.test("ApplicationContext::sessionState string values", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::sessionState string values", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
@@ -77,8 +75,7 @@ Deno.test("ApplicationContext::sessionState string values", async () => {
   assertNotEquals(appContext.sessionState("number"), "12");
 });
 
-Deno.test("ApplicationContext::sessionState number values", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::sessionState number values", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
@@ -96,8 +93,7 @@ Deno.test("ApplicationContext::sessionState number values", async () => {
   assertNotEquals(appContext.sessionState("balance"), "0.123");
 });
 
-Deno.test("ApplicationContext::sessionState update value", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::sessionState update value", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
@@ -110,8 +106,7 @@ Deno.test("ApplicationContext::sessionState update value", async () => {
   assertEquals(appContext.sessionState("count"), 73);
 });
 
-Deno.test("ApplicationContext::sessionState across calls", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::sessionState across calls", () => {
   const httpRequest1 = new HttpRequest(new Socket());
   const httpResponse1 = new HttpResponse(httpRequest1);
 
@@ -128,8 +123,7 @@ Deno.test("ApplicationContext::sessionState across calls", async () => {
 
 });
 
-Deno.test("ApplicationContext::storeState values", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::storeState values", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
 
@@ -143,8 +137,7 @@ Deno.test("ApplicationContext::storeState values", async () => {
   assertEquals(appContext.storeState("item"), "radio");
 });
 
-Deno.test("ApplicationContext::storeState across calls", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::storeState across calls", () => {
   const httpRequest1 = new HttpRequest(new Socket());
   const httpResponse1 = new HttpResponse(httpRequest1);
 
@@ -159,7 +152,7 @@ Deno.test("ApplicationContext::storeState across calls", async () => {
   assertEquals(appContext2.storeState("count"), 12);
 });
 
-Deno.test("ApplicationContext::cookies", async () => {
+Deno.test("ApplicationContext::cookies", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
@@ -173,8 +166,7 @@ Deno.test("ApplicationContext::cookies", async () => {
   assertEquals(setCookies.includes('user=dev12'), true);
 });
 
-Deno.test("ApplicationContext::requestHeader", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::requestHeader", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
@@ -186,8 +178,7 @@ Deno.test("ApplicationContext::requestHeader", async () => {
   assertEquals(appContext.requestHeader("authorization"), "Bearer token");
 });
 
-Deno.test("ApplicationContext::responseHeader", async () => {
-  const furi = new Furi();
+Deno.test("ApplicationContext::responseHeader", () => {
   const httpRequest = new HttpRequest(new Socket());
   const httpResponse = new HttpResponse(httpRequest);
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
