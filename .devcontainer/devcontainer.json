@@ -1,0 +1,16 @@
+{
+  "name": "Furi Deno Dev Container",
+  "image": "denoland/deno:latest",
+  "workspaceFolder": "/data",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/data,type=bind,consistency=cached",
+ // "runArgs": ["--allow-read", "--allow-net", "--allow-env", "--publish", "3030:3030"],
+  "runArgs": ["--publish", "3030:3030"],
+  "forwardPorts": [3030],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "denoland.vscode-deno"
+      ]
+    }
+  }
+}
