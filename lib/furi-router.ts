@@ -53,7 +53,7 @@ export class FuriRouter {
 
   /**
     * Assign a middleware to the provided URI lookup map.
-    * There are two overloaded functions:
+    * There are two types overloaded functions. One with a path and one without.
     * 1. Application level middleware registration.
     *     use(...fn: RequestCallback[]): FuriRouter;
     * 2. Route level middleware registration.
@@ -356,6 +356,11 @@ export class FuriRouter {
       case 'DELETE':
       case 'delete':
         this.processHTTPMethod(HttpMapIndex.DELETE, request, response);
+        break;
+
+      case 'OPTIONS':
+      case 'options':
+        this.processHTTPMethod(HttpMapIndex.OPTIONS, request, response);
         break;
 
       default:
