@@ -2,6 +2,15 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.5.0 (2025-03-13)
+
+- Feat, added support for HTTP OPTIONS.
+- Feat, initial CORS middleware implementation.
+- Feat, CORS middleware unit tests.
+- Feat, CORS middleware functional test.
+- Unit test code cleanup (@kloodz-mrioux contributor).
+- Feat, Support for DevContainers (@kloodz-mrioux contributor).
+
 ## v0.4.2 (2025-03-09)
 
 - Fix, export of json body parser middleware.
