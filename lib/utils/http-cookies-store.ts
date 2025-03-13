@@ -20,8 +20,9 @@
 import { createHmac } from 'node:crypto';
 
 import { ApplicationContext } from '../application-context.ts';
-import { MapOf, LOG_ERROR, LOG_DEBUG, LOG_WARN } from '../types.ts';
+import { MapOf, LOG_ERROR, LOG_WARN } from '../types.ts';
 import { TimePeriod } from './time-period.ts';
+import { InvalidSiteValueError } from '../errors.ts';
 
 /**
  * Cookie defined types.
@@ -509,9 +510,25 @@ export class HttpCookiesStore {
     return signature === expectedSignature;
   }
 
-  // Type guard function to check if a string is one of the SiteValues
+  /**
+   * isSiteValue verify if string is one of the SiteValues (compile time).
+   * @param value     String representing the SameSite flag.
+   * @returns true if valid, false otherwise.
+   */
   isSiteValue(value: SameSiteValues): value is SameSiteValues {
     return ['Lax', 'Strict', 'None'].includes(value);
   }
 
+  /**
+   * assertSiteValue verify if string is one of the SiteValues (run time).
+   * @param value     String representing the SameSite flag.
+   * @returns true if valid, throw InvalidSiteValueError.
+   */
+  assertSiteValue(value: string): value is SameSiteValues {
+    if (['Lax', 'Strict', 'None'].includes(value)) {
+        return true;
+    } else {
+        throw new InvalidSiteValueError(value);
+    }
+  }
 }
