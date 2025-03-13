@@ -33,7 +33,7 @@ import {
   JSONBodyParserFn,
   UrlEncodedParserFn,
   BodyParserOptions,
-} from './utils/body-parser.ts';
+} from './middlewares/body-parser/body-parser.ts';
 
 // Re-export types and classes for applications
 export * from './types.ts';
@@ -41,6 +41,7 @@ export * from './application-context.ts';
 export * from './furi-router.ts';
 export * from './utils/http-cookies-store.ts';
 export * from './utils/time-period.ts';
+export * from './middlewares/cors/cors.ts';
 
 type CleanupHandler = () => void;
 
