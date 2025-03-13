@@ -11,13 +11,13 @@
 // deno-lint-ignore-file no-explicit-any
 import { ApplicationContext } from "../../application-context.ts";
 import { Middleware } from "../../types.ts";
-import { LOG_DEBUG, LOG_ERROR } from "../../furi.ts";
+import { LOG_DEBUG } from "../../furi.ts";
 
 export function CorsMiddleware(ctx: ApplicationContext, next: Middleware): any {
   LOG_DEBUG('CorsMiddleware enter');
-  let allowedOrigins: string[] = ['http://localhost:3000']; // Replace with your allowed origins
+  let allowedOrigins: string[] = ['http://localhost:3030']; // Replace with your allowed origins
 
-  if(ctx.request.method === 'OPTIONS') {
+  if (ctx.request.method === 'OPTIONS') {
     LOG_DEBUG('CorsMiddleware OPTIONS enter');
     ctx.response.setHeader('Access-Control-Allow-Origin', allowedOrigins);
     ctx.response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
