@@ -41,7 +41,7 @@
 
 Furi is a Node.js framework coded in TypeScript. If you love TypeScript, you will feel at home coding with Furi. If you love plain JavaScript, you will love coding in Furi, you get to decide.
 
-The design has been kept as close to the Node.js API without using external dependencies, using modern JavaScript and the latest Node.js APIs.
+The design has been kept as close to the Node.js API without using external dependencies. Coded using modern JavaScript and the latest Node.js APIs.
 
  The Router was coded from the ground up in TypeScript, it is the core of the framework, with a blazing fast lookup and matching algorithm.
 
