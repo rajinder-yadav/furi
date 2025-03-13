@@ -136,9 +136,6 @@ export class FuriRouter {
             case 'delete':
               this.buildRequestMap(HttpMapIndex.DELETE, routePath, handlers);
               break;
-            case 'options':
-                this.buildRequestMap(HttpMapIndex.OPTIONS, routePath, handlers);
-                break;
             case 'all':
               this.all(routePath, ...handlers);
               break;
@@ -360,7 +357,7 @@ export class FuriRouter {
 
       case 'OPTIONS':
       case 'options':
-        this.processHTTPMethod(HttpMapIndex.OPTIONS, request, response);
+        this.processHTTPOptions(request, response);
         break;
 
       default:
@@ -663,6 +660,43 @@ export class FuriRouter {
         'User-Agent': Furi.getApiVersion(),
       });
       response.end('Route not found');
+    }
+  }
+
+  /**
+   * Process HTTP OPTIONS request, execute all top-levels middleware callbacks.
+   * If no CORS middleware defined, return an error end request.
+   *
+   * @param request   Reference to Node request object (IncomingMessage).
+   * @param response  Reference to Node response object (ServerResponse).
+   * @return void.
+   */
+  protected processHTTPOptions(
+    request: HttpRequest,
+    response: HttpResponse,
+  ): void {
+    const applicationContext = new ApplicationContext(Furi.appStore, request, response);
+    const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
+    const toplevelMiddlewareCallbacks = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks ?? [];
+
+    // Execute top-level middleware callback chain.
+    let callbackIndex = 0;
+    const nextStatic = (): void => {
+      if (callbackIndex < toplevelMiddlewareCallbacks.length) {
+        const callback = toplevelMiddlewareCallbacks[callbackIndex++];
+        const rv = callback(applicationContext, nextStatic);
+        if (rv) {
+          applicationContext.end(rv);
+          return;
+        }
+      }
+    }
+    nextStatic();
+    if(response.writable) {
+      // No Cors middleware found, close request and return an error.
+      LOG_WARN('FuriRouter::processHTTPOptions No CORS middleware found.');
+      response.statusCode = 405;
+      response.end();
     }
   }
 
