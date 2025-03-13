@@ -951,3 +951,23 @@ Deno.test("GET: /headers", async () => {
     assertEquals(c1, "session_id=1234567890; page_id=service;");
   }
 });
+
+Deno.test("OPTIONS: Cors default settings", async () => {
+  const request = new Request("http://localhost:3030/", {
+    method: "OPTIONS",
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const c1 = response.headers.get("Access-Control-Allow-Origin");
+    const c2 = response.headers.get("Access-Control-Allow-Methods");
+    const c3 = response.headers.get("Access-Control-Allow-Headers");
+    const c4 = response.headers.get("Access-Control-Allow-Credentials");
+    const c5 = response.headers.get("Access-Control-Max-Age");
+    await response.text();
+    assertEquals(c1, "http://localhost:3030");
+    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    assertEquals(c3, "Content-Type, Authorization");
+    assertEquals(c4, "false");
+    assertEquals(c5, "86400");
+  }
+});
