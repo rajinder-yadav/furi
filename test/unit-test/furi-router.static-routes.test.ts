@@ -46,6 +46,104 @@ Deno.test('FuriRouter: map routes are empty', () => {
  * Single Router Test Cases unmounted.
  */
 
+Deno.test('FuriRouter: OPTIONS /test', () => {
+  const router = new TestFuriRouter();
+
+  router.options('/test', (ctx: ApplicationContext) => {
+    ctx.end('options');
+  });
+
+  // Make sure top-level middleware map is empty.
+  const routeMap: RouteMap = router.getRouteMap()[HttpMapIndex.OPTIONS];
+  assertFalse(routeMap.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+    const routeMap: RouteMap = router.getRouteMap()[mapIndex];
+    if(mapIndex === HttpMapIndex.OPTIONS) {
+      assertExists(routeMap.staticRouteMap['/test']);
+      continue;
+    }
+    assertFalse(routeMap.staticRouteMap['/test']);
+  }
+});
+
+Deno.test('FuriRouter: OPTIONS /test/one', () => {
+  const router = new TestFuriRouter();
+
+  router.options('/test/options', (ctx: ApplicationContext) => {
+    ctx.response.writeHead(200, {
+      "Content-Type": "text/html",
+      "ETag": "1234567890",
+      "Access-Control-Allow-Origin": "http://localhost:3333"
+    });
+    ctx.end('options');
+  });
+
+  // Make sure top-level middleware map is empty.
+  const routeMap: RouteMap = router.getRouteMap()[HttpMapIndex.OPTIONS];
+  assertFalse(routeMap.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+    const routeMap: RouteMap = router.getRouteMap()[mapIndex];
+    if(mapIndex === HttpMapIndex.OPTIONS) {
+      assertExists(routeMap.staticRouteMap['/test/options']);
+      continue;
+    }
+    assertFalse(routeMap.staticRouteMap['/test/options']);
+  }
+});
+
+Deno.test('FuriRouter: HEAD /test', () => {
+  const router = new TestFuriRouter();
+
+  router.head('/test', (ctx: ApplicationContext) => {
+    ctx.end('HEAD');
+  });
+
+  // Make sure top-level middleware map is empty.
+  const routeMap: RouteMap = router.getRouteMap()[HttpMapIndex.HEAD];
+  assertFalse(routeMap.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+    const routeMap: RouteMap = router.getRouteMap()[mapIndex];
+    if(mapIndex === HttpMapIndex.HEAD) {
+      assertExists(routeMap.staticRouteMap['/test']);
+      continue;
+    }
+    assertFalse(routeMap.staticRouteMap['/test']);
+  }
+});
+
+Deno.test('FuriRouter: HEAD /test/one', () => {
+  const router = new TestFuriRouter();
+
+  router.head('/test/HEAD', (ctx: ApplicationContext) => {
+    ctx.response.writeHead(200, {
+      "Content-Type": "text/html",
+      "ETag": "1234567890",
+      "Access-Control-Allow-Origin": "http://localhost:3333"
+    });
+    ctx.end('HEAD');
+  });
+
+  // Make sure top-level middleware map is empty.
+  const routeMap: RouteMap = router.getRouteMap()[HttpMapIndex.HEAD];
+  assertFalse(routeMap.staticRouteMap['/']);
+
+  const mapCount = Object.keys(HttpMapIndex).length;
+  for (let mapIndex = 1; mapIndex < mapCount; ++mapIndex) {
+    const routeMap: RouteMap = router.getRouteMap()[mapIndex];
+    if(mapIndex === HttpMapIndex.HEAD) {
+      assertExists(routeMap.staticRouteMap['/test/HEAD']);
+      continue;
+    }
+    assertFalse(routeMap.staticRouteMap['/test/HEAD']);
+  }
+});
+
 Deno.test('FuriRouter: add routeless middleware', () => {
   const router = new TestFuriRouter();
 
