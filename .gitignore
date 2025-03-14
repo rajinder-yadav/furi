@@ -1,24 +1,24 @@
-node_modules/
-build/
+# Files
 .env
-
-.vscode/
-docs/
-sandbox/
-server.ts
-benchmark/
-tools/
-dist/
-npm-package/
-http-client/
-
-furi-examples/update.sh
 package.json.deno
 tsconfig.json
 npm-up.sh
 furi.yaml
 *.log
 
+# Folders
+.vscode/
+benchmark/
+build/
+dist/
+docs/
+furi-examples/update.sh
+http-client/
+node_modules/
+npm-package/
+sandbox/
+server.ts
+tools/
 
 # Deno
 deno.lock
