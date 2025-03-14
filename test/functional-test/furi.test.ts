@@ -14,6 +14,8 @@ import {
   assertFalse
 } from '@std/assert';
 
+const USER_AGENT: string = "FURI Node Server (v0.1)";
+
 Deno.test("GET: Root path without end slash", async () => {
   const request = new Request("http://localhost:3030", {
     method: "GET",
@@ -23,6 +25,14 @@ Deno.test("GET: Root path without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -38,6 +48,14 @@ Deno.test("GET: Root path with end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -51,8 +69,17 @@ Deno.test("GET: About without end slash", async () => {
       "content-type": "text/html",
     },
   });
+
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>About FURI</h1>\nThis is the about page.\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -68,6 +95,14 @@ Deno.test("GET: About with end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>About FURI</h1>\nThis is the about page.\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -84,6 +119,14 @@ Deno.test("GET: /about/raj12", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -100,6 +143,14 @@ Deno.test("GET: /about/raj12/", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -116,6 +167,14 @@ Deno.test("GET: /about/5612", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -131,6 +190,14 @@ Deno.test("GET: About with query string", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>About FURI</h1>\nThis is the about page.\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -146,6 +213,14 @@ Deno.test("GET: About with end slash and query string", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>About FURI</h1>\nThis is the about page.\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -163,6 +238,14 @@ Deno.test("GET: /about/raj12?er=345o85", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -179,6 +262,14 @@ Deno.test("GET: /about/raj12/?er=345o85", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -194,6 +285,14 @@ Deno.test("GET: Root path with query string", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -209,6 +308,14 @@ Deno.test("GET: Root path with end slash and query string", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -226,6 +333,14 @@ Deno.test("GET: User id and photo id route segments", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>User Photo Page!</h1>\nUser ${user_id} photo ${photo_id}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -243,6 +358,14 @@ Deno.test("GET: User id and photo id route segments with trailing slash", async 
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>User Photo Page!</h1>\nUser ${user_id} photo ${photo_id}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -261,6 +384,14 @@ Deno.test("GET: Toronto Regex segmented path 1", async () => {
   const response: Response = await fetch(request);
   const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const data = await response.text();
   assertEquals(data, s);
   assertEquals(response.status, 200);
@@ -277,6 +408,14 @@ Deno.test("GET: Toronto Regex segmented path 2", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -294,6 +433,14 @@ Deno.test("GET: Toronto Regex segmented path 3", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -311,6 +458,14 @@ Deno.test("GET: Toronto Regex segmented path 4", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
   const data = await response.text();
   assertEquals(data, s);
@@ -326,6 +481,14 @@ Deno.test("GET: Chaining handlers", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n<p>This paragraph is form handler 2</p>\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -341,6 +504,14 @@ Deno.test("GET: Chaining handlers halting", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -356,6 +527,14 @@ Deno.test("PATCH: Comment route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'PATCH a fresh comment.';
   const data = await response.text();
   assertEquals(data, s);
@@ -371,6 +550,14 @@ Deno.test("PATCH: Comment how to route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'PATCH How to post a comment page.';
   const data = await response.text();
   assertEquals(data, s);
@@ -386,6 +573,14 @@ Deno.test("PATCH: Comment how to route without a body", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "application/json");
+  assertEquals(h2, USER_AGENT);
+
   const s = '{"message":"PATCH comment with id","id":"how","text":""}';
   const data = await response.text();
   assertEquals(data, s);
@@ -402,6 +597,14 @@ Deno.test("PATCH: Comment how to route with a JSON body", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "application/json");
+  assertEquals(h2, USER_AGENT);
+
   const s = '{"message":"PATCH comment with id","id":"how","text":{"text":"This is a test comment."}}';
   const data = await response.text();
   assertEquals(data, s);
@@ -418,6 +621,14 @@ Deno.test("POST: Comment how to route with a JSON body", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'POST a fresh comment.';
   const data = await response.text();
   assertEquals(data, s);
@@ -433,6 +644,14 @@ Deno.test("POST: Comment how to route", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'POST How to post a comment page.';
   const data = await response.text();
   assertEquals(data, s);
@@ -448,6 +667,15 @@ Deno.test("POST: Comment how to route with empty body", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "application/json");
+  assertEquals(h2, USER_AGENT);
+
   const s = '{"message":"POST comment with id","id":"how","text":""}';
   const data = await response.text();
   assertEquals(data, s);
@@ -463,6 +691,14 @@ Deno.test("PUT: Comment route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'PUT a fresh comment.';
   const data = await response.text();
   assertEquals(data, s);
@@ -478,6 +714,14 @@ Deno.test("PUT: Comment route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'PUT How to post a comment page.';
   const data = await response.text();
   assertEquals(data, s);
@@ -493,6 +737,14 @@ Deno.test("PUT: Comment route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'PUT comment with id: how';
   const data = await response.text();
   assertEquals(data, s);
@@ -508,6 +760,14 @@ Deno.test("DELETE: Comment route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'DELETE a comment.';
   const data = await response.text();
   assertEquals(data, s);
@@ -523,6 +783,14 @@ Deno.test("DELETE: Comment route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'DELETE How to post a comment page.';
   const data = await response.text();
   assertEquals(data, s);
@@ -538,6 +806,14 @@ Deno.test("DELETE: Comment route without end slash", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'DELETE comment with id: how';
   const data = await response.text();
   assertEquals(data, s);
@@ -553,6 +829,14 @@ Deno.test("GET: Middleware 1 end processing early", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'About page Middleware 1\nAbout page Middleware 2\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -568,6 +852,14 @@ Deno.test("GET: Middleware 2 pre, main, post", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<p>Middleware 2 pre</p>\n<p>Middleware 2 GET </p>\n<p>Middleware 2 post </p>\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -583,6 +875,14 @@ Deno.test("GET: Query paramter check 1", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "application/json");
+  assertEquals(h2, USER_AGENT);
+
   const s = '{"q":"dfjriour"}';
   const data = await response.text();
   assertEquals(data, s);
@@ -598,6 +898,14 @@ Deno.test("GET: Query paramter check 2", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "application/json");
+  assertEquals(h2, USER_AGENT);
+
   const s = '{"aa":"12","bb":"","c":"33"}';
   const data = await response.text();
   assertEquals(data, s);
@@ -613,6 +921,14 @@ Deno.test("GET: Query paramter check 3", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "application/json");
+  assertEquals(h2, USER_AGENT);
+
   const s = '{"12":"aa"}';
   const data = await response.text();
   assertEquals(data, s);
@@ -628,6 +944,14 @@ Deno.test("GET: RegEx path match", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'RegEx path matched.';
   const data = await response.text();
   assertEquals(data, s);
@@ -643,6 +967,14 @@ Deno.test("GET: RegEx path match", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'RegEx path matched.';
   const data = await response.text();
   assertEquals(data, s);
@@ -673,6 +1005,14 @@ Deno.test("GET: RegEx path match for toronto", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'RegEx for path toronto matched.';
   const data = await response.text();
   assertEquals(data, s);
@@ -687,6 +1027,14 @@ Deno.test("GET: RegEx path match for toronto", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'RegEx for path toronto matched.';
   const data = await response.text();
   assertEquals(data, s);
@@ -701,6 +1049,14 @@ Deno.test("GET: RegEx path match for toronto", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'RegEx for path toronto matched.';
   const data = await response.text();
   assertEquals(data, s);
@@ -715,6 +1071,14 @@ Deno.test("GET: RegEx path match for toronto", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'RegEx for path toronto matched.';
   const data = await response.text();
   assertEquals(data, s);
@@ -729,6 +1093,14 @@ Deno.test("GET: RegEx path match for toronto", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'RegEx for path toronto matched.';
   const data = await response.text();
   assertEquals(data, s);
@@ -743,6 +1115,14 @@ Deno.test("GET: Test Static route match before Named routes 1", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'Foo Bar';
   const data = await response.text();
   assertEquals(data, s);
@@ -771,6 +1151,14 @@ Deno.test("GET: Test Static route match before Named routes 3", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'Foo boo bar1';
   const data = await response.text();
   assertEquals(data, s);
@@ -784,6 +1172,14 @@ Deno.test("GET: Test Static route match before Named routes 4", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'Foo boo bar2';
   const data = await response.text();
   assertEquals(data, s);
@@ -798,6 +1194,14 @@ Deno.test("GET: Test Static route match before Named routes 5", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'Foo boo bar2 bar';
   const data = await response.text();
   assertEquals(data, s);
@@ -812,6 +1216,14 @@ Deno.test("GET: Test Static route match before Named routes 6", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'Foo boo bar2 car';
   const data = await response.text();
   assertEquals(data, s);
@@ -826,6 +1238,14 @@ Deno.test("GET: Test Static route match before Named routes 7", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/plain");
+  assertEquals(h2, USER_AGENT);
+
   const s = 'Foo moo bar2 bar';
   const data = await response.text();
   assertEquals(data, s);
@@ -851,6 +1271,14 @@ Deno.test("ALL: Testing All with GET", async () => {
   });
   const response: Response = await fetch(request);
   assertExists(response.ok);
+
+  const h1 = response.headers.get("Content-Type");
+  const h2 = response.headers.get("User-Agent");
+  assertFalse(h1 === null);
+  assertFalse(h2 === null);
+  assertEquals(h1, "text/html");
+  assertEquals(h2, USER_AGENT);
+
   const s = '<h1>All Page</h1>\n<p>A paragraph all about nothing.\n';
   const data = await response.text();
   assertEquals(data, s);
@@ -915,7 +1343,7 @@ Deno.test("GET: Check route Cors default headers", async () => {
   assertEquals(c5, "86400");
 });
 
-Deno.test("HEAD: Basic test /", async () => {
+Deno.test("HEAD: Basic test /head", async () => {
   const request = new Request("http://localhost:3030/head", {
     method: "HEAD",
     headers: {
@@ -933,7 +1361,7 @@ Deno.test("HEAD: Basic test /", async () => {
 
 });
 
-Deno.test("HEAD: Basic test /one with ETag", async () => {
+Deno.test("HEAD: Basic test /head/one with ETag", async () => {
   const request = new Request("http://localhost:3030/head/one", {
     method: "HEAD",
     headers: {
@@ -953,7 +1381,7 @@ Deno.test("HEAD: Basic test /one with ETag", async () => {
 
 });
 
-Deno.test("OPTIONS: Basic test /one with ETag", async () => {
+Deno.test("OPTIONS: Basic test / with ETag", async () => {
   const request = new Request("http://localhost:3030/", {
     method: "OPTIONS",
     headers: {
@@ -968,7 +1396,26 @@ Deno.test("OPTIONS: Basic test /one with ETag", async () => {
   const c3 = response.headers.get("ETag");
   assertEquals(c1, "0");
   assertEquals(c2, "text/html");
-  assertEquals(c3, "1234567890");
+  assertEquals(c3, "dflkgnektlj");
+  assertEquals(response.status, 200);
+});
+
+Deno.test("OPTIONS: Basic test / with ETag", async () => {
+  const request = new Request("http://localhost:3030/options", {
+    method: "OPTIONS",
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+  const response: Response = await fetch(request);
+  await response.body?.cancel(); // cancel the body to avoid memory leak
+  assertExists(response.ok);
+  const c1 = response.headers.get("content-length");
+  const c2 = response.headers.get("content-type");
+  const c3 = response.headers.get("ETag");
+  assertEquals(c1, "0");
+  assertEquals(c2, "text/html");
+  assertEquals(c3, "3409583068");
   assertEquals(response.status, 200);
 });
 
