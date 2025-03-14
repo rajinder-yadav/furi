@@ -963,7 +963,7 @@ Deno.test("OPTIONS: Cors default headers", async () => {
     const c3 = response.headers.get("Access-Control-Allow-Headers");
     const c4 = response.headers.get("Access-Control-Allow-Credentials");
     const c5 = response.headers.get("Access-Control-Max-Age");
-    await response.text();
+    await response.body?.cancel(); // cancel the body to avoid memory leak
     assertEquals(c1, "*");
     assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     assertEquals(c3, "Content-Type, Authorization");
@@ -988,6 +988,113 @@ Deno.test("GET: Check route Cors default headers", async () => {
     const c5 = response.headers.get("Access-Control-Max-Age");
     await response.text();
     assertEquals(c1, "*");
+    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    assertEquals(c3, "Content-Type, Authorization");
+    assertEquals(c4, "false");
+    assertEquals(c5, "86400");
+  }
+});
+
+Deno.test("HEAD: Basic test /", async () => {
+  const request = new Request("http://localhost:3030/", {
+    method: "GET",
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+  const response: Response = await fetch(request);
+  await response.body?.cancel(); // cancel the body to avoid memory leak
+  if (response.ok) {
+    const c1 = response.headers.get("content-length");
+    const c2 = response.headers.get("content-type");
+    assertEquals(c1, null);
+    assertEquals(c2, "text/html");
+    assertEquals(response.status, 200);
+  }
+
+});
+
+Deno.test("HEAD: Basic test /one with ETag", async () => {
+  const request = new Request("http://localhost:3030/one", {
+    method: "GET",
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+  const response: Response = await fetch(request);
+  await response.body?.cancel(); // cancel the body to avoid memory leak
+  if (response.ok) {
+    const c1 = response.headers.get("content-length");
+    const c2 = response.headers.get("content-type");
+    const c3 = response.headers.get("ETag");
+    assertEquals(c1, null);
+    assertEquals(c2, "text/html");
+    assertEquals(c3, "1234567890");
+    assertEquals(response.status, 200);
+  }
+
+});
+
+Deno.test("OPTIONS: Basic test /one with ETag", async () => {
+  const request = new Request("http://localhost:3030/one", {
+    method: "GET",
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+  const response: Response = await fetch(request);
+  await response.body?.cancel(); // cancel the body to avoid memory leak
+  if (response.ok) {
+    const c1 = response.headers.get("content-length");
+    const c2 = response.headers.get("content-type");
+    const c3 = response.headers.get("ETag");
+    assertEquals(c1, null);
+    assertEquals(c2, "text/html");
+    assertEquals(c3, "1234567890");
+    assertEquals(response.status, 200);
+  }
+
+});
+
+Deno.test("OPTIONS: Check route / Cors default headers", async () => {
+  const request = new Request("http://localhost:3030/", {
+    method: "OPTIONS",
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const c1 = response.headers.get("Access-Control-Allow-Origin");
+    const c2 = response.headers.get("Access-Control-Allow-Methods");
+    const c3 = response.headers.get("Access-Control-Allow-Headers");
+    const c4 = response.headers.get("Access-Control-Allow-Credentials");
+    const c5 = response.headers.get("Access-Control-Max-Age");
+    await response.text();
+    assertEquals(c1, "*");
+    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    assertEquals(c3, "Content-Type, Authorization");
+    assertEquals(c4, "false");
+    assertEquals(c5, "86400");
+  }
+});
+
+Deno.test("OPTIONS: Check route /about Cors default headers override origin", async () => {
+  const request = new Request("http://localhost:3030/about", {
+    method: "OPTIONS",
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const c1 = response.headers.get("Access-Control-Allow-Origin");
+    const c2 = response.headers.get("Access-Control-Allow-Methods");
+    const c3 = response.headers.get("Access-Control-Allow-Headers");
+    const c4 = response.headers.get("Access-Control-Allow-Credentials");
+    const c5 = response.headers.get("Access-Control-Max-Age");
+    await response.text();
+    assertEquals(c1, "http://localhost:3333");
     assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     assertEquals(c3, "Content-Type, Authorization");
     assertEquals(c4, "false");
