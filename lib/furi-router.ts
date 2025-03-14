@@ -370,7 +370,12 @@ export class FuriRouter {
 
       case 'OPTIONS':
       case 'options':
-        this.processHTTPOptions(request, response);
+        this.processHTTPMethod(HttpMapIndex.OPTIONS, request, response);
+        break;
+
+      case 'HEAD':
+      case 'head':
+        this.processHTTPMethod(HttpMapIndex.HEAD, request, response);
         break;
 
       default:
@@ -592,19 +597,6 @@ export class FuriRouter {
         // Execute callback chain.
         return this.CallbackChainExecutor(applicationContext, callback_chain)();
 
-        // let callbackIndex = 0;
-        // const nextStatic = (): void => {
-        //   if (callbackIndex < callback_chain.length) {
-        //     const callback = callback_chain[callbackIndex++];
-        //     const rv = callback(applicationContext, nextStatic);
-        //     if (rv) {
-        //       applicationContext.end(rv);
-        //       return;
-        //     }
-        //   }
-        // }
-        // return nextStatic();
-
       } else if (routeMap.namedRoutePartitionMap) {
         // Search for named parameter URI or RegEx path match.
 
@@ -630,23 +622,18 @@ export class FuriRouter {
               if (namedRouteHandlers?.callbacks.length > 0) {
                 // Execute path callback chain.
                 return this.CallbackChainExecutor(applicationContext, callback_chain)();
-
-                // let callbackNamedRouteIndex = 0;
-                // const nextNamedRoute = (): void => {
-                //   if (callbackNamedRouteIndex < callback_chain.length) {
-                //     const callback = callback_chain[callbackNamedRouteIndex++];
-                //     const rv = callback(applicationContext, nextNamedRoute);
-                //     if (rv) {
-                //       return applicationContext.end(rv);
-                //     }
-
-                //   }
-                // }
-                // return nextNamedRoute();
               }
             }
           } // for
         } else if (throwOnNotFound) {
+          if (toplevelMiddlewareCallbacks) {
+            this.CallbackChainExecutor(applicationContext, toplevelMiddlewareCallbacks)();
+            // Check if request was processed and closed by a middleware.
+            // This might be the case if CORS preflight check was successful
+            if (!applicationContext.response.writable) {
+              return;
+            }
+          }
           // throw new Error(`Route not found for ${URL}`);
           LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
           response.writeHead(404, {
@@ -666,6 +653,14 @@ export class FuriRouter {
       response.end('Route not found');
       return;
     }
+    if (toplevelMiddlewareCallbacks) {
+      this.CallbackChainExecutor(applicationContext, toplevelMiddlewareCallbacks)();
+      // Check if request was processed and closed by a middleware.
+      // This might be the case if CORS preflight check was successful
+      if (!applicationContext.response.writable) {
+        return;
+      }
+    }
     if (throwOnNotFound) {
       // throw new Error(`Route not found for ${URL}`);
       LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
@@ -676,43 +671,6 @@ export class FuriRouter {
         'User-Agent': Furi.getApiVersion(),
       });
       response.end('Route not found');
-    }
-  }
-
-  /**
-   * Process HTTP OPTIONS request, execute all top-levels middleware callbacks.
-   * If no CORS middleware defined, return an error end request.
-   *
-   * @param request   Reference to Node request object (IncomingMessage).
-   * @param response  Reference to Node response object (ServerResponse).
-   * @return void.
-   */
-  protected processHTTPOptions(
-    request: HttpRequest,
-    response: HttpResponse,
-  ): void {
-    const applicationContext = new ApplicationContext(Furi.appStore, request, response);
-    const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
-    const toplevelMiddlewareCallbacks = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks ?? [];
-
-    // Execute top-level middleware callback chain.
-    let callbackIndex = 0;
-    const nextStatic = (): void => {
-      if (callbackIndex < toplevelMiddlewareCallbacks.length) {
-        const callback = toplevelMiddlewareCallbacks[callbackIndex++];
-        const rv = callback(applicationContext, nextStatic);
-        if (rv) {
-          applicationContext.end(rv);
-          return;
-        }
-      }
-    }
-    nextStatic();
-    if (response.writable) {
-      // No Cors middleware found, close request and return an error.
-      LOG_WARN('FuriRouter::processHTTPOptions No CORS middleware found.');
-      response.statusCode = 405;
-      response.end();
     }
   }
 
