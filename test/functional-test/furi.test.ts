@@ -952,9 +952,32 @@ Deno.test("GET: /headers", async () => {
   }
 });
 
-Deno.test("OPTIONS: Cors default settings", async () => {
+Deno.test("OPTIONS: Cors default headers", async () => {
   const request = new Request("http://localhost:3030/", {
     method: "OPTIONS",
+  });
+  const response: Response = await fetch(request);
+  if (response.ok) {
+    const c1 = response.headers.get("Access-Control-Allow-Origin");
+    const c2 = response.headers.get("Access-Control-Allow-Methods");
+    const c3 = response.headers.get("Access-Control-Allow-Headers");
+    const c4 = response.headers.get("Access-Control-Allow-Credentials");
+    const c5 = response.headers.get("Access-Control-Max-Age");
+    await response.text();
+    assertEquals(c1, "*");
+    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    assertEquals(c3, "Content-Type, Authorization");
+    assertEquals(c4, "false");
+    assertEquals(c5, "86400");
+  }
+});
+
+Deno.test("GET: Check route Cors default headers", async () => {
+  const request = new Request("http://localhost:3030/", {
+    method: "GET",
+    headers: {
+      "content-type": "application/json",
+    },
   });
   const response: Response = await fetch(request);
   if (response.ok) {
