@@ -112,6 +112,7 @@ export const HttpMapIndex = {
   PATCH: 4,
   DELETE: 5,
   OPTIONS: 6,
+  HEAD: 7,
 }
 
 /**
