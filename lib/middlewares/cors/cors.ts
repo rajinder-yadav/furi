@@ -70,6 +70,7 @@ export function Cors(options?: CorsOptions): HandlerFunction {
 
     if (ctx.request.method === 'OPTIONS') {
       // LOG_DEBUG('CorsMiddleware OPTIONS enter');
+      next();
       ctx.response.writeHead(200);
       ctx.response.end();
       // LOG_DEBUG('CorsMiddleware OPTIONS exit');
