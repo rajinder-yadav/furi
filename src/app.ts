@@ -19,7 +19,7 @@ import {
   LOG_INFO,
 } from "../lib/furi.ts";
 
-import { Cors }from '../lib/middlewares/cors/cors.ts';
+import { Cors } from '../lib/middlewares/cors/cors.ts';
 
 const furi = Furi.create();
 const USER_AGENT: string = "FURI Node Server (v0.1)";
@@ -554,6 +554,38 @@ furi.get('/headers', (ctx: ApplicationContext) => {
   ctx.setCookie('page_id', 'service');
 
   ctx.end('{"msg": "Headers set"}');
+});
+
+furi.head("/head", (ctx: ApplicationContext) => {
+  ctx.response.writeHead(200, {
+    "Content-Type": "text/html",
+  });
+  ctx.end();
+});
+
+furi.head("/head/one", (ctx: ApplicationContext) => {
+  ctx.response.writeHead(200, {
+    "Content-Type": "text/html",
+    "ETag": "1234567890"
+  });
+  ctx.end();
+});
+
+furi.options("/", (ctx: ApplicationContext) => {
+  ctx.response.writeHead(200, {
+    "Content-Type": "text/html",
+    "ETag": "1234567890"
+  });
+  ctx.end();
+});
+
+furi.options("/about", (ctx: ApplicationContext) => {
+  ctx.response.writeHead(200, {
+    "Content-Type": "text/html",
+    "ETag": "1234567890",
+    "Access-Control-Allow-Origin": "http://localhost:3333"
+  });
+  ctx.end();
 });
 
 // const server = http.createServer(furi.handler()).listen(SERVER_PORT, SERVER_HOSTNAME)
