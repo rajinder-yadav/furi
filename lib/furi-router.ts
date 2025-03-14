@@ -590,18 +590,20 @@ export class FuriRouter {
         if (staticRouteCallbacks.length === 0) { return; }
 
         // Execute callback chain.
-        let callbackIndex = 0;
-        const nextStatic = (): void => {
-          if (callbackIndex < callback_chain.length) {
-            const callback = callback_chain[callbackIndex++];
-            const rv = callback(applicationContext, nextStatic);
-            if (rv) {
-              applicationContext.end(rv);
-              return;
-            }
-          }
-        }
-        return nextStatic();
+        return this.CallbackChainExecutor(applicationContext, callback_chain)();
+
+        // let callbackIndex = 0;
+        // const nextStatic = (): void => {
+        //   if (callbackIndex < callback_chain.length) {
+        //     const callback = callback_chain[callbackIndex++];
+        //     const rv = callback(applicationContext, nextStatic);
+        //     if (rv) {
+        //       applicationContext.end(rv);
+        //       return;
+        //     }
+        //   }
+        // }
+        // return nextStatic();
 
       } else if (routeMap.namedRoutePartitionMap) {
         // Search for named parameter URI or RegEx path match.
@@ -625,21 +627,22 @@ export class FuriRouter {
 
               callback_chain = [...toplevelMiddlewareCallbacks, ...namedRouteHandlers.callbacks ?? []];
 
-              // Execute path callback chain.
               if (namedRouteHandlers?.callbacks.length > 0) {
+                // Execute path callback chain.
+                return this.CallbackChainExecutor(applicationContext, callback_chain)();
 
-                let callbackNamedRouteIndex = 0;
-                const nextNamedRoute = (): void => {
-                  if (callbackNamedRouteIndex < callback_chain.length) {
-                    const callback = callback_chain[callbackNamedRouteIndex++];
-                    const rv = callback(applicationContext, nextNamedRoute);
-                    if (rv) {
-                      return applicationContext.end(rv);
-                    }
+                // let callbackNamedRouteIndex = 0;
+                // const nextNamedRoute = (): void => {
+                //   if (callbackNamedRouteIndex < callback_chain.length) {
+                //     const callback = callback_chain[callbackNamedRouteIndex++];
+                //     const rv = callback(applicationContext, nextNamedRoute);
+                //     if (rv) {
+                //       return applicationContext.end(rv);
+                //     }
 
-                  }
-                }
-                return nextNamedRoute();
+                //   }
+                // }
+                // return nextNamedRoute();
               }
             }
           } // for
@@ -705,7 +708,7 @@ export class FuriRouter {
       }
     }
     nextStatic();
-    if(response.writable) {
+    if (response.writable) {
       // No Cors middleware found, close request and return an error.
       LOG_WARN('FuriRouter::processHTTPOptions No CORS middleware found.');
       response.statusCode = 405;
@@ -746,6 +749,30 @@ export class FuriRouter {
         }
       }
     }
+  }
+
+  /**
+   * Functor to execute a chain of callbacks.
+   *
+   * @param applicationContext Application context object.
+   * @param callbacks Called back functions to be executed in sequence.
+   * @returns A function that can be called to execute the next callback in the chain.
+   */
+  protected CallbackChainExecutor(
+    applicationContext: ApplicationContext,
+    callbacks: HandlerFunction[]
+  ): () => void {
+    let callbackIndex = 0;
+    return function NextCallback() {
+      if (callbackIndex < callbacks.length) {
+        const callback = callbacks[callbackIndex++];
+        const rv = callback(applicationContext, NextCallback);
+        if (rv) {
+          applicationContext.end(rv);
+          return;
+        }
+      }
+    };
   }
 
 }
