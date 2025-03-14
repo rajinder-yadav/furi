@@ -136,6 +136,12 @@ export class FuriRouter {
             case 'delete':
               this.buildRequestMap(HttpMapIndex.DELETE, routePath, handlers);
               break;
+            case 'options':
+              this.buildRequestMap(HttpMapIndex.OPTIONS, routePath, handlers);
+              break;
+            case 'head':
+              this.buildRequestMap(HttpMapIndex.HEAD, routePath, handlers);
+              break;
             case 'all':
               this.all(routePath, ...handlers);
               break;
@@ -199,15 +205,8 @@ export class FuriRouter {
   all(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     // Skip Middleware Map.
     if (fn.length === 0) {
-      throw new Error('No callback function provided');
+      throw new Error('FuriRouter::all No callback function provided');
     }
-
-    // TODO: Delete once functional testing complete.
-    // this.get(uri, ...fn);
-    // this.post(uri, ...fn);
-    // this.put(uri, ...fn);
-    // this.patch(uri, ...fn);
-    // this.delete(uri, ...fn);
 
     const count = Object.keys(HttpMapIndex).length;
     for (let mapIndex = 0; mapIndex < count; ++mapIndex) {
@@ -226,7 +225,7 @@ export class FuriRouter {
    */
   get(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
-      throw new Error('No callback function provided');
+      throw new Error('FuriRouter::get No callback function provided');
     }
     return this.buildRequestMap(HttpMapIndex.GET, uri, fn);
   }
@@ -240,7 +239,7 @@ export class FuriRouter {
    */
   patch(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
-      throw new Error('No callback function provided');
+      throw new Error('FuriRouter::patch No callback function provided');
     }
     return this.buildRequestMap(HttpMapIndex.PATCH, uri, fn);
   }
@@ -254,7 +253,7 @@ export class FuriRouter {
    */
   post(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
-      throw new Error('No callback function provided');
+      throw new Error('FuriRouter::post No callback function provided');
     }
     return this.buildRequestMap(HttpMapIndex.POST, uri, fn);
   }
@@ -268,7 +267,7 @@ export class FuriRouter {
    */
   put(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
-      throw new Error('No callback function provided');
+      throw new Error('FuriRouter::put No callback function provided');
     }
     return this.buildRequestMap(HttpMapIndex.PUT, uri, fn);
   }
@@ -282,7 +281,7 @@ export class FuriRouter {
    */
   delete(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
-      throw new Error('No callback function provided');
+      throw new Error('FuriRouter::delete No callback function provided');
     }
     return this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
   }
@@ -296,9 +295,23 @@ export class FuriRouter {
    */
   options(uri: string, ...fn: HandlerFunction[]): FuriRouter {
     if (fn.length === 0) {
-      throw new Error('No callback function provided');
+      throw new Error('FuriRouter::options No callback function provided');
     }
-    return this.buildRequestMap(HttpMapIndex.DELETE, uri, fn);
+    return this.buildRequestMap(HttpMapIndex.OPTIONS, uri, fn);
+  }
+
+  /**
+   * Assign a HTTP HEAD handler to the provided URI lookup map.
+   *
+   * @param uri  String value of URI.
+   * @param fn   Reference to callback functions of type RequestHandlerFunc.
+   * @returns    Reference to self, allows method chaining.
+   */
+  head(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+    if (fn.length === 0) {
+      throw new Error('FuriRouter::head No callback function provided');
+    }
+    return this.buildRequestMap(HttpMapIndex.HEAD, uri, fn);
   }
 
   /**
@@ -322,7 +335,7 @@ export class FuriRouter {
     incomingMessage: IncomingMessage,
     response: ServerResponse<IncomingMessage>
   ): void {
-    // LOG_DEBUG( request.method, request.url );
+    // LOG_DEBUG(`FuriRouter::dispatch ${request.method}, ${request.url}` );
     const request = new HttpRequest(incomingMessage);
 
     if (Furi.fastLogger) {
@@ -365,7 +378,7 @@ export class FuriRouter {
           'Content-Type': 'text/plain',
           'User-Agent': Furi.getApiVersion()
         });
-        LOG_ERROR(`HTTP method ${request.method} is not supported.`);
+        LOG_ERROR(`FuriRouter::disptch HTTP method ${request.method} is not supported.`);
         response.end();
     } // switch
   }
@@ -425,12 +438,12 @@ export class FuriRouter {
     const match = pat.exec(uri);
 
     if (match) {
-      // LOG_DEBUG( 'URI with segment(s) matched: ' + JSON.stringify( pk ) );
+      // LOG_DEBUG( 'FuriRouter::regexPathMatch URI with segment(s) matched: ' + JSON.stringify( pk ) );
       for (let i = 0; i < pk.params.length; ++i) {
         const paramName = pk.params[i];
         request.params[paramName] = match[i + 1];
       }
-      // LOG_DEBUG( `params: ${ JSON.stringify( request.params ) }` );
+      // LOG_DEBUG( `FuriRouter::regexPathMatch params: ${ JSON.stringify( request.params ) }` );
       return true;
     }
     return false;
@@ -449,7 +462,7 @@ export class FuriRouter {
     uri: string,
     handlers: HandlerFunction[]
   ): FuriRouter {
-    // LOG_DEBUG(uri);
+    // LOG_DEBUG(`FuriRouter::buildRequestMap mapIndex=${mapIndex}, uri=${uri}`);
 
     const routeMap: RouteMap = this.httpMethodMap[mapIndex];
     /**
@@ -480,8 +493,8 @@ export class FuriRouter {
       // Partition by '/' count, optimize lookup.
       const bucket = pathNames.length;
       const { key, params } = this.createSearchKeyFromNamedRoute(pathNames);
-      // LOG_DEBUG('regex>', useRegex, '\tpathNames>', pathNames);
-      // LOG_DEBUG('key>', key, '\tparams>', >', params);
+      // LOG_DEBUG(`FuriRouter::buildRequestMap regex: ${useRegex}, pathNames: ${pathNames}`);
+      // LOG_DEBUG(`FuriRouter:: buildRequestMap bucket: ${bucket}, key: ${key}, params: ${params}`);
 
       if (!routeMap.namedRoutePartitionMap[bucket]) {
         routeMap.namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
@@ -506,13 +519,13 @@ export class FuriRouter {
     keyNames: string[],
     request: HttpRequest
   ): boolean {
-    // LOG_DEBUG('pathNames>', pathNames);
-    // LOG_DEBUG('keyNames>  ', keyNames);
+    // LOG_DEBUG(`FuriRouter::fastPathMatch pathNames: ${pathNames}`);
+    // LOG_DEBUG(`FuriRouter::fastPathMatch keyNames: ${keyNames}`);
 
     if (keyNames.length !== pathNames.length) {
       return false;
     }
-    // LOG_DEBUG('Equal token count');
+    // LOG_DEBUG('FuriRouter::fastPathMatch Equal token count');
     for (let i = pathNames.length - 1; i >= 0; i--) {
       if (pathNames[i] !== keyNames[i] && keyNames[i][0] !== ':') {
         return false;
@@ -520,7 +533,7 @@ export class FuriRouter {
         // remove ':' from start of string.
         const key = keyNames[i].substring(1);
         request.params[key] = pathNames[i];
-        // LOG_DEBUG(`param ${keyNames[i]}=${pathNames[i]}`);
+        // LOG_DEBUG(`FuriRouter::fastPathMatch param ${keyNames[i]}=${pathNames[i]}`);
       }
     }
     return true;
@@ -596,8 +609,8 @@ export class FuriRouter {
         const pathNames = URL.replace(/(^\/)|(\/$)/g, '').split('/');
         // Partition index.
         const bucket = pathNames.length;
-        // LOG_DEBUG('pathNames>', pathNames);
-        // LOG_DEBUG('bucket>', bucket);
+        // LOG_DEBUG(`FuriRouter::processHTTPMethod pathNames: ${pathNames}`);
+        // LOG_DEBUG(`FuriRouter::processHTTPMethod bucket: ${bucket}`);
 
         if (routeMap.namedRoutePartitionMap[bucket]) {
           if (!request.params) { request.params = {}; }
@@ -608,7 +621,7 @@ export class FuriRouter {
           for (const namedRouteHandlers of namedRouteBuckers) {
             if (!namedRouteHandlers.useRegex && this.fastPathMatch(pathNames, namedRouteHandlers.pathNames, request) ||
               namedRouteHandlers.useRegex && this.regexPathMatch(URL, namedRouteHandlers, request)) {
-              // LOG_DEBUG(`params: ${JSON.stringify(request.params)}`);
+              // LOG_DEBUG(`FuriRouter::processHTTPMethod params: ${JSON.stringify(request.params)}`);
 
               callback_chain = [...toplevelMiddlewareCallbacks, ...namedRouteHandlers.callbacks ?? []];
 
