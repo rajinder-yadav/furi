@@ -2,21 +2,34 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.6.0 (2025-03-14)
+
+- Fixed long standing issues with routing and only top level middleware execution.
+- Fix, ending reponse prematurely in cors middleware.
+- Fix, placement of next call in cors middleware.
+  This resolves allowing top level middleware to execute properly, such as CORS middleware.
+- New feature, support for HTTP OPTIONS method.
+- New feature, support for HTTP HEAD method.
+- New feature, graceful shutdown on SIGTERM signals.
+- New feature, Functor to execute callback chain with application context.
+- Updated Dev Containers with Git, Node, NVM, pnpm.
+- New Unit tests for HEAD and OPTIONS.
+- New Functional tests for HEAD and OPTIONS.
+
 ## v0.5.1 (2025-03-14)
 
-- Fix: correctly set response header and handle preflight check.
+- Fix, correctly set response header and handle preflight check.
 - Updated test for CORS middleware.
 - Fixed version number for Furi.
 
-
 ## v0.5.0 (2025-03-13)
 
-- Feat, added support for HTTP OPTIONS.
-- Feat, initial CORS middleware implementation.
-- Feat, CORS middleware unit tests.
-- Feat, CORS middleware functional test.
+- New feature, added support for HTTP OPTIONS.
+- New feature, initial CORS middleware implementation.
+- New feature, CORS middleware unit tests.
+- New feature, CORS middleware functional test.
 - Unit test code cleanup (@kloodz-mrioux contributor).
-- Feat, Support for DevContainers (@kloodz-mrioux contributor).
+- New feature, Support for DevContainers (@kloodz-mrioux contributor).
 
 ## v0.4.2 (2025-03-09)
 
@@ -31,20 +44,20 @@ Date in ISO format: YYYY-MM-DD
 
 ## v0.4.0 (2025-03-08)
 
-- Feat, Cookie store added Max-Age
-- Feat, more Unit test coverage for Cookie Store class.
+- New feature, Cookie store added Max-Age
+- New feature, more Unit test coverage for Cookie Store class.
 - Fix, Middleware calling, causing bodyparsed middleware not to function correctly.
 - Improved design of calling callback chain.
 - Deleted function to call top-level middwares.
 
 ## v0.3.0 (2025-03-07)
 
-- Feat, Cookie Store to work with cookies.
-- Feat, Signed cookies.
-- Feat, Time helper class to use with Cookies
-- Feat, new unit test or time helper class.
-- Feat, new unit test or Cookie store.
-- Feat, new unit test or signed cookies.
+- New feature, Cookie Store to work with cookies.
+- New feature, Signed cookies.
+- New feature, Time helper class to use with Cookies
+- New feature, new unit test or time helper class.
+- New feature, new unit test or Cookie store.
+- New feature, new unit test or signed cookies.
 
 ## v0.2.9 (2025-03-05)
 
@@ -65,7 +78,7 @@ Date in ISO format: YYYY-MM-DD
 
 ## v0.2.6 (2025-03-02)
 
-- Feat, new function to allow Class based hander to be used with original
+- New feature, new function to allow Class based hander to be used with original
   call based handler methods.
 
 ## v0.2.4 (2025-03-02)
