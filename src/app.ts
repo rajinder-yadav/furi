@@ -33,7 +33,7 @@ furi.preShutdown(() => {
   LOG_INFO('==> Custom cleanup called! <==');
 });
 
-furi.use(Cors({origin: '*'}));
+furi.use(Cors());
 furi.use(Furi.BodyParser());
 
 furi.post("/body", (ctx: ApplicationContext) => {
