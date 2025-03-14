@@ -574,7 +574,15 @@ furi.head("/head/one", (ctx: ApplicationContext) => {
 furi.options("/", (ctx: ApplicationContext) => {
   ctx.response.writeHead(200, {
     "Content-Type": "text/html",
-    "ETag": "1234567890"
+    "ETag": "dflkgnektlj"
+  });
+  ctx.end();
+});
+
+furi.options("/options", (ctx: ApplicationContext) => {
+  ctx.response.writeHead(200, {
+    "Content-Type": "text/html",
+    "ETag": "3409583068"
   });
   ctx.end();
 });
