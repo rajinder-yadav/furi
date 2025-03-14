@@ -32,7 +32,7 @@
    "text":"<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n"
 }
 */
-import { assertEquals } from '@std/assert';
+import { assertEquals, assertExists, assertFalse } from '@std/assert';
 
 Deno.test("GET: Root path without end slash", async () => {
   const request = new Request("http://localhost:3030", {
@@ -42,12 +42,11 @@ Deno.test("GET: Root path without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Root path with end slash", async () => {
@@ -58,13 +57,11 @@ Deno.test("GET: Root path with end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
-
+  assertExists(response.ok);
+  const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: About without end slash", async () => {
@@ -75,12 +72,11 @@ Deno.test("GET: About without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>About FURI</h1>\nThis is the about page.\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>About FURI</h1>\nThis is the about page.\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: About with end slash", async () => {
@@ -91,12 +87,11 @@ Deno.test("GET: About with end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>About FURI</h1>\nThis is the about page.\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>About FURI</h1>\nThis is the about page.\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: /about/raj12", async () => {
@@ -108,12 +103,11 @@ Deno.test("GET: /about/raj12", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: /about/raj12/", async () => {
@@ -125,12 +119,11 @@ Deno.test("GET: /about/raj12/", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: /about/5612", async () => {
@@ -142,12 +135,11 @@ Deno.test("GET: /about/5612", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: About with query string", async () => {
@@ -158,12 +150,11 @@ Deno.test("GET: About with query string", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>About FURI</h1>\nThis is the about page.\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>About FURI</h1>\nThis is the about page.\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: About with end slash and query string", async () => {
@@ -174,12 +165,11 @@ Deno.test("GET: About with end slash and query string", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>About FURI</h1>\nThis is the about page.\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>About FURI</h1>\nThis is the about page.\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 
@@ -192,12 +182,11 @@ Deno.test("GET: /about/raj12?er=345o85", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: /about/raj12/?er=345o85", async () => {
@@ -209,12 +198,11 @@ Deno.test("GET: /about/raj12/?er=345o85", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>About User Page!</h1>\nUser page for: ${user_id}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Root path with query string", async () => {
@@ -225,12 +213,11 @@ Deno.test("GET: Root path with query string", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Root path with end slash and query string", async () => {
@@ -241,12 +228,11 @@ Deno.test("GET: Root path with end slash and query string", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: User id and photo id route segments", async () => {
@@ -259,12 +245,11 @@ Deno.test("GET: User id and photo id route segments", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>User Photo Page!</h1>\nUser ${user_id} photo ${photo_id}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>User Photo Page!</h1>\nUser ${user_id} photo ${photo_id}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: User id and photo id route segments with trailing slash", async () => {
@@ -277,12 +262,11 @@ Deno.test("GET: User id and photo id route segments with trailing slash", async 
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>User Photo Page!</h1>\nUser ${user_id} photo ${photo_id}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>User Photo Page!</h1>\nUser ${user_id} photo ${photo_id}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Toronto Regex segmented path 1", async () => {
@@ -296,11 +280,10 @@ Deno.test("GET: Toronto Regex segmented path 1", async () => {
   });
   const response: Response = await fetch(request);
   const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
-  if (response.ok) {
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Toronto Regex segmented path 2", async () => {
@@ -313,12 +296,11 @@ Deno.test("GET: Toronto Regex segmented path 2", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Toronto Regex segmented path 3", async () => {
@@ -331,12 +313,11 @@ Deno.test("GET: Toronto Regex segmented path 3", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Toronto Regex segmented path 4", async () => {
@@ -349,12 +330,11 @@ Deno.test("GET: Toronto Regex segmented path 4", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = `<h1>Toronto Canada</h1>\nCode is ${code}\n`;
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Chaining handlers", async () => {
@@ -365,12 +345,11 @@ Deno.test("GET: Chaining handlers", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n<p>This paragraph is form handler 2</p>\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n<p>This paragraph is form handler 2</p>\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Chaining handlers halting", async () => {
@@ -381,12 +360,11 @@ Deno.test("GET: Chaining handlers halting", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '<h1>Chained Handlers</h1>\n<p>This paragraph is form handler 1</p>\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("PATCH: Comment route without end slash", async () => {
@@ -397,12 +375,11 @@ Deno.test("PATCH: Comment route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'PATCH a fresh comment.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'PATCH a fresh comment.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("PATCH: Comment how to route without end slash", async () => {
@@ -413,12 +390,11 @@ Deno.test("PATCH: Comment how to route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'PATCH How to post a comment page.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'PATCH How to post a comment page.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("PATCH: Comment how to route without a body", async () => {
@@ -429,12 +405,11 @@ Deno.test("PATCH: Comment how to route without a body", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '{"message":"PATCH comment with id","id":"how","text":""}';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '{"message":"PATCH comment with id","id":"how","text":""}';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("PATCH: Comment how to route with a JSON body", async () => {
@@ -446,12 +421,11 @@ Deno.test("PATCH: Comment how to route with a JSON body", async () => {
     body: JSON.stringify({ text: "This is a test comment." }),
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '{"message":"PATCH comment with id","id":"how","text":{"text":"This is a test comment."}}';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '{"message":"PATCH comment with id","id":"how","text":{"text":"This is a test comment."}}';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("POST: Comment how to route with a JSON body", async () => {
@@ -463,12 +437,11 @@ Deno.test("POST: Comment how to route with a JSON body", async () => {
     body: JSON.stringify({ text: "This is a test comment." }),
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'POST a fresh comment.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'POST a fresh comment.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("POST: Comment how to route", async () => {
@@ -479,12 +452,11 @@ Deno.test("POST: Comment how to route", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'POST How to post a comment page.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'POST How to post a comment page.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("POST: Comment how to route with empty body", async () => {
@@ -495,12 +467,11 @@ Deno.test("POST: Comment how to route with empty body", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '{"message":"POST comment with id","id":"how","text":""}';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '{"message":"POST comment with id","id":"how","text":""}';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("PUT: Comment route without end slash", async () => {
@@ -511,12 +482,11 @@ Deno.test("PUT: Comment route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'PUT a fresh comment.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'PUT a fresh comment.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("PUT: Comment route without end slash", async () => {
@@ -527,12 +497,11 @@ Deno.test("PUT: Comment route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'PUT How to post a comment page.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'PUT How to post a comment page.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("PUT: Comment route without end slash", async () => {
@@ -543,12 +512,11 @@ Deno.test("PUT: Comment route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'PUT comment with id: how';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'PUT comment with id: how';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("DELETE: Comment route without end slash", async () => {
@@ -559,12 +527,11 @@ Deno.test("DELETE: Comment route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'DELETE a comment.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'DELETE a comment.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("DELETE: Comment route without end slash", async () => {
@@ -575,12 +542,11 @@ Deno.test("DELETE: Comment route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'DELETE How to post a comment page.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'DELETE How to post a comment page.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("DELETE: Comment route without end slash", async () => {
@@ -591,12 +557,11 @@ Deno.test("DELETE: Comment route without end slash", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'DELETE comment with id: how';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'DELETE comment with id: how';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Middleware 1 end processing early", async () => {
@@ -607,12 +572,11 @@ Deno.test("GET: Middleware 1 end processing early", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'About page Middleware 1\nAbout page Middleware 2\n';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'About page Middleware 1\nAbout page Middleware 2\n';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Middleware 2 pre, main, post", async () => {
@@ -623,11 +587,10 @@ Deno.test("GET: Middleware 2 pre, main, post", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<p>Middleware 2 pre</p>\n<p>Middleware 2 GET </p>\n<p>Middleware 2 post </p>\n';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = '<p>Middleware 2 pre</p>\n<p>Middleware 2 GET </p>\n<p>Middleware 2 post </p>\n';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 
@@ -639,12 +602,11 @@ Deno.test("GET: Query paramter check 1", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '{"q":"dfjriour"}';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '{"q":"dfjriour"}';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Query paramter check 2", async () => {
@@ -655,12 +617,11 @@ Deno.test("GET: Query paramter check 2", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '{"aa":"12","bb":"","c":"33"}';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '{"aa":"12","bb":"","c":"33"}';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: Query paramter check 3", async () => {
@@ -671,12 +632,11 @@ Deno.test("GET: Query paramter check 3", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '{"12":"aa"}';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = '{"12":"aa"}';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: RegEx path match", async () => {
@@ -687,12 +647,11 @@ Deno.test("GET: RegEx path match", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'RegEx path matched.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'RegEx path matched.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: RegEx path match", async () => {
@@ -703,12 +662,11 @@ Deno.test("GET: RegEx path match", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'RegEx path matched.';
-    const data = await response.text();
-    assertEquals(data, s);
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const s = 'RegEx path matched.';
+  const data = await response.text();
+  assertEquals(data, s);
+  assertEquals(response.status, 200);
 });
 
 Deno.test("GET: RegEx path match fail", async () => {
@@ -721,11 +679,9 @@ Deno.test("GET: RegEx path match fail", async () => {
   const response: Response = await fetch(request);
   assertEquals(response.status, 404);
   assertEquals(response.statusText, "Not Found");
-  if (response.status === 404) {
-    const s = 'Route not found';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  const s = 'Route not found';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: RegEx path match for toronto", async () => {
@@ -736,11 +692,10 @@ Deno.test("GET: RegEx path match for toronto", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'RegEx for path toronto matched.';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'RegEx for path toronto matched.';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: RegEx path match for toronto", async () => {
@@ -751,11 +706,10 @@ Deno.test("GET: RegEx path match for toronto", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'RegEx for path toronto matched.';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'RegEx for path toronto matched.';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: RegEx path match for toronto", async () => {
@@ -766,11 +720,10 @@ Deno.test("GET: RegEx path match for toronto", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'RegEx for path toronto matched.';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'RegEx for path toronto matched.';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: RegEx path match for toronto", async () => {
@@ -781,11 +734,10 @@ Deno.test("GET: RegEx path match for toronto", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'RegEx for path toronto matched.';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'RegEx for path toronto matched.';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: RegEx path match for toronto", async () => {
@@ -796,11 +748,10 @@ Deno.test("GET: RegEx path match for toronto", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'RegEx for path toronto matched.';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'RegEx for path toronto matched.';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: Test Static route match before Named routes 1", async () => {
@@ -811,11 +762,10 @@ Deno.test("GET: Test Static route match before Named routes 1", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'Foo Bar';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'Foo Bar';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: Test Static route match before Named routes 2", async () => {
@@ -826,11 +776,10 @@ Deno.test("GET: Test Static route match before Named routes 2", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'Foo boo';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'Foo boo';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: Test Static route match before Named routes 3", async () => {
@@ -841,11 +790,10 @@ Deno.test("GET: Test Static route match before Named routes 3", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'Foo boo bar1';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'Foo boo bar1';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 Deno.test("GET: Test Static route match before Named routes 4", async () => {
   const request = new Request("http://localhost:3030/foo/boo/bar2", {
@@ -855,11 +803,10 @@ Deno.test("GET: Test Static route match before Named routes 4", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'Foo boo bar2';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'Foo boo bar2';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: Test Static route match before Named routes 5", async () => {
@@ -870,11 +817,10 @@ Deno.test("GET: Test Static route match before Named routes 5", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'Foo boo bar2 bar';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'Foo boo bar2 bar';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: Test Static route match before Named routes 6", async () => {
@@ -885,11 +831,10 @@ Deno.test("GET: Test Static route match before Named routes 6", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'Foo boo bar2 car';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'Foo boo bar2 car';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: Test Static route match before Named routes 7", async () => {
@@ -900,11 +845,10 @@ Deno.test("GET: Test Static route match before Named routes 7", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = 'Foo moo bar2 bar';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = 'Foo moo bar2 bar';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("HEAD: Unsupported method", async () => {
@@ -926,11 +870,10 @@ Deno.test("ALL: Testing All with GET", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '<h1>All Page</h1>\n<p>A paragraph all about nothing.\n';
-    const data = await response.text();
-    assertEquals(data, s);
-  }
+  assertExists(response.ok);
+  const s = '<h1>All Page</h1>\n<p>A paragraph all about nothing.\n';
+  const data = await response.text();
+  assertEquals(data, s);
 });
 
 Deno.test("GET: /headers", async () => {
@@ -941,15 +884,14 @@ Deno.test("GET: /headers", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const s = '{"msg": "Headers set"}';
+  assertExists(response.ok);
+  const s = '{"msg": "Headers set"}';
 
-    const data = await response.text();
-    const c1 = response.headers.get("set-cookie");
+  const data = await response.text();
+  const c1 = response.headers.get("set-cookie");
 
-    assertEquals(data, s);
-    assertEquals(c1, "session_id=1234567890; page_id=service;");
-  }
+  assertEquals(data, s);
+  assertEquals(c1, "session_id=1234567890; page_id=service;");
 });
 
 Deno.test("OPTIONS: Cors default headers", async () => {
@@ -957,19 +899,18 @@ Deno.test("OPTIONS: Cors default headers", async () => {
     method: "OPTIONS",
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const c1 = response.headers.get("Access-Control-Allow-Origin");
-    const c2 = response.headers.get("Access-Control-Allow-Methods");
-    const c3 = response.headers.get("Access-Control-Allow-Headers");
-    const c4 = response.headers.get("Access-Control-Allow-Credentials");
-    const c5 = response.headers.get("Access-Control-Max-Age");
-    await response.body?.cancel(); // cancel the body to avoid memory leak
-    assertEquals(c1, "*");
-    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-    assertEquals(c3, "Content-Type, Authorization");
-    assertEquals(c4, "false");
-    assertEquals(c5, "86400");
-  }
+  assertExists(response.ok);
+  const c1 = response.headers.get("Access-Control-Allow-Origin");
+  const c2 = response.headers.get("Access-Control-Allow-Methods");
+  const c3 = response.headers.get("Access-Control-Allow-Headers");
+  const c4 = response.headers.get("Access-Control-Allow-Credentials");
+  const c5 = response.headers.get("Access-Control-Max-Age");
+  await response.body?.cancel(); // cancel the body to avoid memory leak
+  assertEquals(c1, "*");
+  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assertEquals(c3, "Content-Type, Authorization");
+  assertEquals(c4, "false");
+  assertEquals(c5, "86400");
 });
 
 Deno.test("GET: Check route Cors default headers", async () => {
@@ -980,80 +921,75 @@ Deno.test("GET: Check route Cors default headers", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const c1 = response.headers.get("Access-Control-Allow-Origin");
-    const c2 = response.headers.get("Access-Control-Allow-Methods");
-    const c3 = response.headers.get("Access-Control-Allow-Headers");
-    const c4 = response.headers.get("Access-Control-Allow-Credentials");
-    const c5 = response.headers.get("Access-Control-Max-Age");
-    await response.text();
-    assertEquals(c1, "*");
-    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-    assertEquals(c3, "Content-Type, Authorization");
-    assertEquals(c4, "false");
-    assertEquals(c5, "86400");
-  }
+  assertExists(response.ok);
+  const c1 = response.headers.get("Access-Control-Allow-Origin");
+  const c2 = response.headers.get("Access-Control-Allow-Methods");
+  const c3 = response.headers.get("Access-Control-Allow-Headers");
+  const c4 = response.headers.get("Access-Control-Allow-Credentials");
+  const c5 = response.headers.get("Access-Control-Max-Age");
+  await response.text();
+  assertEquals(c1, "*");
+  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assertEquals(c3, "Content-Type, Authorization");
+  assertEquals(c4, "false");
+  assertEquals(c5, "86400");
 });
 
 Deno.test("HEAD: Basic test /", async () => {
-  const request = new Request("http://localhost:3030/", {
-    method: "GET",
+  const request = new Request("http://localhost:3030/head", {
+    method: "HEAD",
     headers: {
       "content-type": "text/html",
     },
   });
   const response: Response = await fetch(request);
   await response.body?.cancel(); // cancel the body to avoid memory leak
-  if (response.ok) {
-    const c1 = response.headers.get("content-length");
-    const c2 = response.headers.get("content-type");
-    assertEquals(c1, null);
-    assertEquals(c2, "text/html");
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const c1 = response.headers.get("content-length");
+  const c2 = response.headers.get("content-type");
+  assertEquals(c1, null);
+  assertEquals(c2, "text/html");
+  assertEquals(response.status, 200);
 
 });
 
 Deno.test("HEAD: Basic test /one with ETag", async () => {
-  const request = new Request("http://localhost:3030/one", {
-    method: "GET",
+  const request = new Request("http://localhost:3030/head/one", {
+    method: "HEAD",
     headers: {
       "content-type": "text/html",
     },
   });
   const response: Response = await fetch(request);
   await response.body?.cancel(); // cancel the body to avoid memory leak
-  if (response.ok) {
-    const c1 = response.headers.get("content-length");
-    const c2 = response.headers.get("content-type");
-    const c3 = response.headers.get("ETag");
-    assertEquals(c1, null);
-    assertEquals(c2, "text/html");
-    assertEquals(c3, "1234567890");
-    assertEquals(response.status, 200);
-  }
+  assertExists(response.ok);
+  const c1 = response.headers.get("content-length");
+  const c2 = response.headers.get("content-type");
+  const c3 = response.headers.get("ETag");
+  assertEquals(c1, null);
+  assertEquals(c2, "text/html");
+  assertEquals(c3, "1234567890");
+  assertEquals(response.status, 200);
 
 });
 
 Deno.test("OPTIONS: Basic test /one with ETag", async () => {
-  const request = new Request("http://localhost:3030/one", {
-    method: "GET",
+  const request = new Request("http://localhost:3030/", {
+    method: "OPTIONS",
     headers: {
       "content-type": "text/html",
     },
   });
   const response: Response = await fetch(request);
   await response.body?.cancel(); // cancel the body to avoid memory leak
-  if (response.ok) {
-    const c1 = response.headers.get("content-length");
-    const c2 = response.headers.get("content-type");
-    const c3 = response.headers.get("ETag");
-    assertEquals(c1, null);
-    assertEquals(c2, "text/html");
-    assertEquals(c3, "1234567890");
-    assertEquals(response.status, 200);
-  }
-
+  assertExists(response.ok);
+  const c1 = response.headers.get("content-length");
+  const c2 = response.headers.get("content-type");
+  const c3 = response.headers.get("ETag");
+  assertEquals(c1, "0");
+  assertEquals(c2, "text/html");
+  assertEquals(c3, "1234567890");
+  assertEquals(response.status, 200);
 });
 
 Deno.test("OPTIONS: Check route / Cors default headers", async () => {
@@ -1064,19 +1000,18 @@ Deno.test("OPTIONS: Check route / Cors default headers", async () => {
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const c1 = response.headers.get("Access-Control-Allow-Origin");
-    const c2 = response.headers.get("Access-Control-Allow-Methods");
-    const c3 = response.headers.get("Access-Control-Allow-Headers");
-    const c4 = response.headers.get("Access-Control-Allow-Credentials");
-    const c5 = response.headers.get("Access-Control-Max-Age");
-    await response.text();
-    assertEquals(c1, "*");
-    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-    assertEquals(c3, "Content-Type, Authorization");
-    assertEquals(c4, "false");
-    assertEquals(c5, "86400");
-  }
+  assertExists(response.ok);
+  const c1 = response.headers.get("Access-Control-Allow-Origin");
+  const c2 = response.headers.get("Access-Control-Allow-Methods");
+  const c3 = response.headers.get("Access-Control-Allow-Headers");
+  const c4 = response.headers.get("Access-Control-Allow-Credentials");
+  const c5 = response.headers.get("Access-Control-Max-Age");
+  await response.text();
+  assertEquals(c1, "*");
+  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assertEquals(c3, "Content-Type, Authorization");
+  assertEquals(c4, "false");
+  assertEquals(c5, "86400");
 });
 
 Deno.test("OPTIONS: Check route /about Cors default headers override origin", async () => {
@@ -1087,17 +1022,16 @@ Deno.test("OPTIONS: Check route /about Cors default headers override origin", as
     },
   });
   const response: Response = await fetch(request);
-  if (response.ok) {
-    const c1 = response.headers.get("Access-Control-Allow-Origin");
-    const c2 = response.headers.get("Access-Control-Allow-Methods");
-    const c3 = response.headers.get("Access-Control-Allow-Headers");
-    const c4 = response.headers.get("Access-Control-Allow-Credentials");
-    const c5 = response.headers.get("Access-Control-Max-Age");
-    await response.text();
-    assertEquals(c1, "http://localhost:3333");
-    assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-    assertEquals(c3, "Content-Type, Authorization");
-    assertEquals(c4, "false");
-    assertEquals(c5, "86400");
-  }
+  assertExists(response.ok);
+  const c1 = response.headers.get("Access-Control-Allow-Origin");
+  const c2 = response.headers.get("Access-Control-Allow-Methods");
+  const c3 = response.headers.get("Access-Control-Allow-Headers");
+  const c4 = response.headers.get("Access-Control-Allow-Credentials");
+  const c5 = response.headers.get("Access-Control-Max-Age");
+  await response.text();
+  assertEquals(c1, "http://localhost:3333");
+  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assertEquals(c3, "Content-Type, Authorization");
+  assertEquals(c4, "false");
+  assertEquals(c5, "86400");
 });
