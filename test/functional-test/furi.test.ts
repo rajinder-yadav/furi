@@ -8,31 +8,11 @@
  * This code is releases as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-// 1) Compile in watch mode: tsc --watch test.ts
-// 2) Run test with verbose errors: mocha --reporter spec
-
-
-/* Sample response JSON
-{
-   "req":{
-      "method":"GET",
-      "url":"localhost:3100",
-      "headers":{
-         "user-agent":"node-superagent/3.4.1"
-      }
-   },
-   "header":{
-      "content-type":"text/html",
-      "user-agent":"FURI Node Server (v0.1)",
-      "date":"Mon, 06 Feb 2017 04:30:12 GMT",
-      "connection":"close",
-      "transfer-encoding":"chunked"
-   },
-   "status":200,
-   "text":"<h1>FURI</h1>\n<p>Welcome to Node FURI, the fast and furiour Node Router!</p>\n"
-}
-*/
-import { assertEquals, assertExists, assertFalse } from '@std/assert';
+import {
+  assertEquals,
+  assertExists,
+  assertFalse
+} from '@std/assert';
 
 Deno.test("GET: Root path without end slash", async () => {
   const request = new Request("http://localhost:3030", {
