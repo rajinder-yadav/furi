@@ -2,6 +2,13 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.5.1 (2025-03-14)
+
+- Fix: correctly set response header and handle preflight check.
+- Updated test for CORS middleware.
+- Fixed version number for Furi.
+
+
 ## v0.5.0 (2025-03-13)
 
 - Feat, added support for HTTP OPTIONS.
