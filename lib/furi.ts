@@ -46,9 +46,24 @@ export * from './middlewares/cors/cors.ts';
 type CleanupHandler = () => void;
 
 /**
- * Handler Linux signal to perform clean shutdown.
+ * SIGINT (Signal Interrupt)
+ * Signal Number: 2
+ * Description: Sent to a process when the user types the interrupt character (usually Ctrl+C) at the terminal.
+ * Default Action: Terminates the process.
+ * Example: Stopping a running program from the terminal.
  */
 process.once('SIGINT', () => {
+  // Handler Linux signal to perform clean shutdown.
+  Furi.shutDown(5000);
+});
+/**
+ * Signal Number: 15
+ * Description: A request to terminate a process. This signal can be caught and handled by the process.
+ * Default Action: Terminates the process.
+ * Example: kill <pid> to gracefully terminate a process.
+*/
+process.once('SIGTERM', () => {
+  // Handler Linux signal to perform clean shutdown.
   Furi.shutDown(5000);
 });
 
