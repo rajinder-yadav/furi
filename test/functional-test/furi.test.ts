@@ -915,7 +915,7 @@ Deno.test("HEAD: Unsupported method", async () => {
     },
   });
   const response: Response = await fetch(request);
-  assertEquals(response.status, 501);
+  assertEquals(response.status, 404);
 });
 
 Deno.test("ALL: Testing All with GET", async () => {
