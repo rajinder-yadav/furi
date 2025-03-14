@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-if [ $# -eq 0 ]; then
-  deno task dev
-else
-  deno task ${1}
-fi
