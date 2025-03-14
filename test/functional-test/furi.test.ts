@@ -964,7 +964,7 @@ Deno.test("OPTIONS: Cors default settings", async () => {
     const c4 = response.headers.get("Access-Control-Allow-Credentials");
     const c5 = response.headers.get("Access-Control-Max-Age");
     await response.text();
-    assertEquals(c1, "http://localhost:3030");
+    assertEquals(c1, "*");
     assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
     assertEquals(c3, "Content-Type, Authorization");
     assertEquals(c4, "false");

@@ -29,7 +29,7 @@ Deno.test('Cors default values', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "http://localhost:3030");
+  assertEquals(c1, "*");
   assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   assertEquals(c3, "Content-Type, Authorization");
   assertEquals(c4, "false");
@@ -158,7 +158,7 @@ Deno.test('Cors set methods', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "http://localhost:3030");
+  assertEquals(c1, "*");
   assertEquals(c2, "GET, PUT");
   assertEquals(c3, "Content-Type, Authorization");
   assertEquals(c4, "false");
@@ -183,7 +183,7 @@ Deno.test('Cors set headers', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "http://localhost:3030");
+  assertEquals(c1, "*");
   assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   assertEquals(c3, "Authorization");
   assertEquals(c4, "false");
@@ -208,7 +208,7 @@ Deno.test('Cors set credentials true', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "http://localhost:3030");
+  assertEquals(c1, "*");
   assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   assertEquals(c3, "Content-Type, Authorization");
   assertEquals(c4, "true");
@@ -233,7 +233,7 @@ Deno.test('Cors set credentials false', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "http://localhost:3030");
+  assertEquals(c1, "*");
   assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   assertEquals(c3, "Content-Type, Authorization");
   assertEquals(c4, "false");
@@ -258,7 +258,7 @@ Deno.test('Cors set credentials max age', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "http://localhost:3030");
+  assertEquals(c1, "*");
   assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   assertEquals(c3, "Content-Type, Authorization");
   assertEquals(c4, "false");
