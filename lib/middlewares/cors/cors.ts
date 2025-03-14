@@ -68,15 +68,14 @@ export function Cors(options?: CorsOptions): HandlerFunction {
     ctx.response.setHeader('Access-Control-Allow-Credentials', allowCredentials ? 'true' : 'false');
     ctx.response.setHeader('Access-Control-Max-Age', maxAge.toString());
 
-    if (ctx.request.method === 'OPTIONS') {
+    next();
+    if (ctx.response.writable && ctx.request.method === 'OPTIONS') {
       // LOG_DEBUG('CorsMiddleware OPTIONS enter');
-      next();
       ctx.response.writeHead(200);
       ctx.response.end();
       // LOG_DEBUG('CorsMiddleware OPTIONS exit');
       return;
     }
-    next();
     // LOG_DEBUG('CorsMiddleware exit');
   }
 }
