@@ -22,12 +22,12 @@ class TestFuriRouter extends FuriRouter {
  * Test router initial settings.
  */
 Deno.test('FuriRouter: HTTP Enum count', () => {
-  assertEquals(Object.keys(HttpMapIndex).length, 7);
+  assertEquals(Object.keys(HttpMapIndex).length, 8);
 });
 
 Deno.test('FuriRouter: map partition count', () => {
   const router = new TestFuriRouter();
-  assertEquals(router.getRouteMap().length, 7);
+  assertEquals(router.getRouteMap().length, 8);
 });
 
 Deno.test('FuriRouter: map routes are empty', () => {
