@@ -11,7 +11,9 @@
 // deno-lint-ignore-file no-explicit-any
 import * as fs from 'node:fs';
 import * as http from 'node:http';
+import * as https from 'node:https';
 import { Server } from 'node:http';
+import { Server as ServerSecure } from 'node:https';
 import process from "node:process";
 import YAML from 'npm:yaml';
 
@@ -26,7 +28,7 @@ import {
   MapOf,
 } from './types.ts';
 
-import { Cors, CorsOptions  } from './middlewares/cors/cors.ts';
+import { Cors, CorsOptions } from './middlewares/cors/cors.ts';
 import {
   BodyParserFn,
   BodyParserOptions,
@@ -75,17 +77,17 @@ process.once('SIGTERM', () => {
  */
 export class Furi extends FuriRouter {
 
-  static fastLogger: FastLogger;
+  static fastLogger: FastLogger | null = null;
 
   static readonly appStore: StoreState = new StoreState();
-  static readonly httpServer: { app: Furi, http: Server }[] = [];
+  static readonly httpServer: { app: Furi, http: Server | ServerSecure }[] = [];
 
   static readonly BodyParser: (options?: BodyParserOptions) => any = BodyParserFn;
   static readonly JSONBodyParser: (options?: BodyParserOptions) => any = JSONBodyParserFn;
   static readonly UrlEncodedParser: (options?: BodyParserOptions) => any = UrlEncodedParserFn;
   static readonly Cors: (options?: CorsOptions) => any = Cors;
 
-  protected server: Server | null = null;
+  protected server: Server | ServerSecure | null = null;
   protected properties: MapOf<any> = {};
 
   // Shutdown cleanup handler callback.
@@ -98,6 +100,7 @@ export class Furi extends FuriRouter {
       port: 3030,
       host: 'localhost',
       callback: null,
+      secure: false,  // READONLY Flag, indicated secure connections (HTTPS).
     },
     logger: {
       enabled: false,
@@ -114,7 +117,7 @@ export class Furi extends FuriRouter {
     super();
 
     // Read default configuration values.
-    let { env, port, host, callback } = this.furiConfig.server;
+    let { env, port, host, callback, secure } = this.furiConfig.server;
 
     let { enabled, terminal, flushPeriod, maxCount, mode, logFile, level } = this.furiConfig.logger;
 
@@ -148,23 +151,52 @@ export class Furi extends FuriRouter {
           level = this.properties.logger.level?.toUpperCase() ?? level;
         }
 
+        try {
+          Furi.fastLogger = new FastLogger(
+            process.cwd(),
+            logFile,
+            enabled,
+            terminal,
+            flushPeriod,
+            maxCount,
+            mode,
+            level
+          );
+        }
+        catch (err) {
+          LOG_ERROR(`Furi::constructor Failed to initialize FastLogger: ${err}`);
+          Furi.fastLogger = null;
+        }
+
         // Update configuration values.
         this.furiConfig = {
-          server: { env, port, host, callback },
+          server: { env, port, host, callback, secure },
           logger: { enabled, terminal, flushPeriod, logFile, maxCount, mode, level },
         };
+
+        // SSL Certificate values.
+        let key: string;
+        let cert: string;
+        let passphrase: string;
+        // let ca:string;
+        // let passphrase:string;
+        // let rejectUnauthorized:boolean;
+
+        if (this.properties.cert) {
+          key = this.properties.cert.key;
+          cert = this.properties.cert.cert;
+          passphrase = this.properties.cert.passphrase;
+          // ca = this.properties.cert.ca ?? ca;
+          // rejectUnauthorized = this.properties.cert.rejectUnauthorized ?? rejectUnauthorized;
+
+          if (key && cert) {
+            LOG_INFO('Read SSL key and certificate file properties successfully.');
+            this.furiConfig.cert = { key, cert, passphrase };
+          }
+        }
+
       }
 
-      Furi.fastLogger = new FastLogger(
-        process.cwd(),
-        logFile,
-        enabled,
-        terminal,
-        flushPeriod,
-        maxCount,
-        mode,
-        level
-      );
     } catch (error) {
       // Ignore and file errors.
       LOG_ERROR(`Furi::constructor error: ${JSON.stringify(error)}`);
@@ -259,11 +291,30 @@ export class Furi extends FuriRouter {
    * Start server with specified configuration.
    *
    * @param serverConfig  Configuration object for the server.
-   * @returns Instance of http.Server.
+   * @returns Instance of http.Server or https.Server.
    */
-  listen(serverConfig: FuriConfig): Server {
+  listen(serverConfig: FuriConfig): Server | ServerSecure {
 
     let { env, port, host, callback } = serverConfig.server;
+    const { key, cert } = serverConfig?.cert ?? { key: null, cert: null };
+
+    const passphrase = serverConfig?.cert?.passphrase;
+
+    // Load SSL Certificate and Key.
+    let sslKey;
+    let sslCert
+    try {
+      if (key && cert) {
+        sslKey = fs.readFileSync(key);
+        sslCert = fs.readFileSync(cert);
+        this.furiConfig.server.secure = true;
+        LOG_INFO(`Read SSL key and certificate successfully.`);
+      }
+    } catch (error) {
+      LOG_ERROR(`Failed to read SSL key or certificate: ${error}`);
+      sslKey = null;
+      sslCert = null;
+    }
 
     // Update running server config properties.
     if (env) { this.furiConfig.server.env = env; }
@@ -275,7 +326,23 @@ export class Furi extends FuriRouter {
       callback = this.furiConfig.server.callback;
     }
 
-    const server: Server = http.createServer(this.handler());
+    let server: Server | ServerSecure | null = null;
+    if (sslKey && sslCert) {
+      if (passphrase && passphrase.length > 0) {
+        // Signed SSL key and certificate
+        LOG_INFO(`Creating HTTPS server with SSL key, certificate, and passphrase.`);
+        server = https.createServer({ key: sslKey, cert: sslCert, passphrase }, this.handler());
+      } else {
+        // SSL key and certificate
+        LOG_INFO('Creating HTTPS server with SSL key and certificate.');
+        server = https.createServer({ key: sslKey, cert: sslCert }, this.handler())
+      }
+    } else {
+      // No SSL key and certificate
+      LOG_INFO('Creating HTTP server.');
+      server = http.createServer(this.handler());
+    }
+
     if (port && host && callback) {
       server.listen(port, host, callback);
     } else if (port && callback) {
@@ -292,9 +359,10 @@ export class Furi extends FuriRouter {
   /**
    * Starts the Furi server with default or provided configuration.
    *
-   * @returns Instance of http.Server.
+   * @returns Instance of http.Server or https.Server.
    */
-  start(_callback?: () => void): Server {
+
+  start(_callback?: () => void): Server | ServerSecure {
     this.server = this.listen(this.furiConfig);
 
     // Node.js HTTP server list used to perform a clean close before exiting the process.
@@ -317,8 +385,8 @@ export class Furi extends FuriRouter {
    * @returns Server configuration string.
    */
   private getServerInfoMessage() {
-    const { env, port, host } = this.furiConfig.server;
-    return `Server { host: ${host}, port: ${port}, mode: ${env} }`;
+    const { env, port, host, secure } = this.furiConfig.server;
+    return `Server { secure: ${secure}, host: ${host}, port: ${port}, mode: ${env} }`;
   }
 
   /**
