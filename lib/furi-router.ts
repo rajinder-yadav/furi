@@ -551,13 +551,14 @@ export class FuriRouter {
    * @param mapIndex  The URI Map used to look up callbacks.
    * @param request   Reference to Node request object (IncomingMessage).
    * @param response  Reference to Node response object (ServerResponse).
+   * @param closeOnNotFound If true, the response will be closed on not found.
    * @return void.
    */
   protected processHTTPMethod(
     mapIndex: number,
     request: HttpRequest,
     response: HttpResponse,
-    throwOnNotFound: boolean = true
+    closeOnNotFound: boolean = true
   ): void {
 
     const routeMap: RouteMap = this.httpMethodMap[mapIndex];
@@ -625,7 +626,7 @@ export class FuriRouter {
               }
             }
           } // for
-        } else if (throwOnNotFound) {
+        } else if (closeOnNotFound) {
           if (toplevelMiddlewareCallbacks) {
             this.CallbackChainExecutor(applicationContext, toplevelMiddlewareCallbacks)();
             // Check if request was processed and closed by a middleware.
@@ -634,7 +635,6 @@ export class FuriRouter {
               return;
             }
           }
-          // throw new Error(`Route not found for ${URL}`);
           LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
           response.writeHead(404, {
             'Content-Type': 'text/plain',
@@ -661,8 +661,7 @@ export class FuriRouter {
         return;
       }
     }
-    if (throwOnNotFound) {
-      // throw new Error(`Route not found for ${URL}`);
+    if (closeOnNotFound) {
       LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
       // response.statusCode = 404;
       // response.statusMessage = 'Route not found';
