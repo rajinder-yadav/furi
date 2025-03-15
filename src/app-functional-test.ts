@@ -19,8 +19,6 @@ import {
   LOG_INFO,
 } from "../lib/furi.ts";
 
-import { Cors } from '../lib/middlewares/cors/cors.ts';
-
 const furi = Furi.create();
 const USER_AGENT: string = "FURI Node Server (v0.1)";
 
@@ -33,7 +31,7 @@ furi.preShutdown(() => {
   LOG_INFO('==> Custom cleanup called! <==');
 });
 
-furi.use(Cors());
+furi.use(Furi.Cors());
 furi.use(Furi.BodyParser());
 
 furi.post("/body", (ctx: ApplicationContext) => {
