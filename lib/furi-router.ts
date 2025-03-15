@@ -80,7 +80,7 @@ export class FuriRouter {
   use(): FuriRouter {
 
     if (arguments.length === 0) {
-      throw new Error('No Middleware callback function provided');
+      throw new Error('FuriRouter::use No Middleware callback function provided');
     }
 
     if (isTypeRouterConfig(arguments[0]) || isTypeRouterConfig(arguments[1])) {
@@ -146,7 +146,7 @@ export class FuriRouter {
               this.all(routePath, ...handlers);
               break;
             default:
-              throw new Error(`Invalid or unsupported HTTP method: ${route.method}`);
+              throw new Error(`FuriRouter::use Invalid or unsupported HTTP method: ${route.method}`);
           }
         }
       }
@@ -186,7 +186,7 @@ export class FuriRouter {
       const uri = arguments[0];
       const callbacks: HandlerFunction[] = Array.from(arguments).slice(1);
       if (callbacks.length === 0) {
-        throw new Error('No middleware callback function provided');
+        throw new Error('FuriRouter::use No middleware callback function provided');
       }
       return this.all(uri, ...callbacks);
     }
