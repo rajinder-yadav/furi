@@ -2,6 +2,14 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.6.1 (2025-03-15)
+
+- Removed error file, we should not be defining exception classes.
+- Cleaned up test making unnecessary exception test.
+- Removed unnecessary assertion method which duplicates isSiteValue logic.
+- Fixed Exception messages to contain classname::method prefix.
+- Made Cors middleware avaliable off Furi.
+
 ## v0.6.0 (2025-03-14)
 
 - Fixed long standing issues with routing and only top level middleware execution.
