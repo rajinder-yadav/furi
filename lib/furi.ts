@@ -19,29 +19,32 @@ import { FuriRouter } from './furi-router.ts';
 import {
   API_VERSION,
   FuriConfig,
-  LoggerMode,
-  MapOf,
-  LogLevels,
-  LOG_INFO,
   LOG_ERROR,
+  LOG_INFO,
+  LoggerMode,
+  LogLevels,
+  MapOf,
 } from './types.ts';
+
+import { Cors, CorsOptions  } from './middlewares/cors/cors.ts';
+import {
+  BodyParserFn,
+  BodyParserOptions,
+  JSONBodyParserFn,
+  UrlEncodedParserFn,
+} from './middlewares/body-parser/body-parser.ts';
 
 import { StoreState } from './state.ts';
 import { FastLogger } from './utils/fast-logger.ts';
-import {
-  BodyParserFn,
-  JSONBodyParserFn,
-  UrlEncodedParserFn,
-  BodyParserOptions,
-} from './middlewares/body-parser/body-parser.ts';
+
 
 // Re-export types and classes for applications
-export * from './types.ts';
 export * from './application-context.ts';
 export * from './furi-router.ts';
+export * from './middlewares/cors/cors.ts';
+export * from './types.ts';
 export * from './utils/http-cookies-store.ts';
 export * from './utils/time-period.ts';
-export * from './middlewares/cors/cors.ts';
 
 type CleanupHandler = () => void;
 
@@ -80,6 +83,7 @@ export class Furi extends FuriRouter {
   static readonly BodyParser: (options?: BodyParserOptions) => any = BodyParserFn;
   static readonly JSONBodyParser: (options?: BodyParserOptions) => any = JSONBodyParserFn;
   static readonly UrlEncodedParser: (options?: BodyParserOptions) => any = UrlEncodedParserFn;
+  static readonly Cors: (options?: CorsOptions) => any = Cors;
 
   protected server: Server | null = null;
   protected properties: MapOf<any> = {};
