@@ -209,6 +209,7 @@ export interface FuriConfig {
     port: number;                   // Port server will listen for connection requests.
     host: string;                   // host server will listen for connection requests.
     callback: null | (() => void);  // Callback function that will be called when server is ready.
+    secure: boolean;                // Readonly flag, true indicates secure connections (HTTPS).
   },
   logger: {
     enabled: boolean;             // Enable file logging.
@@ -218,7 +219,13 @@ export interface FuriConfig {
     maxCount: number;             // Maximum number of log entries before flushing.
     mode: LoggerMode;             // Log mode, "buffer" or "stream".
     level: string;                // Log level, debug, info, warn, error.
-  };
+  },
+  cert?: {
+    key: string;                    // Path to SSL key file.
+    cert: string;                   // Path to SSL certificate file.
+    ca?: string;                    // Path to CA certificate file, if required for SSL key.
+    passphrase?: string;            // Passphrase for SSL key file.
+  },
 }
 
 /**
