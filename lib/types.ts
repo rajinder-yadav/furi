@@ -125,7 +125,7 @@ export const LogLevels = {
   WARN: 'WARN',
   ERROR: 'ERROR',
   CRITICAL: 'CRITICAL',
-  FATAL: 'FATAL'
+  FATAL: 'FATAL',
 };
 
 /**
@@ -138,7 +138,7 @@ export const LogLevelsRank = {
   WARN: 3,
   ERROR: 4,
   CRITICAL: 5,
-  FATAL: 6
+  FATAL: 6,
 };
 
 /**
@@ -164,7 +164,8 @@ export function mapToLogLevelRank(logLevel: string): number {
     case 'FATAL':
       return LogLevelsRank.FATAL;
     default:
-      throw new Error(`Invalid log level: ${logLevel}`);
+      LOG_ERROR(`mapToLogLevelRank Invalid log level: ${logLevel}, defaulting to LOG level.`);
+      return LogLevelsRank.LOG;
   }
 }
 
@@ -274,16 +275,17 @@ export function isTypeRouterConfig(value: unknown): value is RouterConfig {
 }
 
 /**
- * Create and instance of the class and return bound handler function.
+ * Create an instance of the class and return bound handler function.
  *
  * @param ClassRef
  * @returns handler function bound to instace of the class.
  */
-export function ClassHandler(ClassRef: unknown): HandlerFunction {
+export function ClassHandler(ClassRef: unknown): HandlerFunction | null {
   if (ClassRef && typeof ClassRef === 'function' && ClassRef.prototype instanceof BaseRouterHandler) {
     const ClassRouterHandlerRef: RouterHanderConstructor<BaseRouterHandler> = ClassRef as RouterHanderConstructor<BaseRouterHandler>;
     const instanceRef = new ClassRouterHandlerRef();
     return instanceRef.handle.bind(instanceRef);
   }
-  throw new Error("Invalid class reference. Please provide a valid class that extends BaseRouterHandler.");
+  LOG_ERROR("Invalid class reference. Please provide a valid class that extends BaseRouterHandler.");
+  return null;
 }
