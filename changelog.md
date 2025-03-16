@@ -2,6 +2,18 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.7.0 (2025-03-16)
+
+- Added HTTPS support to the server.
+- Added exception handling when creating Fast Logger to prevent startup crash.
+- Support for self-signed SSL certificates for HTTPS {key, cert}.
+- Support for self-signed SSL certificates with passphrase for HTTPS {key, cert, passphrase}.
+- Support for SSL CA certificate for HTTPS {key, cery, ca}.
+- Changed  start up message
+  1. "mode" to "env", value are user defined in YAML.
+  1. "secute" to "mode", value are "https" or "http".
+- Fix, exception hanlding message for FuriRouter::processHTTPMethod.
+
 ## v0.6.1 (2025-03-15)
 
 - Removed error file, we should not be defining exception classes.

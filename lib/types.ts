@@ -18,7 +18,7 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = '0.6.1';
+export const API_VERSION: string = '0.7.0';
 
 /**
  * Logging helper functions.
@@ -223,8 +223,10 @@ export interface FuriConfig {
   cert?: {
     key: string;                    // Path to SSL key file.
     cert: string;                   // Path to SSL certificate file.
-    ca?: string;                    // Path to CA certificate file, if required for SSL key.
+    ca?: string | string[];         // Path to CA certificate file, if required for SSL key.
     passphrase?: string;            // Passphrase for SSL key file.
+    rejectUnauthorized?: boolean;   // Reject unauthorized SSL connections.
+    requestCert?: boolean;          // Require SSL client certificate.
   },
 }
 
