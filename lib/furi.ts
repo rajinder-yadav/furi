@@ -21,6 +21,7 @@ import { FuriRouter } from './furi-router.ts';
 import {
   API_VERSION,
   FuriConfig,
+  LOG_DEBUG,
   LOG_ERROR,
   LOG_INFO,
   LoggerMode,
@@ -151,6 +152,7 @@ export class Furi extends FuriRouter {
           level = this.properties.logger.level?.toUpperCase() ?? level;
         }
 
+        // Kick start the logger, so we can start logging.
         try {
           Furi.fastLogger = new FastLogger(
             process.cwd(),
@@ -178,23 +180,33 @@ export class Furi extends FuriRouter {
         let key: string;
         let cert: string;
         let passphrase: string;
-        // let ca:string;
-        // let passphrase:string;
-        // let rejectUnauthorized:boolean;
+        let ca: string | string[];
+        let rejectUnauthorized: boolean;
+        let requestCert: boolean;
 
         if (this.properties.cert) {
           key = this.properties.cert.key;
           cert = this.properties.cert.cert;
           passphrase = this.properties.cert.passphrase;
-          // ca = this.properties.cert.ca ?? ca;
-          // rejectUnauthorized = this.properties.cert.rejectUnauthorized ?? rejectUnauthorized;
+          ca = this.properties.cert.ca;
+          rejectUnauthorized = this.properties.cert.rejectUnauthorized;
+          requestCert = this.properties.cert.requestCert;
+
+          this.furiConfig.cert = { key, cert, passphrase, ca, rejectUnauthorized, requestCert };
+          LOG_DEBUG(`${JSON.stringify(this.furiConfig.cert)}`);
 
           if (key && cert) {
-            LOG_INFO('Read SSL key and certificate file properties successfully.');
-            this.furiConfig.cert = { key, cert, passphrase };
+            LOG_INFO('SSL key file propertey provided.');
+            LOG_INFO('SSL cert file propertey provided.');
           }
-        }
+          if (passphrase) {
+            LOG_INFO('SSL passphrase propertey provided.');
+          }
+          if (ca) {
+            LOG_INFO('SSL CA file(s) propertey provided.');
+          }
 
+        }
       }
 
     } catch (error) {
@@ -296,24 +308,39 @@ export class Furi extends FuriRouter {
   listen(serverConfig: FuriConfig): Server | ServerSecure {
 
     let { env, port, host, callback } = serverConfig.server;
-    const { key, cert } = serverConfig?.cert ?? { key: null, cert: null };
+    const { key, cert, ca } = serverConfig?.cert ?? { key: null, cert: null };
 
     const passphrase = serverConfig?.cert?.passphrase;
 
     // Load SSL Certificate and Key.
     let sslKey;
     let sslCert
+    let sslCA;
+
     try {
       if (key && cert) {
         sslKey = fs.readFileSync(key);
         sslCert = fs.readFileSync(cert);
-        this.furiConfig.server.secure = true;
         LOG_INFO(`Read SSL key and certificate successfully.`);
+
+        if (ca) {
+          if (typeof ca === 'string') {
+            sslCA = fs.readFileSync(ca);
+            LOG_INFO(`Read SSL CA certificate successfully.`);
+          } else if (Array.isArray(ca)) {
+            sslCA = ca.map(caPath => fs.readFileSync(caPath));
+            LOG_INFO(`Read ${sslCA.length} SSL CA certificates successfully.`);
+          }
+        }
+        // Only set secure to true if both key and certs have been loaded successfully.
+        this.furiConfig.server.secure = true;
       }
     } catch (error) {
       LOG_ERROR(`Failed to read SSL key or certificate: ${error}`);
+      this.furiConfig.server.secure = false;
       sslKey = null;
       sslCert = null;
+      sslCA = null;
     }
 
     // Update running server config properties.
@@ -329,17 +356,21 @@ export class Furi extends FuriRouter {
     let server: Server | ServerSecure | null = null;
     if (sslKey && sslCert) {
       if (passphrase && passphrase.length > 0) {
-        // Signed SSL key and certificate
-        LOG_INFO(`Creating HTTPS server with SSL key, certificate, and passphrase.`);
+        // Signed SSL key and certificate with passphrase.
+        LOG_INFO(`Creating a secure HTTPS server with SSL certificate with passphrase.`);
         server = https.createServer({ key: sslKey, cert: sslCert, passphrase }, this.handler());
+      } else if (sslCA) {
+        // SSL key, certificate and CA certificate.
+        LOG_INFO('Creating a secure HTTPS server with SSL CA certificate.');
+        server = https.createServer({ key: sslKey, cert: sslCert, ca: sslCA }, this.handler())
       } else {
-        // SSL key and certificate
-        LOG_INFO('Creating HTTPS server with SSL key and certificate.');
+        // SSL key and certificate.
+        LOG_INFO('Creating a secure HTTPS server with SSL certificate.');
         server = https.createServer({ key: sslKey, cert: sslCert }, this.handler())
       }
     } else {
-      // No SSL key and certificate
-      LOG_INFO('Creating HTTP server.');
+      // No SSL key and certificate.
+      LOG_INFO('Creating a unsecure HTTP server.');
       server = http.createServer(this.handler());
     }
 
@@ -386,7 +417,7 @@ export class Furi extends FuriRouter {
    */
   private getServerInfoMessage() {
     const { env, port, host, secure } = this.furiConfig.server;
-    return `Server { secure: ${secure}, host: ${host}, port: ${port}, mode: ${env} }`;
+    return `Server  { mode: ${secure ? 'https' : 'http'}, host: ${host}, port: ${port}, env: ${env} }`;
   }
 
   /**
@@ -396,7 +427,7 @@ export class Furi extends FuriRouter {
    */
   private getLoggerInfoMessage() {
     const { enabled, flushPeriod, logFile, maxCount, mode, level } = this.furiConfig.logger;
-    return `Logger { enabled: ${enabled}, level: ${level}, logFile: ${logFile}, mode: ${mode}, flushPeriod: ${flushPeriod}ms, maxCount: ${maxCount} }`;
+    return `Logger  { enabled: ${enabled}, level: ${level}, logFile: ${logFile}, mode: ${mode}, flushPeriod: ${flushPeriod}ms, maxCount: ${maxCount} }`;
   }
 
   /**
