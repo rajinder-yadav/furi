@@ -534,9 +534,9 @@ Below are the benchmarks results.
 
 Framework | Requests | Total Time | Requests handled / sec
 -|-|-|-
-Furi | 100,000 | 12.670 s | 7892.63
-Fastify | 100,000 | 14.486 s | 7124.84
-Express.js v5.0 | 100,000 | 13.882 s | 7203.31
+Furi | 100,000 | 11.569 s | 8643.74
+Fastify | 100,000 | 12.891 s | 7757.62
+Express.js v5.0 | 100,000 | 18.020 s | 5549.29
 
 ### Furi Benchmark
 
