@@ -644,13 +644,14 @@ export class FuriRouter {
           return;
         }
       }
-    } catch (_ex) {
-      LOG_ERROR('FuriRouter::processHTTPMethod URI Not Found.');
-      response.writeHead(404, {
+    } catch (err) {
+      LOG_ERROR('FuriRouter::processHTTPMethod Exception occured.');
+      LOG_ERROR(`FuriRouter::processHTTPMethod Exception error: ${err}.`);
+      response.writeHead(500, {
         'Content-Type': 'text/plain',
         'User-Agent': Furi.getApiVersion(),
       });
-      response.end('Route not found');
+      response.end('Internal Server Error.');
       return;
     }
     if (toplevelMiddlewareCallbacks) {
