@@ -9,16 +9,16 @@ import {
   Cors,
   CorsOptions,
   Furi,
-  HttpRequest,
-  HttpResponse,
+  FuriRequest,
+  FuriResponse,
 } from '../../lib/furi.ts';
 
 
 
 Deno.test('Cors default values', () => {
   const corsMiddleware = Cors();
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -42,8 +42,8 @@ Deno.test('Cors set origin', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -67,8 +67,8 @@ Deno.test('Cors set two origins', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -94,8 +94,8 @@ Deno.test('Cors set origin, methods', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -121,8 +121,8 @@ Deno.test('Cors set origin, methods, headers', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -146,8 +146,8 @@ Deno.test('Cors set methods', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -171,8 +171,8 @@ Deno.test('Cors set headers', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -196,8 +196,8 @@ Deno.test('Cors set credentials true', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -221,8 +221,8 @@ Deno.test('Cors set credentials false', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});
@@ -246,8 +246,8 @@ Deno.test('Cors set credentials max age', () => {
   };
 
   const corsMiddleware = Cors(corsOptions);
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   ctx.request.method = 'OPTIONS';
   corsMiddleware(ctx, () => {});

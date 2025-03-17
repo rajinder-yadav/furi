@@ -8,7 +8,7 @@ import {
 import { HttpCookiesStore } from '../../lib/utils/http-cookies-store.ts';
 import { TimePeriod } from '../../lib/utils/time-period.ts';
 import { StoreState } from "../../lib/state.ts";
-import { ApplicationContext, Furi, HttpRequest, HttpResponse } from "../../lib/furi.ts";
+import { ApplicationContext, Furi, FuriRequest, FuriResponse } from "../../lib/furi.ts";
 import { Socket } from "node:net";
 
 
@@ -227,8 +227,8 @@ Deno.test('HttpCookiesStore: parse name', () => {
 });
 
 Deno.test('HttpCookiesStore::setCookies', () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
   const store = new HttpCookiesStore();
@@ -239,8 +239,8 @@ Deno.test('HttpCookiesStore::setCookies', () => {
 });
 
 Deno.test('HttpCookiesStore::setCookies', () => {
-  const request = new HttpRequest(new Socket());
-  const response = new HttpResponse(request);
+  const request = new FuriRequest(new Socket());
+  const response = new FuriResponse(request);
   const ctx = new ApplicationContext(new StoreState(), request, response);
   const store = new HttpCookiesStore();
   store.cookie('name', 'yadav');
