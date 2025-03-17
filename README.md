@@ -1,4 +1,4 @@
-# Furi - Fast HTTP Server framework
+# Furi - Fast HTTP/HTTPS Server framework
 
 ![Image](./images/dolphin.jpeg)
 
@@ -6,7 +6,7 @@
 
 <!-- code_chunk_output -->
 
-- [Furi - Fast HTTP Server framework](#furi---fast-http-server-framework)
+- [Furi - Fast HTTP/HTTPS Server framework](#furi---fast-httphttps-server-framework)
   - [A Return to Simplicity ✅](#a-return-to-simplicity-)
   - [BOM - Bill of Material](#bom---bill-of-material)
   - [Example source code](#example-source-code)
@@ -23,10 +23,15 @@
     - [Declaring a Handler Class](#declaring-a-handler-class)
     - [Declaring top-level middleware](#declaring-top-level-middleware)
     - [Declaring route-level middleware](#declaring-route-level-middleware)
-    - [Configuration file](#configuration-file)
+  - [Server Configuration file](#server-configuration-file)
+  - [Configuration file](#configuration-file)
+  - [Server properties](#server-properties)
   - [Super fast stream logging ⚡](#super-fast-stream-logging-)
     - [Logger configuration](#logger-configuration)
     - [Log levels](#log-levels)
+  - [Enabling HTTPS Support](#enabling-https-support)
+    - [Using a SSL certificate](#using-a-ssl-certificate)
+    - [Using a SSL certificate with a passphrase](#using-a-ssl-certificate-with-a-passphrase)
     - [Sample log output](#sample-log-output)
   - [Motivation](#motivation)
   - [Why](#why)
@@ -53,6 +58,9 @@ A self contained design and zero external dependencies means there is  less surf
 
 Furi will keep simple things simple and make hard things easier without breaking your working code. It is however still in the early preview stage so expect changes as I explore design ideas.
 
+Furi is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
+
+
 ## BOM - Bill of Material
 
 The following tools, technologies and software was used in the development of Furi (v0.1.4).
@@ -71,7 +79,7 @@ __NOTE__: See Changelog for additional details on changes and updates. ✅
 
 ## Example source code
 
-You can find example source code at the [Github furi-examples repository](https://github.com/rajinder-yadav/furi-examples).
+You can find example source code at the [GitHib furi-examples repository](https://github.com/rajinder-yadav/furi-examples).
 
 You can download the example source use using git:
 
@@ -82,7 +90,7 @@ git clone https://github.com/rajinder-yadav/furi-examples.git
 The examples are easy to follow and should give you to a good understanding of how to use the Furi framework.
 
 Most of the Typescript examples will require you to install and use Deno to run them.
-The first example in folder, "01-simple-js-node" shows you how to use Node.js with plain JavaScript.
+The first example in directory, "01-simple-js-node" shows you how to use Node.js with plain JavaScript.
 The examples are number to help you quick start from basic and move to advanced usage.
 
 ## Coding with JavaScript
@@ -140,10 +148,10 @@ deno add npm:@furi-server/furi
 When you run the server application, you will see a similar output in your terminal:
 
 ```sh
-Furi Server (v0.2.4) started.
-Server { host: localhost, port: 3030, mode: development }
-Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
-Logger { enabled: false, level: INFO, logFile: furi.log, mode: buffer, flushPeriod: 1000ms, maxCount: 100 }
+Furi Server (v0.8.0) started.
+Server  { mode: http, host: localhost, port: 3030, env: development }
+Runtime { deno: 2.2.4, v8: 13.4.114.11-rusty, typescript: 5.7.3 }
+Logger  { enabled: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
 ```
 
 This can help you quickly identify that your server is running, configuration settings and the runtime environment details.
@@ -418,11 +426,27 @@ const routes: Routes = {
 };
 ```
 
-### Configuration file
+## Server Configuration file
 
 Furi lets you configure server settings from a YAML file. This allows you to easily change settings without having to modify your code.
 
+Currently the configurable setting can control. All these settings are optional.
+
+1. Server start up properties.
+1. Logging properties.
+1. HTTPS properties.
+
+## Configuration file
+
+The server configuration must be called, "furi.yaml" or "furi.yml" and placed under the project root directory.
+
+If you configuration file is found, Furi will use sensible defaults.
+
 __File: "furi.yaml" (optional)__
+
+## Server properties
+
+This configuration control the server startup properties.
 
 ```yaml
 server:
@@ -431,11 +455,9 @@ server:
   env: development
 ```
 
-Furi is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
-
 ## Super fast stream logging ⚡
 
-Furi supports fist-class logging at the code. Logging is fast and takes place on a background worker-thread, so the main thread never blocks. Logging can be buffered, or immediately written to file. Logging behavior can be configured in Furi's configuration YAML file.
+Furi supports fist-class logging at the core. Logging is fast and takes place on a background worker-thread, so the main thread never blocks. Logging can be buffered, or immediately written to file. Logging behavior can be configured in Furi's configuration YAML file.
 
 Logging uses the latest Node.js features. Since logging is the core functionality of Furi, there is very little code overhead compared to existing logging libraries.
 
@@ -494,6 +516,42 @@ warn | State that is not a normal operation.
 error | Application level error needing investigation.
 critical | System level error that may cause application to fail.
 fatal | Unrecoverable error causing application to terminate.
+
+## Enabling HTTPS Support
+
+Furi makes it easy to spin-up a HTTPS server. You do not need to code this up manually in your server application code.
+
+Furi is started with HTTPS support by providing the path to the SSL key and certificate files in the"__furi.yaml__" server configuration file.
+
+You must declare the properties under the "__cert__" section as follows:
+
+### Using a SSL certificate
+
+Here is how you would start Furi with HTTPS:
+
+```yaml
+cert:
+  key: ./ssl/key.pem
+  cert: ./ssl/cert.pem
+```
+
+### Using a SSL certificate with a passphrase
+
+```yaml
+cert:
+  key:  ./ssl/key.pem
+  cert: ./ssl/cert.pem
+  passphrase: hello123
+```
+
+When Furi is running under HTTPS, it will shows in the log and startup message. You will see "__mode: https" under Server.
+
+```sh
+Furi Server (v0.8.0) started.
+Server  { mode: https, host: localhost, port: 3030, env: development }
+Runtime { deno: 2.2.4, v8: 13.4.114.11-rusty, typescript: 5.7.3 }
+Logger  { enabled: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+```
 
 ### Sample log output
 
