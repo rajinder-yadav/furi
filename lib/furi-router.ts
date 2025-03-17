@@ -592,10 +592,6 @@ export class FuriRouter {
     try {
       if (routeMap.staticRouteMap[URL]) {
         // Found direct match of static URI path.
-
-        if (staticRouteCallbacks.length === 0) { return; }
-
-        // Execute callback chain.
         return this.CallbackChainExecutor(applicationContext, callback_chain)();
 
       } else if (routeMap.namedRoutePartitionMap) {
@@ -617,7 +613,6 @@ export class FuriRouter {
             if (!namedRouteHandlers.useRegex && this.fastPathMatch(pathNames, namedRouteHandlers.pathNames, request) ||
               namedRouteHandlers.useRegex && this.regexPathMatch(URL, namedRouteHandlers, request)) {
               // LOG_DEBUG(`FuriRouter::processHTTPMethod params: ${JSON.stringify(request.params)}`);
-
               callback_chain = [...toplevelMiddlewareCallbacks, ...namedRouteHandlers.callbacks ?? []];
 
               if (namedRouteHandlers?.callbacks.length > 0) {
@@ -644,6 +639,25 @@ export class FuriRouter {
           return;
         }
       }
+      if (toplevelMiddlewareCallbacks) {
+        this.CallbackChainExecutor(applicationContext, toplevelMiddlewareCallbacks)();
+        // Check if request was processed and closed by a middleware.
+        // This might be the case if CORS preflight check was successful
+        if (!applicationContext.response.writable) {
+          return;
+        }
+      }
+      if (closeOnNotFound) {
+        LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
+        // response.statusCode = 404;
+        // response.statusMessage = 'Route not found';
+        response.writeHead(404, {
+          'Content-Type': 'text/plain',
+          'User-Agent': Furi.getApiVersion(),
+        });
+        response.end('Route not found');
+      }
+
     } catch (err) {
       LOG_ERROR('FuriRouter::processHTTPMethod Exception occured.');
       LOG_ERROR(`FuriRouter::processHTTPMethod Exception error: ${err}.`);
@@ -653,24 +667,6 @@ export class FuriRouter {
       });
       response.end('Internal Server Error.');
       return;
-    }
-    if (toplevelMiddlewareCallbacks) {
-      this.CallbackChainExecutor(applicationContext, toplevelMiddlewareCallbacks)();
-      // Check if request was processed and closed by a middleware.
-      // This might be the case if CORS preflight check was successful
-      if (!applicationContext.response.writable) {
-        return;
-      }
-    }
-    if (closeOnNotFound) {
-      LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
-      // response.statusCode = 404;
-      // response.statusMessage = 'Route not found';
-      response.writeHead(404, {
-        'Content-Type': 'text/plain',
-        'User-Agent': Furi.getApiVersion(),
-      });
-      response.end('Route not found');
     }
   }
 
