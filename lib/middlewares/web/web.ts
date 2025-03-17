@@ -8,6 +8,27 @@
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
+/**
+ * Web - Middleware to server Web pages and static files.
+ *
+ * TODO: Add caching support and pre-loading static file in memory
+ *       for optimized delivery.
+ *
+ * The recommended default directory structure, if no options are provided is:
+ *
+ * project-root/
+ *   |
+ *   +- index.html
+ *   +- public/ (put html files and directories with html files here)
+ *       |
+ *       +- resources/ (put static files here)
+ *           |
+ *           +- images/
+ *           +- css/
+ *           +- media/
+ *           +- fonts/
+ *
+ */
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
