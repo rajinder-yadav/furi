@@ -25,10 +25,11 @@ import {
   LOG_ERROR,
   LOG_INFO,
   LoggerMode,
-  LogLevels,
+  LogLevel,
   MapOf,
 } from './types.ts';
 
+import { Web, WebOptions } from './middlewares/web/web.ts';
 import { Cors, CorsOptions } from './middlewares/cors/cors.ts';
 import {
   BodyParserFn,
@@ -45,6 +46,7 @@ import { FastLogger } from './utils/fast-logger.ts';
 export * from './application-context.ts';
 export * from './furi-router.ts';
 export * from './middlewares/cors/cors.ts';
+export * from './middlewares/web/web.ts'
 export * from './types.ts';
 export * from './utils/http-cookies-store.ts';
 export * from './utils/time-period.ts';
@@ -87,6 +89,7 @@ export class Furi extends FuriRouter {
   static readonly JSONBodyParser: (options?: BodyParserOptions) => any = JSONBodyParserFn;
   static readonly UrlEncodedParser: (options?: BodyParserOptions) => any = UrlEncodedParserFn;
   static readonly Cors: (options?: CorsOptions) => any = Cors;
+  static readonly Web: (webOptions: WebOptions) => any = Web;
 
   protected server: Server | ServerSecure | null = null;
   protected properties: MapOf<any> = {};
@@ -110,7 +113,7 @@ export class Furi extends FuriRouter {
       logFile: 'furi.log',
       maxCount: 100,
       mode: 'stream' as const,
-      level: LogLevels.INFO,
+      level: LogLevel.INFO,
     },
   };
 
@@ -165,8 +168,8 @@ export class Furi extends FuriRouter {
             level
           );
         }
-        catch (err) {
-          LOG_ERROR(`Furi::constructor Failed to initialize FastLogger: ${err}`);
+        catch (error) {
+          LOG_ERROR(`Furi::constructor Failed to initialize FastLogger: ${error}`);
           Furi.fastLogger = null;
         }
 

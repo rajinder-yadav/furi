@@ -9,15 +9,15 @@ import {
   ApplicationContext,
   Furi,
   HttpCookiesStore,
-  HttpRequest,
-  HttpResponse,
+  FuriRequest,
+  FuriResponse,
   MapOf,
   QueryParamTypes,
 } from '../../lib/furi.ts';
 
 Deno.test("ApplicationContext: check for valid app object", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
@@ -26,8 +26,8 @@ Deno.test("ApplicationContext: check for valid app object", () => {
 });
 
 Deno.test("ApplicationContext::queryStringToObject simple", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
@@ -41,8 +41,8 @@ Deno.test("ApplicationContext::queryStringToObject simple", () => {
 });
 
 Deno.test("ApplicationContext::queryStringToObject not simple", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   httpRequest.query = new URLSearchParams('name=John&age=30&hobbies=reading,traveling');
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
@@ -56,8 +56,8 @@ Deno.test("ApplicationContext::queryStringToObject not simple", () => {
 });
 
 Deno.test("ApplicationContext::sessionState string values", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.sessionState("animal"));
@@ -76,8 +76,8 @@ Deno.test("ApplicationContext::sessionState string values", () => {
 });
 
 Deno.test("ApplicationContext::sessionState number values", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.sessionState("count"));
@@ -94,8 +94,8 @@ Deno.test("ApplicationContext::sessionState number values", () => {
 });
 
 Deno.test("ApplicationContext::sessionState update value", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.sessionState("count"));
@@ -107,16 +107,16 @@ Deno.test("ApplicationContext::sessionState update value", () => {
 });
 
 Deno.test("ApplicationContext::sessionState across calls", () => {
-  const httpRequest1 = new HttpRequest(new Socket());
-  const httpResponse1 = new HttpResponse(httpRequest1);
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
 
   const appContext1 = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
   assertFalse(appContext1.sessionState("count"));
   appContext1.sessionState("count", 12);
   assertEquals(appContext1.sessionState("count"), 12);
 
-  const httpRequest2 = new HttpRequest(new Socket());
-  const httpResponse2 = new HttpResponse(httpRequest1);
+  const httpRequest2 = new FuriRequest(new Socket());
+  const httpResponse2 = new FuriResponse(httpRequest1);
   const appContext2 = new ApplicationContext(Furi.appStore, httpRequest2, httpResponse2);
   assertNotEquals(appContext2.sessionState("count"), 12);
   assertFalse(appContext2.sessionState("count"));
@@ -124,8 +124,8 @@ Deno.test("ApplicationContext::sessionState across calls", () => {
 });
 
 Deno.test("ApplicationContext::storeState values", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.storeState("count"));
@@ -138,23 +138,23 @@ Deno.test("ApplicationContext::storeState values", () => {
 });
 
 Deno.test("ApplicationContext::storeState across calls", () => {
-  const httpRequest1 = new HttpRequest(new Socket());
-  const httpResponse1 = new HttpResponse(httpRequest1);
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
 
   const appContext1 = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
   assertFalse(appContext1.storeState("count2"));
   appContext1.storeState("count", 12);
   assertEquals(appContext1.storeState("count"), 12);
 
-  const httpRequest2 = new HttpRequest(new Socket());
-  const httpResponse2 = new HttpResponse(httpRequest1);
+  const httpRequest2 = new FuriRequest(new Socket());
+  const httpResponse2 = new FuriResponse(httpRequest1);
   const appContext2 = new ApplicationContext(Furi.appStore, httpRequest2, httpResponse2);
   assertEquals(appContext2.storeState("count"), 12);
 });
 
 Deno.test("ApplicationContext::cookies", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const ctx = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
 
   const store = new HttpCookiesStore();
@@ -167,8 +167,8 @@ Deno.test("ApplicationContext::cookies", () => {
 });
 
 Deno.test("ApplicationContext::requestHeader", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   // We need an initialized request headers for this test to pass.
   httpRequest.headers = {};
@@ -179,8 +179,8 @@ Deno.test("ApplicationContext::requestHeader", () => {
 });
 
 Deno.test("ApplicationContext::responseHeader", () => {
-  const httpRequest = new HttpRequest(new Socket());
-  const httpResponse = new HttpResponse(httpRequest);
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   appContext.responseHeader("content-type", "application/json");
   appContext.responseHeader("authorization", "Bearer token");

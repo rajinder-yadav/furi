@@ -13,10 +13,10 @@ import path from 'node:path';
 
 import {
   BaseRouterHandler,
-  HandlerFunction,
+  ContextHandler,
   HttpMapIndex,
-  HttpRequest,
-  HttpResponse,
+  FuriRequest,
+  FuriResponse,
   isTypeRouterConfig,
   LOG_ERROR,
   LOG_WARN,
@@ -73,8 +73,8 @@ export class FuriRouter {
     */
   use(router: FuriRouter): FuriRouter;
   use(uri: string, router: FuriRouter): FuriRouter;
-  use(...fn: HandlerFunction[]): FuriRouter;
-  use(uri: string, ...fn: HandlerFunction[]): FuriRouter;
+  use(...fn: ContextHandler[]): FuriRouter;
+  use(uri: string, ...fn: ContextHandler[]): FuriRouter;
   use(routes: RouterConfig): FuriRouter;
   use(uri: string, routes: RouterConfig): FuriRouter;
   use(): FuriRouter {
@@ -107,15 +107,15 @@ export class FuriRouter {
           // const ClassRef: HandlerFunction | HandlerFunction[] | RouterHanderConstructor<BaseRouterHandler>  = route.controller;
           const ClassRef: unknown = route.controller;
 
-          let handlers: HandlerFunction[] | null = null;
+          let handlers: ContextHandler[] | null = null;
           if (ClassRef && typeof ClassRef === 'function' && ClassRef.prototype instanceof BaseRouterHandler) {
             const ClassRouterHandlerRef: RouterHanderConstructor<BaseRouterHandler> = ClassRef as RouterHanderConstructor<BaseRouterHandler>;
-            handlers = [(new ClassRouterHandlerRef()).handle] as HandlerFunction[];
+            handlers = [(new ClassRouterHandlerRef()).handle] as ContextHandler[];
           }
           else if (Array.isArray(route.controller)) {
             handlers = route.controller;
           } else {
-            handlers = [route.controller] as HandlerFunction[];
+            handlers = [route.controller] as ContextHandler[];
           }
 
           const routePath = path.join(pathPrefix, route.path).replace(/\/$/, '');
@@ -184,7 +184,7 @@ export class FuriRouter {
     } else if (typeof arguments[0] === 'string') {
       // Route based middleware.
       const uri = arguments[0];
-      const callbacks: HandlerFunction[] = Array.from(arguments).slice(1);
+      const callbacks: ContextHandler[] = Array.from(arguments).slice(1);
       if (callbacks.length === 0) {
         throw new Error('FuriRouter::use No middleware callback function provided');
       }
@@ -202,7 +202,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  all(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  all(uri: string, ...fn: ContextHandler[]): FuriRouter {
     // Skip Middleware Map.
     if (fn.length === 0) {
       throw new Error('FuriRouter::all No callback function provided');
@@ -223,7 +223,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  get(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  get(uri: string, ...fn: ContextHandler[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('FuriRouter::get No callback function provided');
     }
@@ -237,7 +237,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  patch(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  patch(uri: string, ...fn: ContextHandler[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('FuriRouter::patch No callback function provided');
     }
@@ -251,7 +251,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  post(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  post(uri: string, ...fn: ContextHandler[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('FuriRouter::post No callback function provided');
     }
@@ -265,7 +265,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  put(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  put(uri: string, ...fn: ContextHandler[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('FuriRouter::put No callback function provided');
     }
@@ -279,7 +279,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  delete(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  delete(uri: string, ...fn: ContextHandler[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('FuriRouter::delete No callback function provided');
     }
@@ -293,7 +293,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  options(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  options(uri: string, ...fn: ContextHandler[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('FuriRouter::options No callback function provided');
     }
@@ -307,7 +307,7 @@ export class FuriRouter {
    * @param fn   Reference to callback functions of type RequestHandlerFunc.
    * @returns    Reference to self, allows method chaining.
    */
-  head(uri: string, ...fn: HandlerFunction[]): FuriRouter {
+  head(uri: string, ...fn: ContextHandler[]): FuriRouter {
     if (fn.length === 0) {
       throw new Error('FuriRouter::head No callback function provided');
     }
@@ -336,7 +336,7 @@ export class FuriRouter {
     response: ServerResponse<IncomingMessage>
   ): void {
     // LOG_DEBUG(`FuriRouter::dispatch ${request.method}, ${request.url}` );
-    const request = new HttpRequest(incomingMessage);
+    const request = new FuriRequest(incomingMessage);
 
     if (Furi.fastLogger) {
       Furi.fastLogger.info(`host: ${request.headers.host}, remote-ip: ${request.socket.remoteAddress}, remote-port: ${request.socket.remotePort}, http: ${request.httpVersion}, method: ${request.method}, url: ${request.url}`);
@@ -432,7 +432,7 @@ export class FuriRouter {
   protected regexPathMatch(
     uri: string,
     pk: { params: string[], key: string },
-    request: HttpRequest
+    request: FuriRequest
   ): boolean {
 
     if (!pk.params || !pk.key) {
@@ -465,7 +465,7 @@ export class FuriRouter {
   protected buildRequestMap(
     mapIndex: number,
     uri: string,
-    handlers: HandlerFunction[]
+    handlers: ContextHandler[]
   ): FuriRouter {
     // LOG_DEBUG(`FuriRouter::buildRequestMap mapIndex=${mapIndex}, uri=${uri}`);
 
@@ -476,7 +476,7 @@ export class FuriRouter {
      */
     const regexCheckStaticURL = /^\/?([~\w/.-]+)\/?$/;
     const useDirectLookup = regexCheckStaticURL.test(uri);
-    const callbacks: HandlerFunction[] = handlers.flat(Infinity);
+    const callbacks: ContextHandler[] = handlers.flat(Infinity);
     /**
      * Check if URI is a static path.
      */
@@ -522,7 +522,7 @@ export class FuriRouter {
   protected fastPathMatch(
     pathNames: string[],
     keyNames: string[],
-    request: HttpRequest
+    request: FuriRequest
   ): boolean {
     // LOG_DEBUG(`FuriRouter::fastPathMatch pathNames: ${pathNames}`);
     // LOG_DEBUG(`FuriRouter::fastPathMatch keyNames: ${keyNames}`);
@@ -556,8 +556,8 @@ export class FuriRouter {
    */
   protected processHTTPMethod(
     mapIndex: number,
-    request: HttpRequest,
-    response: HttpResponse,
+    request: FuriRequest,
+    response: FuriResponse,
     closeOnNotFound: boolean = true
   ): void {
 
@@ -587,7 +587,7 @@ export class FuriRouter {
     const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
     const toplevelMiddlewareCallbacks = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks ?? [];
     const staticRouteCallbacks = routeMap.staticRouteMap[URL]?.callbacks ?? [];
-    let callback_chain: HandlerFunction[] = [...toplevelMiddlewareCallbacks, ...staticRouteCallbacks];
+    let callback_chain: ContextHandler[] = [...toplevelMiddlewareCallbacks, ...staticRouteCallbacks];
 
     try {
       if (routeMap.staticRouteMap[URL]) {
@@ -606,10 +606,10 @@ export class FuriRouter {
         if (routeMap.namedRoutePartitionMap[bucket]) {
           if (!request.params) { request.params = {}; }
 
-          const namedRouteBuckers = routeMap.namedRoutePartitionMap[bucket];
-          if (!namedRouteBuckers || namedRouteBuckers?.length === 0) { return; }
+          const namedRouteBucket = routeMap.namedRoutePartitionMap[bucket];
+          if (!namedRouteBucket || namedRouteBucket?.length === 0) { return; }
 
-          for (const namedRouteHandlers of namedRouteBuckers) {
+          for (const namedRouteHandlers of namedRouteBucket) {
             if (!namedRouteHandlers.useRegex && this.fastPathMatch(pathNames, namedRouteHandlers.pathNames, request) ||
               namedRouteHandlers.useRegex && this.regexPathMatch(URL, namedRouteHandlers, request)) {
               // LOG_DEBUG(`FuriRouter::processHTTPMethod params: ${JSON.stringify(request.params)}`);
@@ -658,9 +658,9 @@ export class FuriRouter {
         response.end('Route not found');
       }
 
-    } catch (err) {
+    } catch (error) {
       LOG_ERROR('FuriRouter::processHTTPMethod Exception occured.');
-      LOG_ERROR(`FuriRouter::processHTTPMethod Exception error: ${err}.`);
+      LOG_ERROR(`FuriRouter::processHTTPMethod Exception error: ${error}.`);
       response.writeHead(500, {
         'Content-Type': 'text/plain',
         'User-Agent': Furi.getApiVersion(),
@@ -714,7 +714,7 @@ export class FuriRouter {
    */
   protected CallbackChainExecutor(
     applicationContext: ApplicationContext,
-    callbacks: HandlerFunction[]
+    callbacks: ContextHandler[]
   ): () => void {
     let callbackIndex = 0;
     return function NextCallback() {

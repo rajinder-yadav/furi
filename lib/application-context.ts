@@ -11,8 +11,8 @@
 // deno-lint-ignore-file no-explicit-any
 import { StoreState } from "./state.ts";
 import {
-  HttpRequest,
-  HttpResponse,
+  FuriRequest,
+  FuriResponse,
   MapOf,
   QueryParamTypes,
 } from './types.ts';
@@ -27,8 +27,8 @@ export class ApplicationContext {
 
   constructor(
     public appStore: StoreState,
-    public request: HttpRequest,
-    public response: HttpResponse
+    public request: FuriRequest,
+    public response: FuriResponse
   ) {
     // Init request session data.
     this.request.sessionData = {};

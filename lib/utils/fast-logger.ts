@@ -13,8 +13,8 @@ import { Worker } from 'node:worker_threads';
 
 import {
   LoggerMode,
-  LogLevels,
-  LogLevelsRank,
+  LogLevel,
+  LogLevelOrdinal,
   mapToLogLevelRank
 } from '../types.ts';
 
@@ -80,38 +80,38 @@ export class FastLogger {
   }
 
   debug(message: string | null) {
-    if (this.logLevelRank <= LogLevelsRank.DEBUG) {
-      this.worker.postMessage({ level: LogLevels.DEBUG, message });
+    if (this.logLevelRank <= LogLevelOrdinal.DEBUG) {
+      this.worker.postMessage({ level: LogLevel.DEBUG, message });
     }
   }
   info(message: string | null) {
-    if (this.logLevelRank <= LogLevelsRank.INFO) {
-      this.worker.postMessage({ level: LogLevels.INFO, message });
+    if (this.logLevelRank <= LogLevelOrdinal.INFO) {
+      this.worker.postMessage({ level: LogLevel.INFO, message });
     }
   }
   log(message: string | null) {
-    if (this.logLevelRank <= LogLevelsRank.LOG) {
-      this.worker.postMessage({ level: LogLevels.LOG, message });
+    if (this.logLevelRank <= LogLevelOrdinal.LOG) {
+      this.worker.postMessage({ level: LogLevel.LOG, message });
     }
   }
   warm(message: string | null) {
-    if (this.logLevelRank <= LogLevelsRank.WARN) {
-      this.worker.postMessage({ level: LogLevels.WARN, message });
+    if (this.logLevelRank <= LogLevelOrdinal.WARN) {
+      this.worker.postMessage({ level: LogLevel.WARN, message });
     }
   }
   error(message: string | null) {
-    if (this.logLevelRank <= LogLevelsRank.ERROR) {
-      this.worker.postMessage({ level: LogLevels.ERROR, message });
+    if (this.logLevelRank <= LogLevelOrdinal.ERROR) {
+      this.worker.postMessage({ level: LogLevel.ERROR, message });
     }
   }
   critical(message: string | null) {
-    if (this.logLevelRank <= LogLevelsRank.CRITICAL) {
-      this.worker.postMessage({ level: LogLevels.CRITICAL, message });
+    if (this.logLevelRank <= LogLevelOrdinal.CRITICAL) {
+      this.worker.postMessage({ level: LogLevel.CRITICAL, message });
     }
   }
   fatal(message: string | null) {
-    if (this.logLevelRank <= LogLevelsRank.FATAL) {
-      this.worker.postMessage({ level: LogLevels.FATAL, message });
+    if (this.logLevelRank <= LogLevelOrdinal.FATAL) {
+      this.worker.postMessage({ level: LogLevel.FATAL, message });
     }
   }
 }

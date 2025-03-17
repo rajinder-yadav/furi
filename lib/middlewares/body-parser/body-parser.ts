@@ -10,7 +10,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { ApplicationContext } from "../../application-context.ts";
-import { Middleware, HandlerFunction } from "../../types.ts";
+import { NextHandler, ContextHandler } from "../../types.ts";
 import { LOG_DEBUG, LOG_ERROR } from "../../furi.ts";
 
 export type BodyParserOptions = {
@@ -23,11 +23,11 @@ const DefaultLimitSize = 250 * 1024;
 /**
  * Middleware function to parse JSON, Urlencoded and Text bodies.
  * @param {ApplicationContext} ctx - The application context.
- * @param {Middleware} next - The next middleware function in the chain.
+ * @param {NextHandler} next - The next middleware function in the chain.
  * @returns {any}
  */
-export function BodyParserFn(bodyParserOptions?: BodyParserOptions): HandlerFunction {
-  return function BodyParserMiddleware(ctx: ApplicationContext, next: Middleware): any {
+export function BodyParserFn(bodyParserOptions?: BodyParserOptions): ContextHandler {
+  return function BodyParserMiddleware(ctx: ApplicationContext, next: NextHandler): any {
     const contentLength = ctx.request.headers['content-length'];
     const contentType = ctx.request.headers['content-type'];
 
@@ -94,11 +94,11 @@ export function BodyParserFn(bodyParserOptions?: BodyParserOptions): HandlerFunc
 /**
  * Middleware function to parse JSON bodies.
  * @param {ApplicationContext} ctx - The application context.
- * @param {Middleware} next - The next middleware function in the chain.
+ * @param {NextHandler} next - The next middleware function in the chain.
  * @returns {any}
  */
 export function JSONBodyParserFn(bodyParserOptions?: BodyParserOptions): any {
-  return function JSONBodyParserMiddleware(ctx: ApplicationContext, next: Middleware): any {
+  return function JSONBodyParserMiddleware(ctx: ApplicationContext, next: NextHandler): any {
     const contentLength = ctx.request.headers['content-length'];
     const contentType = ctx.request.headers['content-type'];
 
@@ -153,11 +153,11 @@ export function JSONBodyParserFn(bodyParserOptions?: BodyParserOptions): any {
 /**
  * Middleware function to parse UrlEncodedParserMiddleware bodies.
  * @param {ApplicationContext} ctx - The application context.
- * @param {Middleware} next - The next middleware function in the chain.
+ * @param {NextHandler} next - The next middleware function in the chain.
  * @returns {any}
  */
 export function UrlEncodedParserFn(bodyParserOptions?: BodyParserOptions): any {
-  return function UrlEncodedParserMiddleware(ctx: ApplicationContext, next: Middleware): any {
+  return function UrlEncodedParserMiddleware(ctx: ApplicationContext, next: NextHandler): any {
     const contentLength = ctx.request.headers['content-length'];
     const contentType = ctx.request.headers['content-type'];
 

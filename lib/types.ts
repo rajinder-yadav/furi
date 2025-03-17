@@ -46,7 +46,7 @@ export type QueryParamTypes = string | string[] | number;
 /**
  * Middleware function signature..
  */
-export type Middleware = () => void;
+export type NextHandler = () => void;
 
 /**
  * Function prototype for Request Handler callback function.
@@ -58,13 +58,13 @@ export type Middleware = () => void;
  * When multiple request handlers are passed in as an array,
  * any one may return false to prevent the remaining handlers from getting executed.
  */
-export type HandlerFunction = (ctx: ApplicationContext, next: Middleware) => any;
+export type ContextHandler = (ctx: ApplicationContext, next: NextHandler) => any;
 
 /**
  * Static route handler callback functions.
  */
 export interface StaticRouteCallback {
-  callbacks: HandlerFunction[]; // Handler callback functions for associated URI.
+  callbacks: ContextHandler[]; // Handler callback functions for associated URI.
 }
 
 /**
@@ -78,11 +78,11 @@ export interface StaticRouteCallback {
  * @see fastPathMatch for how the path is matched against 'pathNames'.
  */
 export interface NamedRouteCallback {
-  useRegex: boolean;            // Use regex for path matching.
-  pathNames: string[];          // Path segment names.
-  key: string;                  // RegEx URI string.
-  params: string[];             // URI named segments.
-  callbacks: HandlerFunction[]; // Handler callback functions for associated URI.
+  useRegex: boolean;           // Use regex for path matching.
+  pathNames: string[];         // Path segment names.
+  key: string;                 // RegEx URI string.
+  params: string[];            // URI named segments.
+  callbacks: ContextHandler[]; // Handler callback functions for associated URI.
 }
 
 /**
@@ -118,7 +118,7 @@ export const HttpMapIndex = {
 /**
  * Log level string litaral values for log messages and configuration.
  */
-export const LogLevels = {
+export const LogLevel = {
   DEBUG: 'DEBUG',
   INFO: 'INFO',
   LOG: 'LOG',
@@ -131,7 +131,7 @@ export const LogLevels = {
 /**
  * Log level ordinal values use for filtering log messages.
  */
-export const LogLevelsRank = {
+export const LogLevelOrdinal = {
   DEBUG: 0,
   INFO: 1,
   LOG: 2,
@@ -150,29 +150,29 @@ export const LogLevelsRank = {
 export function mapToLogLevelRank(logLevel: string): number {
   switch (logLevel.toUpperCase()) {
     case 'DEBUG':
-      return LogLevelsRank.DEBUG;
+      return LogLevelOrdinal.DEBUG;
     case 'INFO':
-      return LogLevelsRank.INFO;
+      return LogLevelOrdinal.INFO;
     case 'LOG':
-      return LogLevelsRank.LOG;
+      return LogLevelOrdinal.LOG;
     case 'WARN':
-      return LogLevelsRank.WARN;
+      return LogLevelOrdinal.WARN;
     case 'ERROR':
-      return LogLevelsRank.ERROR;
+      return LogLevelOrdinal.ERROR;
     case 'CRITICAL':
-      return LogLevelsRank.CRITICAL;
+      return LogLevelOrdinal.CRITICAL;
     case 'FATAL':
-      return LogLevelsRank.FATAL;
+      return LogLevelOrdinal.FATAL;
     default:
       LOG_ERROR(`mapToLogLevelRank Invalid log level: ${logLevel}, defaulting to LOG level.`);
-      return LogLevelsRank.LOG;
+      return LogLevelOrdinal.LOG;
   }
 }
 
 /**
  * HTTP Request object extending Node.js IncomingMessage.
  */
-export class HttpRequest extends IncomingMessage {
+export class FuriRequest extends IncomingMessage {
   public params: MapOf<string | number> = {};
   public query: URLSearchParams | null = null;
   public sessionData: MapOf<any> = {};
@@ -195,7 +195,7 @@ export class HttpRequest extends IncomingMessage {
 /**
  * HTTP Response object extending Node.js ServerResponse.
  */
-export class HttpResponse extends ServerResponse<IncomingMessage> {
+export class FuriResponse extends ServerResponse<IncomingMessage> {
 }
 
 /**
@@ -234,7 +234,7 @@ export interface FuriConfig {
  * Base class for Class based router handlers.
  */
 export abstract class BaseRouterHandler {
-  abstract handle(ctx: ApplicationContext, next: Middleware): any;
+  abstract handle(ctx: ApplicationContext, next: NextHandler): any;
 }
 
 /**
@@ -245,19 +245,19 @@ export type RouterHanderConstructor<T> = {
 };
 
 /**
- * Router reuqest handler definition.
+ * Router request handler definition.
  */
 export type Route = {
   path: string;
   method: string;
-  controller: HandlerFunction | HandlerFunction[] | RouterHanderConstructor<BaseRouterHandler>;
+  controller: ContextHandler | ContextHandler[] | RouterHanderConstructor<BaseRouterHandler>;
 };
 
 /**
  * Router configuration.
  */
 export type RouterConfig = {
-  middleware?: HandlerFunction[];
+  middleware?: ContextHandler[];
   routes?: Route[];
 };
 /**
@@ -289,7 +289,7 @@ export function isTypeRouterConfig(value: unknown): value is RouterConfig {
  * @param ClassRef
  * @returns handler function bound to instace of the class.
  */
-export function ClassHandler(ClassRef: unknown): HandlerFunction | null {
+export function ClassHandler(ClassRef: unknown): ContextHandler | null {
   if (ClassRef && typeof ClassRef === 'function' && ClassRef.prototype instanceof BaseRouterHandler) {
     const ClassRouterHandlerRef: RouterHanderConstructor<BaseRouterHandler> = ClassRef as RouterHanderConstructor<BaseRouterHandler>;
     const instanceRef = new ClassRouterHandlerRef();

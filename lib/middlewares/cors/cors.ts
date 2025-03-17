@@ -33,7 +33,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { ApplicationContext } from "../../application-context.ts";
-import { Middleware, HandlerFunction } from "../../types.ts";
+import { NextHandler, ContextHandler } from "../../types.ts";
 import { LOG_DEBUG } from "../../furi.ts";
 
 /**
@@ -51,10 +51,10 @@ export type CorsOptions = {
  * CORS middleware function.
  * @param ctx - The application context.
  * @param options  CORS options
- * @returns
+ * @returns Middleware function to handle CORS.
  */
-export function Cors(options?: CorsOptions): HandlerFunction {
-  return function CorsMiddleware(ctx: ApplicationContext, next: Middleware): any {
+export function Cors(options?: CorsOptions): ContextHandler {
+  return function CorsMiddleware(ctx: ApplicationContext, next: NextHandler): any {
     // LOG_DEBUG('CorsMiddleware enter');
     const allowedOrigins: string | string[] = options?.origin ?? '*';
     const allowedMethods: string[] = options?.methods ?? ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
