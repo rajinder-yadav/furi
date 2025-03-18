@@ -9,13 +9,18 @@
  */
 
 // deno-lint-ignore-file no-explicit-any
+import { Furi } from './furi.ts'
 import { StoreState } from "./state.ts";
 import {
   FuriRequest,
   FuriResponse,
   MapOf,
   QueryParamTypes,
+  // LOG_DEBUG,
+  LOG_ERROR,
+  LOG_WARN,
 } from './types.ts';
+
 
 /**
  * An initialized Application Context object is passed to
@@ -25,14 +30,16 @@ import {
  */
 export class ApplicationContext {
   /**
-   * This flag determines whether the application or middleware is running in async operation.
-   * If true, then do not close the response prematurely in the router.
+   * asyncResponseTimerId
    *
-   * For the middleware, set this flase to true when an asynchrouous operation is being performed.
+   * This flag determines whether the application or middleware is running in async operation.
+   * If non-null, then do not close the response prematurely in the router.
+   *
+   * For the middleware, call startAsyncResponseTimer(timeoutInMillisecond) when an asynchrouous operation is started..
    *
    * TODO: Maybe add a timeout for async operations?
    */
-  middlewareInAsyncMode = false;
+  asyncResponseTimerId: number | null = null;
 
   constructor(
     public appStore: StoreState,
@@ -41,6 +48,48 @@ export class ApplicationContext {
   ) {
     // Init request session data.
     this.request.sessionData = {};
+  }
+
+  /**
+   * Starts a one-shot timer to to close the reponse with a HTTP 408 error.
+   * This is useful for middleware that performs an asynchronous operation
+   * and needs to ensure the response is not prematurely closed, or hangs.
+   *
+   * @param timeout in milliseconds.
+   * @returns None.
+   */
+  startAsyncResponseTimer(timeout?: number): void {
+    if (this.asyncResponseTimerId) { return; }
+
+    // Default to 1.5 seconds if no value is provided.
+    const timeoutValue = timeout || 1500;
+    // LOG_DEBUG(`ApplicationContext::startAsyncResponseTimer starting async response timer for ${timeoutValue} ms.`);
+
+    this.asyncResponseTimerId = setTimeout(() => {
+      this.asyncResponseTimerId = null;
+      if (this.response.writable) {
+        this.response.writeHead(408, {
+          'Content-Type': 'text/plain',
+          'User-Agent': Furi.getApiVersion(),
+        });
+        this.response.end('Response timed out. Please try again later.');
+        // LOG_DEBUG(`ApplicationContext::startAsyncResponseTimer Middlesware async operation timed out after ${timeoutValue} ms. Closed response.`);
+      }
+    }, timeoutValue);
+  }
+
+  /**
+   * Stop and clear the async response timer. Make this
+   * call when the async operation is complete to prevent
+   * indeterminate response behavior.
+   */
+  stopAsyncResponseTimer(): void {
+    // LOG_DEBUG(`ApplicationContext::stopAsyncResponseTimer called.`);
+    if (this.asyncResponseTimerId) {
+      clearTimeout(this.asyncResponseTimerId);
+      this.asyncResponseTimerId = null;
+      // LOG_DEBUG(`ApplicationContext::stopAsyncResponseTimer cleared async response timer.`);
+    }
   }
 
   /**
