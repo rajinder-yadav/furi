@@ -621,33 +621,16 @@ export class FuriRouter {
               }
             }
           } // for
-        } else if (closeOnNotFound) {
-          if (toplevelMiddlewareCallbacks) {
-            this.CallbackChainExecutor(applicationContext, toplevelMiddlewareCallbacks)();
-            // Check if request was processed and closed by a middleware.
-            // This might be the case if CORS preflight check was successful
-            if (!applicationContext.response.writable) {
-              return;
-            }
-          }
-          LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
-          response.writeHead(404, {
-            'Content-Type': 'text/plain',
-            'User-Agent': Furi.getApiVersion(),
-          });
-          response.end('Route not found');
-          return;
         }
       }
+
+
       if (toplevelMiddlewareCallbacks) {
         this.CallbackChainExecutor(applicationContext, toplevelMiddlewareCallbacks)();
-        // Check if request was processed and closed by a middleware.
-        // This might be the case if CORS preflight check was successful
-        if (!applicationContext.response.writable) {
-          return;
-        }
       }
-      if (closeOnNotFound) {
+      // Check if request was processed and closed by a middleware.
+      // This might be the case if CORS preflight check was successful
+      if (closeOnNotFound && applicationContext.response.writable) {
         LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
         // response.statusCode = 404;
         // response.statusMessage = 'Route not found';
@@ -668,6 +651,7 @@ export class FuriRouter {
       response.end('Internal Server Error.');
       return;
     }
+
   }
 
   /**
