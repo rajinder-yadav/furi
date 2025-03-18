@@ -34,7 +34,6 @@ import mime from 'mime-types';
 import path from 'node:path';
 import process from 'node:process';
 import zlib from 'node:zlib';
-import { OutgoingHttpHeaders } from 'node:http';
 
 import { ApplicationContext } from '../../application-context.ts';
 import { NextHandler, ContextHandler } from '../../types.ts';
@@ -78,7 +77,7 @@ export function Web(webOptions?: WebOptions): ContextHandler {
       media: '/public/resources/media',
       fonts: '/public/resources/fonts',
       enableCaching: false,
-      enableCompression: false,
+      enableCompression: true,
     };
   } else {
     // Set default values for missing options.
@@ -89,62 +88,98 @@ export function Web(webOptions?: WebOptions): ContextHandler {
     webOptions.css = webOptions.css ?? path.join(webOptions.resources, 'css');
     webOptions.media = webOptions.media ?? path.join(webOptions.resources, 'media');
     webOptions.enableCaching = webOptions.enableCaching ?? false;
-    webOptions.enableCompression = webOptions.enableCompression ?? false;
+    webOptions.enableCompression = webOptions.enableCompression ?? true;
   }
 
   return function WebMiddleware(ctx: ApplicationContext, next: NextHandler): any {
     LOG_DEBUG('Middleware::Web enter');
     try {
       const url = ctx.request.url ?? '/';
+      const br = zlib.createBrotliCompress();
       const gzip = zlib.createGzip();
-      const supportsCompression = ctx.request.headers['accept-encoding']?.includes('gzip');
-      const outgoingHeaders: OutgoingHttpHeaders = {};
+      const brCompression = ctx.request.headers['accept-encoding']?.includes('br');
+      const gzipCompression = ctx.request.headers['accept-encoding']?.includes('gzip');
       if (ctx.request.method === 'GET') {
         /**
          * Serve the landing page.
          */
         let fileName: string | null = null;
+        const mimeType = mime.lookup(path.extname(url));
 
         LOG_DEBUG(`Middleware::Web url ${url}`)
         if (url === '/' || url === '/index.html') {
-          LOG_DEBUG(`Middleware::Web url ${url}`);
-          outgoingHeaders['Content-Type'] = 'text/html; charset=utf-8';
+          ctx.response.setHeader('Content-Type', 'text/html; charset=utf-8');
           fileName = path.join(
             cwd,
             webOptions.base!,
             webOptions.web!,
-            'login.html'
+            'index.html'
           );
-        } else {
-          outgoingHeaders['Content-Type'] = mime.contentType(path.extname(url)) ?? 'application/octet-stream';
+        } else if (mimeType) {
+          ctx.response.setHeader(
+            'Content-Type',
+            mime.contentType(mimeType) ?? 'application/octet-stream'
+          );
           fileName = path.join(
             cwd,
             webOptions.base!,
             webOptions.web!,
-            url,
+            url
           );
         }
-        LOG_DEBUG(`Middleware::Web reading file: ${fileName}`);
 
-        const staticFile = fs.readFileSync(fileName, 'utf8');
+        LOG_DEBUG(`Middleware::Web filename: ${fileName}`);
 
-        if (webOptions.enableCompression && supportsCompression) {
-          outgoingHeaders['Content-Encoding'] = 'gzip';
-          ctx.response.writeHead(200, outgoingHeaders);
-          gzip.pipe(ctx.response);
-          gzip.write(staticFile);
-          gzip.end();
-          LOG_DEBUG(`Middleware::Web sending gzipped response.`);
+        if (!fileName || !fs.existsSync(fileName) || !fs.statSync(fileName).isFile()) {
+          ctx.middlewareInAsyncMode = false;
+          LOG_DEBUG(`Middleware::Web file not found: ${url}, fallback to rest mode.`);
+          return next();
+        }
+
+        if (webOptions.enableCompression && brCompression) {
+          LOG_DEBUG(`Middleware::Web starting brotli compressed file streaming.`);
+          ctx.middlewareInAsyncMode = true;
+          ctx.response.setHeader('Content-Encoding', 'br');
+          ctx.response.statusCode = 200;
+
+          const readStream = fs.createReadStream(fileName);
+          const stream = readStream.pipe(br).pipe(ctx.response);
+
+          stream.on('finish', () => {
+            LOG_DEBUG(`Middleware::Web sent brotli compressed file response.`);
+          });
+        } else if (webOptions.enableCompression && gzipCompression) {
+          LOG_DEBUG(`Middleware::Web starting gzip compressed file streaming.`);
+          ctx.middlewareInAsyncMode = true;
+          ctx.response.setHeader('Content-Encoding', 'gzip');
+          ctx.response.statusCode = 200;
+
+          const readStream = fs.createReadStream(fileName);
+          const stream = readStream.pipe(gzip).pipe(ctx.response);
+
+          stream.on('finish', () => {
+            LOG_DEBUG(`Middleware::Web sent gzip compressed file response.`);
+            // Reset async mode flag, since the operation has completed.
+            ctx.middlewareInAsyncMode = false;
+          });
         } else {
-          ctx.response.writeHead(200, outgoingHeaders);
+          LOG_DEBUG(`Middleware::Web reading file: ${fileName}`);
+          const staticFile = fs.readFileSync(fileName, 'utf8');
+          ctx.response.statusCode = 200;
           ctx.end(staticFile);
+          LOG_DEBUG(`Middleware::Web sent uncompressed file response.`);
         }
         return;
       }
     } catch (error) {
+      LOG_ERROR(`Middleware::Web exception caught, error: ${error}`);
+      // Reset async mode flag.
+      ctx.middlewareInAsyncMode = false;
+
+      // TODO: Should we end the response here?
       ctx.response.writeHead(404, { 'Content-Type': 'text/html' });
       ctx.response.end();
-      LOG_ERROR(`Middleware::Web exception caught, error: ${error}`);
+      return;
     }
     LOG_DEBUG('Middleware::Web exit');
     next();
