@@ -2,16 +2,23 @@
 
 The following tools, technologies and software was used in the development of FURI.
 
-## Code dependencies
+## Core dependencies
 
 These are the direct dependencies that impact the source code.
 
 Item | Version | Description
 --- | --- | ---
 TypeScript | 5.7.3 | A superset of JavaScript that adds static typing and other features to the language.
+node | 22 LTS | Node.js core APIs.
 yaml | 2.7.0 | A library for parsing YAML used to read FURI configuration file.
 @deno/dnt | 0.41.3 | A tool for building NPM packages.
 @std/assert | 1.0.11 | Deno standard library for assertions, used in test code.
+
+## Web middleware dependencies
+
+Item | Version | Description
+--- | --- | ---
+mime-types|2.1.35| The ultimate javascript content-type utility.
 
 ## Runtime dependencies
 
