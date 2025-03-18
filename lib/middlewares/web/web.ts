@@ -116,9 +116,11 @@ export function Web(webOptions?: WebOptions): ContextHandler {
             'index.html'
           );
         } else if (mimeType) {
+          const contentType = mime.contentType(mimeType);
+
           ctx.response.setHeader(
             'Content-Type',
-            mime.contentType(mimeType) ?? 'application/octet-stream'
+            contentType ? contentType : 'application/octet-stream'
           );
           fileName = path.join(
             cwd,
