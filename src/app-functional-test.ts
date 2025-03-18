@@ -33,6 +33,7 @@ furi.preShutdown(() => {
 
 furi.use(Furi.Cors());
 furi.use(Furi.BodyParser());
+// furi.use(Furi.Web({base: 'web'}));
 
 furi.post("/body", (ctx: ApplicationContext) => {
   console.log(`body >>> ${JSON.stringify(ctx.appStore.storeState('body'))}`);
