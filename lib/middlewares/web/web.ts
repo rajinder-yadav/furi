@@ -30,8 +30,11 @@
  *
  */
 import fs from 'node:fs';
+import mime from 'mime-types';
 import path from 'node:path';
 import process from 'node:process';
+import zlib from 'node:zlib';
+import { OutgoingHttpHeaders } from 'node:http';
 
 import { ApplicationContext } from '../../application-context.ts';
 import { NextHandler, ContextHandler } from '../../types.ts';
@@ -52,6 +55,8 @@ export type WebOptions = {
   css?: string;
   media?: string;
   fonts?: string;
+  enableCaching?: boolean;
+  enableCompression?: boolean;
 };
 
 /**
@@ -72,6 +77,8 @@ export function Web(webOptions?: WebOptions): ContextHandler {
       css: '/public/resources/css',
       media: '/public/resources/media',
       fonts: '/public/resources/fonts',
+      enableCaching: false,
+      enableCompression: false,
     };
   } else {
     // Set default values for missing options.
@@ -81,48 +88,58 @@ export function Web(webOptions?: WebOptions): ContextHandler {
     webOptions.images = webOptions.images ?? path.join(webOptions.resources, 'images');
     webOptions.css = webOptions.css ?? path.join(webOptions.resources, 'css');
     webOptions.media = webOptions.media ?? path.join(webOptions.resources, 'media');
+    webOptions.enableCaching = webOptions.enableCaching ?? false;
+    webOptions.enableCompression = webOptions.enableCompression ?? false;
   }
 
   return function WebMiddleware(ctx: ApplicationContext, next: NextHandler): any {
     LOG_DEBUG('Middleware::Web enter');
     try {
       const url = ctx.request.url ?? '/';
-
+      const gzip = zlib.createGzip();
+      const supportsCompression = ctx.request.headers['accept-encoding']?.includes('gzip');
+      const outgoingHeaders: OutgoingHttpHeaders = {};
       if (ctx.request.method === 'GET') {
         /**
          * Serve the landing page.
          */
+        let fileName: string | null = null;
+
+        LOG_DEBUG(`Middleware::Web url ${url}`)
         if (url === '/' || url === '/index.html') {
           LOG_DEBUG(`Middleware::Web url ${url}`);
-          const fileName = path.join(
+          outgoingHeaders['Content-Type'] = 'text/html; charset=utf-8';
+          fileName = path.join(
             cwd,
             webOptions.base!,
             webOptions.web!,
-            'index.html'
+            'login.html'
           );
-          LOG_DEBUG(`Middleware::Web attempting to read file: ${fileName}`);
-
-          const staticFile = fs.readFileSync(fileName, 'utf8');
-          ctx.response.writeHead(200, { 'Content-Type': 'text/html' });
-          ctx.end(staticFile);
-          return;
+        } else {
+          outgoingHeaders['Content-Type'] = mime.contentType(path.extname(url)) ?? 'application/octet-stream';
+          fileName = path.join(
+            cwd,
+            webOptions.base!,
+            webOptions.web!,
+            url,
+          );
         }
-
-        /**
-         * Server the requested static file.
-        */
-        const fileName = path.join(
-          cwd,
-          webOptions.base!,
-          webOptions.web!,
-          url,
-        );
-        LOG_DEBUG(`Middleware::Web attempting to read file: ${fileName}`);
+        LOG_DEBUG(`Middleware::Web reading file: ${fileName}`);
 
         const staticFile = fs.readFileSync(fileName, 'utf8');
-        ctx.response.writeHead(200, { 'Content-Type': 'text/html' });
-        ctx.end(staticFile);
-        LOG_DEBUG(`Middleware::Web server file: ${fileName}`);
+
+        if (webOptions.enableCompression && supportsCompression) {
+          outgoingHeaders['Content-Encoding'] = 'gzip';
+          ctx.response.writeHead(200, outgoingHeaders);
+          gzip.pipe(ctx.response);
+          gzip.write(staticFile);
+          gzip.end();
+          LOG_DEBUG(`Middleware::Web sending gzipped response.`);
+        } else {
+          ctx.response.writeHead(200, outgoingHeaders);
+          ctx.end(staticFile);
+        }
+        return;
       }
     } catch (error) {
       ctx.response.writeHead(404, { 'Content-Type': 'text/html' });
