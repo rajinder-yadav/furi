@@ -24,6 +24,15 @@ import {
  * It also helps manage application state and session state.
  */
 export class ApplicationContext {
+  /**
+   * This flag determines whether the application or middleware is running in async operation.
+   * If true, then do not close the response prematurely in the router.
+   *
+   * For the middleware, set this flase to true when an asynchrouous operation is being performed.
+   *
+   * TODO: Maybe add a timeout for async operations?
+   */
+  middlewareInAsyncMode = false;
 
   constructor(
     public appStore: StoreState,
