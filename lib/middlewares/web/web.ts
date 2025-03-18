@@ -29,6 +29,18 @@
  *           +- fonts/
  *
  */
+
+/**
+ * ====================================================================================================
+ * DEVELOPER NOTES:
+ *
+ * This middleware uses a steam and pipes to read and servecompresses the file.
+ * Since this operation is asynchronous, you MUST call startAsyncResponseTimer(time-out-ms)
+ * on the ApplicationContext object "ctx". This will tell the router not to prematurely close
+ * the connection and respond with a "Route not found", 404 HTTP status error.
+ * The reponse will automatically close with a HTTP 408 error, if the timer expires before
+ * the file has been read, compressed and sent out.
+ * ====================================================================================================*/
 import fs from 'node:fs';
 import mime from 'mime-types';
 import path from 'node:path';
@@ -133,36 +145,37 @@ export function Web(webOptions?: WebOptions): ContextHandler {
         // LOG_DEBUG(`Middleware::Web filename: ${fileName}`);
 
         if (!fileName || !fs.existsSync(fileName) || !fs.statSync(fileName).isFile()) {
-          ctx.middlewareInAsyncMode = false;
           // LOG_DEBUG(`Middleware::Web file not found: ${url}, fallback to rest mode.`);
           return next();
         }
 
         if (webOptions.enableCompression && brCompression) {
           // LOG_DEBUG(`Middleware::Web starting brotli compressed file streaming.`);
-          ctx.middlewareInAsyncMode = true;
           ctx.response.setHeader('Content-Encoding', 'br');
           ctx.response.statusCode = 200;
 
+          ctx.startAsyncResponseTimer();
           const readStream = fs.createReadStream(fileName);
           const stream = readStream.pipe(br).pipe(ctx.response);
 
           stream.on('finish', () => {
             // LOG_DEBUG(`Middleware::Web sent brotli compressed file response.`);
+            // Reset async mode flag, since the operation has completed.
+            ctx.stopAsyncResponseTimer();
           });
         } else if (webOptions.enableCompression && gzipCompression) {
           // LOG_DEBUG(`Middleware::Web starting gzip compressed file streaming.`);
-          ctx.middlewareInAsyncMode = true;
           ctx.response.setHeader('Content-Encoding', 'gzip');
           ctx.response.statusCode = 200;
 
+          ctx.startAsyncResponseTimer();
           const readStream = fs.createReadStream(fileName);
           const stream = readStream.pipe(gzip).pipe(ctx.response);
 
           stream.on('finish', () => {
             // LOG_DEBUG(`Middleware::Web sent gzip compressed file response.`);
             // Reset async mode flag, since the operation has completed.
-            ctx.middlewareInAsyncMode = false;
+            ctx.stopAsyncResponseTimer();
           });
         } else {
           // LOG_DEBUG(`Middleware::Web reading file: ${fileName}`);
@@ -175,12 +188,14 @@ export function Web(webOptions?: WebOptions): ContextHandler {
       }
     } catch (error) {
       LOG_ERROR(`Middleware::Web exception caught, error: ${error}`);
-      // Reset async mode flag.
-      ctx.middlewareInAsyncMode = false;
+      // Reset async response mode.
+      ctx.stopAsyncResponseTimer();
 
       // TODO: Should we end the response here?
-      ctx.response.writeHead(404, { 'Content-Type': 'text/html' });
-      ctx.response.end();
+      if (ctx.response.writable) {
+        ctx.response.writeHead(404, { 'Content-Type': 'text/html' });
+        ctx.response.end();
+      }
       return;
     }
     // LOG_DEBUG('Middleware::Web exit');
