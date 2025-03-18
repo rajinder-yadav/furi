@@ -2,6 +2,12 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.10.0 (2025-03-18)
+
+- feat: Application context class, added time out method to deal with async operation.
+- Now an asynchronous operation in a middleware will get timedout.
+- Updated router to check timeout timer id before closing a response.
+
 ## v0.9.0 (2025-03-18)
 
 - Fix, Web middleware not working correctly.
