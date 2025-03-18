@@ -2,6 +2,21 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.9.0 (2025-03-18)
+
+- Fix, Web middleware not working correctly.
+- Feat, Web middleware support compression for Brotli and Gzip.
+- Feat, Web middleware correctly check mime-types, and set header for content-type.
+- Feat, added async support in router code.
+- Refactor, clean up and code block move in router code.
+
+## v0.8.0 (2025-03-17)
+
+- Revised benchmark results, all run with JaaScript code and Node.js v22.14.0.
+- Feat, added web page support for the web server with a new middleware.
+- Refactor, clean up and code block move in router code.
+- This release contains an initial Web middleware to server web pages.
+
 ## v0.7.0 (2025-03-16)
 
 - Added HTTPS support to the server.

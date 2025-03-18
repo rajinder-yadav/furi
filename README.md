@@ -19,6 +19,7 @@
     - [Use a router to declare routes](#use-a-router-to-declare-routes)
     - [Mounting top-level middlewares](#mounting-top-level-middlewares)
     - [Declaring route based middlewares](#declaring-route-based-middlewares)
+  - [Supported middlewares](#supported-middlewares)
   - [Array based routing](#array-based-routing)
     - [Declaring a Handler Class](#declaring-a-handler-class)
     - [Declaring top-level middleware](#declaring-top-level-middleware)
@@ -60,7 +61,6 @@ Furi will keep simple things simple and make hard things easier without breaking
 
 Furi is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
 
-
 ## BOM - Bill of Material
 
 The following tools, technologies and software was used in the development of Furi (v0.1.4).
@@ -68,7 +68,9 @@ The following tools, technologies and software was used in the development of Fu
 Item | Version | Description
 --- | --- | ---
 TypeScript | 5.7.3 | A super-set of JavaScript that adds static typing and other features to the language.
+node | 22 LTS | Node.js core APIs.
 yaml | 2.7.0 | A library for parsing YAML used to read Furi configuration file.
+mime-types|2.1.35| The ultimate javascript content-type utility.
 @deno/dnt | 0.41.3 | A tool for building NPM packages.
 @std/assert | 1.0.11 | Deno standard library for assertions, used in test code.
 Deno | 2.2.1 | A runtime environment for JavaScript that aims to be secure and fast.
@@ -239,6 +241,16 @@ router.get('/home', (ctx: ApplicationContext, next: Middleware) => {
   ctx.end('<p>Welcome to the home page.</p>\n');
 });
 ```
+
+## Supported middlewares
+
+Furi currently support the following core middlewares:
+
+1. Body parser
+2. Cors
+3. Web
+
+Documentation forth comming once I have time to write it.
 
 ## Array based routing
 
