@@ -83,10 +83,10 @@ export class HttpCookiesStore {
    *
    * @returns - Current this reference to HttpCookiesStore instance.
    */
-  delete(name: string): HttpCookiesStore {
+  delete(name: string): HttpCookiesStore | null {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::delete Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     this.cookies[name].options!['Max-Age'] = 0;
     return this;
@@ -107,7 +107,7 @@ export class HttpCookiesStore {
   expires(name: string, value?: unknown): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::expires Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value === undefined) {
       return this.cookies[name].options!['Expires'] as string;
@@ -134,7 +134,7 @@ export class HttpCookiesStore {
   maxAge(name: string, value?: number): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::maxAge Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       this.cookies[name].options!['Max-Age'] = value;
@@ -155,7 +155,7 @@ export class HttpCookiesStore {
   domain(name: string, value?: string): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::domain Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       this.cookies[name].options!['Domain'] = value;
@@ -176,7 +176,7 @@ export class HttpCookiesStore {
   firstPartyDomain(name: string, value?: string): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::firstPartyDomain Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       this.cookies[name].options!['firstPartyDomain'] = value;
@@ -197,7 +197,7 @@ export class HttpCookiesStore {
   httpOnly(name: string, value?: boolean): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::httpOnly Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       this.cookies[name].options!['HttpOnly'] = value;
@@ -218,7 +218,7 @@ export class HttpCookiesStore {
   path(name: string, value?: string): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::path Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       this.cookies[name].options!['Path'] = value;
@@ -239,7 +239,7 @@ export class HttpCookiesStore {
   secure(name: string, value?: boolean): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::secure Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       this.cookies[name].options!['Secure'] = value;
@@ -261,7 +261,7 @@ export class HttpCookiesStore {
   session(name: string, value?: string): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::session Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       this.cookies[name].options!['sessionId'] = value;
@@ -282,7 +282,7 @@ export class HttpCookiesStore {
   sameSite(name: string, value?: SameSiteValues): any {
     if (!this.cookies[name]) {
       LOG_ERROR(`HttpCookiesStore::sameSite Cookie ${name} does not exist`);
-      return this;
+      return null;
     }
     if (value) {
       if (this.isSiteValue(value)) {
@@ -317,6 +317,7 @@ export class HttpCookiesStore {
     if (value && options) {
       if (options['SameSite'] && !this.isSiteValue(options['SameSite'] as SameSiteValues)) {
         LOG_ERROR(`HttpCookiesStore::cookie cookies ${name} does not exist`);
+        return null;
       }
       this.cookies[name] = { value, options };
     }
@@ -328,6 +329,7 @@ export class HttpCookiesStore {
     }
     else {
       LOG_ERROR(`HttpCookiesStore::cookie cookies ${name} does not exist`);
+      return null;
     }
     return this;
   }
@@ -444,7 +446,7 @@ export class HttpCookiesStore {
    * Set the response header with all cookies in the store.
    */
   setCookies(ctx: ApplicationContext): void {
-    ctx.response.setHeader('Set-Cookie', this.generateCookieHeaders())
+    ctx.response.setHeader('Set-Cookie', this.generateCookieHeaders());
   }
 
   /**
@@ -453,11 +455,12 @@ export class HttpCookiesStore {
    * @param secret String value.
    * @returns - Current this reference to HttpCookiesStore instance.
    */
-  sign(name: string, secret: string): HttpCookiesStore {
+  sign(name: string, secret: string): HttpCookiesStore | null {
     if (this.cookies[name]) {
       this.cookies[name].signature = this.signCookie(`${name}=${this.cookies[name].value}`, secret);
     } else {
-      LOG_ERROR('HttpCookiesStore::sign Cookie ${name} does not exist.')
+      LOG_ERROR('HttpCookiesStore::sign Cookie ${name} does not exist.');
+      return null;
     }
     return this;
   }
