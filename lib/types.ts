@@ -209,7 +209,7 @@ export interface FuriConfig {
     port: number;                   // Port server will listen for connection requests.
     host: string;                   // host server will listen for connection requests.
     callback: null | (() => void);  // Callback function that will be called when server is ready.
-    secure: boolean;                // Readonly flag, true indicates secure connections (HTTPS).
+    secure?: boolean;                // Readonly flag, true indicates secure connections (HTTPS).
   },
   logger: {
     enabled: boolean;             // Enable file logging.
