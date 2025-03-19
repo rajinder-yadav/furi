@@ -2,7 +2,7 @@
 
 This project makes use of "DevContainers" to make on boarding new developers a snap! A DevContainer is a requrement to setup a CI/CD pipeline on GitHub. This feature was added by [Martial Rioux](https://www.linkedin.com/in/martialrioux/) as future proofing. Reach out to him for Devops and Cloud solutions needs.
 
-Currenlty I am the only Software Developer working on this project in my free time as I seek work. If you are hiring or know someone is, please reach out to me at: <rajinder.yada@hotmail.com>, or connect with me on [Linkedin](https://www.linkedin.com/in/rajinderyadav/). I am available both in a full-time capacity or as a Consultant (Corp to Corp) for your project needs. I reside in Toronto, Ontario, Canada! 🇨🇦
+Currenlty I am the only Software Developer working on this project in my free time as I seek work. If you are hiring or know someone is, please reach out to me at: <rajinder.yadav@hotmail.com>, or connect with me on [Linkedin](https://www.linkedin.com/in/rajinderyadav/). I am available both in a full-time capacity or as a Consultant (Corp to Corp) for your project needs. I reside in Toronto, Ontario, Canada! 🇨🇦
 
 ![Image](./images/dolphin.jpeg)
 
