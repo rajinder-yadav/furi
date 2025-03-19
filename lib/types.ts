@@ -147,27 +147,16 @@ export const LogLevelOrdinal = {
  * @param logLevel - The log level as a string.
  * @returns Log level ordinal value.
  */
-export function mapToLogLevelRank(logLevel: string): number {
-  switch (logLevel.toUpperCase()) {
-    case 'DEBUG':
-      return LogLevelOrdinal.DEBUG;
-    case 'INFO':
-      return LogLevelOrdinal.INFO;
-    case 'LOG':
-      return LogLevelOrdinal.LOG;
-    case 'WARN':
-      return LogLevelOrdinal.WARN;
-    case 'ERROR':
-      return LogLevelOrdinal.ERROR;
-    case 'CRITICAL':
-      return LogLevelOrdinal.CRITICAL;
-    case 'FATAL':
-      return LogLevelOrdinal.FATAL;
-    default:
-      LOG_ERROR(`mapToLogLevelRank Invalid log level: ${logLevel}, defaulting to LOG level.`);
-      return LogLevelOrdinal.LOG;
-  }
-}
+
+export const mapToLogLevelRank:{[key: string]: number} = {
+  DEBUG: LogLevelOrdinal.DEBUG,
+  INFO: LogLevelOrdinal.INFO,
+  LOG: LogLevelOrdinal.LOG,
+  WARN: LogLevelOrdinal.WARN,
+  ERROR: LogLevelOrdinal.ERROR,
+  CRITICAL: LogLevelOrdinal.CRITICAL,
+  FATAL: LogLevelOrdinal.FATAL
+};
 
 /**
  * HTTP Request object extending Node.js IncomingMessage.

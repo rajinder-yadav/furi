@@ -42,7 +42,7 @@ export class FastLogger {
     protected logMode: LoggerMode,
     protected logLevel: string
   ) {
-    this.logLevelRank = mapToLogLevelRank(logLevel);
+    this.logLevelRank = mapToLogLevelRank[logLevel];
 
     const filename = path.join(this.logDirectory, this.logFileName);
 
