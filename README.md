@@ -1,5 +1,9 @@
 # Furi - Fast HTTP/HTTPS Server framework
 
+This project makes use of "DevContainers" to make on boarding new developers a snap! A DevContainer is a requrement to setup a CI/CD pipeline on GitHub. This feature was added by [Martial Rioux](https://www.linkedin.com/in/martialrioux/) as future proofing. Reach out to him for Devops and Cloud solutions needs.
+
+Currenlty I am the only Software Developer working on this project in my free time as I seek work. If you are hiring or know someone is, please reach out to me at: <rajinder.yada@hotmail.com>, or connect with me on [Linkedin](https://www.linkedin.com/in/rajinderyadav/). I am available both in a full-time capacity or as a Consultant (Corp to Corp) for your project needs. I reside in Toronto, Ontario, Canada! 🇨🇦
+
 ![Image](./images/dolphin.jpeg)
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
@@ -59,7 +63,7 @@ A self contained design and zero external dependencies means there is  less surf
 
 Furi will keep simple things simple and make hard things easier without breaking your working code. It is however still in the early preview stage so expect changes as I explore design ideas.
 
-Furi is currently under development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default database engine, with a plug-in architecture for other DB engines.
+Furi is currently under active development. However it is feature complete with respect to the Router, and today could be put into production use. Current development effort is focused on adding support for a easy to use State management store for seamless data access. Persistence using SQLite3 as the default "__embedded__" database engine, with a plug-in architecture for other DB engines.
 
 ## BOM - Bill of Material
 
