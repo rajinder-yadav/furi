@@ -250,7 +250,7 @@ Furi currently support the following core middlewares:
 2. Cors
 3. Web
 
-Documentation forth comming once I have time to write it.
+Documentation forth coming once I have time to write it.
 
 ## Array based routing
 
