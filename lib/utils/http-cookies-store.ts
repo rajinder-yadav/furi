@@ -395,7 +395,7 @@ export class HttpCookiesStore {
     cookie.split(';').forEach(cookie => {
       const [name, value] = cookie.trim().split('=');
       if (CookieOptions.includes(name)) {
-        const cookieValue = decodeURIComponent(value ?? true);
+        const cookieValue = decodeURIComponent(value ?? 'true');
         if (resultCookie.options) {
           resultCookie.options[name] = cookieValue;
         } else {
