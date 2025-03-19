@@ -15,7 +15,7 @@ import * as https from 'node:https';
 import { Server } from 'node:http';
 import { Server as ServerSecure } from 'node:https';
 import process from "node:process";
-import YAML from 'npm:yaml';
+import YAML from 'yaml';
 
 import { FuriRouter } from './furi-router.ts';
 import {
