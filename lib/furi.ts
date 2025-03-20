@@ -12,6 +12,7 @@
 import * as fs from 'node:fs';
 import * as http from 'node:http';
 import * as https from 'node:https';
+import { Buffer } from 'node:buffer';
 import { Server } from 'node:http';
 import { Server as ServerSecure } from 'node:https';
 import process from "node:process";
@@ -316,9 +317,9 @@ export class Furi extends FuriRouter {
     const passphrase = serverConfig?.cert?.passphrase;
 
     // Load SSL Certificate and Key.
-    let sslKey;
-    let sslCert
-    let sslCA;
+    let sslKey: Buffer | null = null;
+    let sslCert: Buffer | null = null;
+    let sslCA: Buffer | Buffer[] | null = null;
 
     try {
       if (key && cert) {
@@ -376,6 +377,15 @@ export class Furi extends FuriRouter {
       LOG_INFO('Creating a unsecure HTTP server.');
       server = http.createServer(this.handler());
     }
+
+    // Handler error gracefully.
+    server.on('clientError', (err, socket) => {
+      const responseError = (sslKey && sslCert) ?
+        'HTTP/1.1 400 Bad Request\r\n\r\n' :
+        'HTTPS/1.1 400 Bad Request\r\n\r\n';
+      socket.end(responseError);
+      LOG_ERROR(`Furi::lister server::clientError ${err.message}`);
+    });
 
     if (port && host && callback) {
       server.listen(port, host, callback);
