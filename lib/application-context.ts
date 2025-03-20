@@ -171,7 +171,7 @@ export class ApplicationContext {
    * @return Cookie value or undefined if not found.
    */
   getCookie(): string | string[] | undefined {
-    return this.request.headers['cookie'];
+    return this.request.headers ? this.request.headers['cookie'] : undefined;
   }
 
   /**
