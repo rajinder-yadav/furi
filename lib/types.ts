@@ -212,7 +212,7 @@ export interface FuriConfig {
     secure?: boolean;                // Readonly flag, true indicates secure connections (HTTPS).
   },
   logger: {
-    enabled: boolean;             // Enable file logging.
+    enable: boolean;              // Enable file logging.
     terminal: boolean;            // Enable terminal logging.
     flushPeriod: number;          // Period in milliseconds between log flushes.
     logFile: string;              // Path to log file, if logging mode is "stream".

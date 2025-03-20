@@ -35,7 +35,7 @@ export class FastLogger {
   constructor(
     protected readonly logDirectory: string,
     protected readonly logFileName: string,
-    protected enabled: boolean,
+    protected enable: boolean,
     protected terminal: boolean,
     protected flushPeriod: number,
     protected logMaxCount: number,
@@ -51,7 +51,7 @@ export class FastLogger {
       workerData: {
         filename: filename,
         terminal: this.terminal,
-        enabled: this.enabled,
+        enable: this.enable,
         flushPeriod: this.flushPeriod,
         logMaxCount: this.logMaxCount,
         logMode: this.logMode

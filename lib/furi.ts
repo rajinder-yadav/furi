@@ -109,7 +109,7 @@ export class Furi extends FuriRouter {
       secure: false,  // READONLY Flag, indicated secure connections (HTTPS).
     },
     logger: {
-      enabled: false,
+      enable: false,
       terminal: false,
       flushPeriod: 1000,
       logFile: 'furi.log',
@@ -125,7 +125,7 @@ export class Furi extends FuriRouter {
     // Read default configuration values.
     let { env, port, host, callback, secure } = this.furiConfig.server;
 
-    let { enabled, terminal, flushPeriod, maxCount, mode, logFile, level } = this.furiConfig.logger;
+    let { enable, terminal, flushPeriod, maxCount, mode, logFile, level } = this.furiConfig.logger;
 
     /**
      * Read server configuration properties from furi.yaml or furi.yml file.
@@ -148,7 +148,7 @@ export class Furi extends FuriRouter {
 
         // Logger values.
         if (this.properties.logger) {
-          enabled = this.properties.logger.enabled ?? enabled;
+          enable = this.properties.logger.enable ?? enable;
           terminal = this.properties.logger.terminal ?? terminal;
           flushPeriod = this.properties.logger.flushPeriod ?? flushPeriod;
           maxCount = this.properties.logger.maxCount ?? maxCount;
@@ -162,7 +162,7 @@ export class Furi extends FuriRouter {
           Furi.fastLogger = new FastLogger(
             process.cwd(),
             logFile,
-            enabled,
+            enable,
             terminal,
             flushPeriod,
             maxCount,
@@ -178,7 +178,7 @@ export class Furi extends FuriRouter {
         // Update configuration values.
         this.furiConfig = {
           server: { env, port, host, callback, secure },
-          logger: { enabled, terminal, flushPeriod, logFile, maxCount, mode, level },
+          logger: { enable, terminal, flushPeriod, logFile, maxCount, mode, level },
         };
 
         // SSL Certificate values.
@@ -442,8 +442,8 @@ export class Furi extends FuriRouter {
    * @returns Logger configuration string.
    */
   private getLoggerInfoMessage() {
-    const { enabled, flushPeriod, logFile, maxCount, mode, level } = this.furiConfig.logger;
-    return `Logger  { enabled: ${enabled}, level: ${level}, logFile: ${logFile}, mode: ${mode}, flushPeriod: ${flushPeriod}ms, maxCount: ${maxCount} }`;
+    const { enable, flushPeriod, logFile, maxCount, mode, level } = this.furiConfig.logger;
+    return `Logger  { enable: ${enable}, level: ${level}, logFile: ${logFile}, mode: ${mode}, flushPeriod: ${flushPeriod}ms, maxCount: ${maxCount} }`;
   }
 
   /**

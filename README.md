@@ -157,7 +157,7 @@ When you run the server application, you will see a similar output in your termi
 Furi Server (v0.8.0) started.
 Server  { mode: http, host: localhost, port: 3030, env: development }
 Runtime { deno: 2.2.4, v8: 13.4.114.11-rusty, typescript: 5.7.3 }
-Logger  { enabled: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+Logger  { enable: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
 ```
 
 This can help you quickly identify that your server is running, configuration settings and the runtime environment details.
@@ -494,7 +494,7 @@ If you do not declare any logger settings, the following are the default setting
 
 ```yaml
 logger:
-  enabled: false
+  enable: false
   flushPeriod: 1000
   logFile: furi.log
   maxCount: 100
@@ -506,14 +506,14 @@ To enable logging you only need to change one setting:
 
 ```yaml
 logger:
-  enabled: true
+  enable: true
 ```
 
 This will result in buffered logging, if you want to view immediate logging, you can switch to stream mode:
 
 ```yaml
 logger:
-  enabled: true
+  enable: true
   mode: stream
 ```
 
@@ -566,7 +566,7 @@ When Furi is running under HTTPS, it will shows in the log and startup message. 
 Furi Server (v0.8.0) started.
 Server  { mode: https, host: localhost, port: 3030, env: development }
 Runtime { deno: 2.2.4, v8: 13.4.114.11-rusty, typescript: 5.7.3 }
-Logger  { enabled: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+Logger  { enable: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
 ```
 
 ### Sample log output
@@ -575,7 +575,7 @@ Logger  { enabled: true, level: DEBUG, logFile: furi.log, mode: stream, flushPer
 2025-03-02T21:33:03.426Z, INFO, Furi Server (v0.2.4) started.
 2025-03-02T21:33:03.427Z, INFO, Server { host: localhost, port: 3030, mode: development }
 2025-03-02T21:33:03.427Z, INFO, Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
-2025-03-02T21:33:03.428Z, INFO, Logger { enabled: true, level: INFO, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+2025-03-02T21:33:03.428Z, INFO, Logger { enable: true, level: INFO, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
 2025-03-02T21:33:12.216Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47052, http: 1.1, method: GET, url: /
 2025-03-02T21:33:12.230Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47056, http: 1.1, method: GET, url: /
 2025-03-02T21:33:12.232Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47068, http: 1.1, method: GET, url: /about
