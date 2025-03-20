@@ -42,10 +42,11 @@
  * the file has been read, compressed and sent out.
  * ====================================================================================================*/
 import fs from 'node:fs';
-import mime from 'mime-types';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import process from 'node:process';
 import zlib from 'node:zlib';
+import mime from 'mime-types';
 
 import { ApplicationContext } from '../../application-context.ts';
 import { NextHandler, ContextHandler } from '../../types.ts';
@@ -68,6 +69,7 @@ export type WebOptions = {
   fonts?: string;
   enableCaching?: boolean;
   enableCompression?: boolean;
+  enableETag?: boolean;
 };
 
 /**
@@ -90,6 +92,7 @@ export function Web(webOptions?: WebOptions): ContextHandler {
       fonts: '/public/resources/fonts',
       enableCaching: false,
       enableCompression: true,
+      enableETag: false,
     };
   } else {
     // Set default values for missing options.
@@ -101,6 +104,7 @@ export function Web(webOptions?: WebOptions): ContextHandler {
     webOptions.media = webOptions.media ?? path.join(webOptions.resources, 'media');
     webOptions.enableCaching = webOptions.enableCaching ?? false;
     webOptions.enableCompression = webOptions.enableCompression ?? true;
+    webOptions.enableETag = webOptions.enableETag ?? false;
   }
 
   return function WebMiddleware(ctx: ApplicationContext, next: NextHandler): any {
@@ -153,6 +157,15 @@ export function Web(webOptions?: WebOptions): ContextHandler {
           // LOG_DEBUG(`Middleware::Web starting brotli compressed file streaming.`);
           ctx.response.setHeader('Content-Encoding', 'br');
           ctx.response.statusCode = 200;
+
+          if (webOptions.enableETag) {
+            const fileStat = fs.statSync(fileName);
+            ctx.response.setHeader('ETag',
+              crypto.createHash('sha256')
+                .update(`${fileName}${fileStat.mtime.getTime()}`)
+                .digest('hex')
+            );
+          }
 
           ctx.startAsyncResponseTimer();
           const readStream = fs.createReadStream(fileName);
