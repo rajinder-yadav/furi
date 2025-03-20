@@ -14,6 +14,7 @@ import * as http from 'node:http';
 import * as https from 'node:https';
 import { Buffer } from 'node:buffer';
 import { Server } from 'node:http';
+import { Stream } from 'node:stream';
 import { Server as ServerSecure } from 'node:https';
 import process from "node:process";
 import YAML from 'yaml';
@@ -379,11 +380,13 @@ export class Furi extends FuriRouter {
     }
 
     // Handler error gracefully.
-    server.on('clientError', (err, socket) => {
-      const responseError = (sslKey && sslCert) ?
-        'HTTP/1.1 400 Bad Request\r\n\r\n' :
-        'HTTPS/1.1 400 Bad Request\r\n\r\n';
-      socket.end(responseError);
+    server.on('clientError', (err: Error, socket: Stream.Duplex) => {
+      if (socket.writable) {
+        const responseError = (sslKey && sslCert) ?
+          'HTTP/1.1 400 Bad Request\r\n\r\n' :
+          'HTTPS/1.1 400 Bad Request\r\n\r\n';
+        socket.end(responseError);
+      }
       LOG_ERROR(`Furi::lister server::clientError ${err.message}`);
     });
 
