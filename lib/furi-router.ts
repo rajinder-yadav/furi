@@ -629,7 +629,10 @@ export class FuriRouter {
       // Check if request was processed and closed by a middleware.
       // This might be the case if CORS preflight check was successful.
       // Make sure a middleware did not kick off an asynchronous operation.
-      if (!applicationContext.asyncResponseTimerId && applicationContext.response.writable) {
+      if (!applicationContext.asyncResponseTimerId &&
+        !applicationContext.response.writableEnded &&
+        applicationContext.response.writable
+      ) {
         LOG_WARN(`FuriRouter::processHTTPMethod Route not found for ${URL}`);
         // response.statusCode = 404;
         // response.statusMessage = 'Route not found';
