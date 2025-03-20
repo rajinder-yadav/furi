@@ -261,8 +261,8 @@ export type Route = {
  * Router configuration.
  *
  * At least one of the properties 'middleware' or 'routes' must be provided.
- * @property middleware - Aarray of middleware functions to be executed before route handlers.
- * @property routes - Aarray of Route objects defining the routes and their corresponding handlers.
+ * @property middleware - Array of top-level middleware functions to be executed before route handlers.
+ * @property routes - Array of Route objects defining the routes and their corresponding handlers.
  */
 export type RouterConfig = {
   middleware?: ContextHandler[];
