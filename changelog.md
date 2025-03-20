@@ -2,6 +2,20 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.11.0 (2025-03-20)
+
+- Improved lookup time for log levels, changed mapping function to map.
+  - Speed improvement in logging.
+- Fix, typo with import, remoted "npm:" prefix.
+- Fix, type error when using the null coalescing operator.
+- Fix, HTPP cookie store to return null when not found.
+- Fix, check for undefined headers when fetching cookies.
+- Feat, handle graceful server error, send error message before closing socket.
+- Fix, added missing types to fix TypeScript error.
+- Added additional check on response status in router code.
+- Added additional check on response status in Web middleware code.
+- Added additional check on response status in Cors middleware code.
+
 ## v0.10.0 (2025-03-18)
 
 - feat: Application context class, added time out method to deal with async operation.
