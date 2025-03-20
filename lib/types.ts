@@ -104,7 +104,7 @@ export interface RouteMap {
  * Enumerated keys for HTTP Maps. The keys are used to partition
  * HTTP methods, to optimized lookup.
  */
-export const HttpMapIndex = {
+export const HttpMapIndex: MapOf<number> = {
   MIDDLEWARE: 0,
   GET: 1,
   POST: 2,
@@ -118,7 +118,7 @@ export const HttpMapIndex = {
 /**
  * Log level string litaral values for log messages and configuration.
  */
-export const LogLevel = {
+export const LogLevel: MapOf<string> = {
   DEBUG: 'DEBUG',
   INFO: 'INFO',
   LOG: 'LOG',
@@ -131,7 +131,7 @@ export const LogLevel = {
 /**
  * Log level ordinal values use for filtering log messages.
  */
-export const LogLevelOrdinal = {
+export const LogLevelOrdinal:MapOf<number> = {
   DEBUG: 0,
   INFO: 1,
   LOG: 2,
@@ -148,7 +148,7 @@ export const LogLevelOrdinal = {
  * @returns Log level ordinal value.
  */
 
-export const mapToLogLevelRank:{[key: string]: number} = {
+export const mapToLogLevelRank: MapOf<number> = {
   DEBUG: LogLevelOrdinal.DEBUG,
   INFO: LogLevelOrdinal.INFO,
   LOG: LogLevelOrdinal.LOG,
@@ -160,12 +160,17 @@ export const mapToLogLevelRank:{[key: string]: number} = {
 
 /**
  * HTTP Request object extending Node.js IncomingMessage.
+ *
+ * Ref: http.createServer([options][, requestListener])
+ *      https://nodejs.org/docs/latest/api/http.html#httpcreateserveroptions-requestlistener
+ *
+ * Ref: Class http.IncomingMessage
+ *      https://nodejs.org/docs/latest/api/http.html#class-httpincomingmessage
  */
 export class FuriRequest extends IncomingMessage {
   public params: MapOf<string | number> = {};
   public query: URLSearchParams | null = null;
   public sessionData: MapOf<any> = {};
-  public app: Furi | null = null;
   public body: any = null;
 
   constructor(incomingMessage: Socket);
@@ -183,6 +188,12 @@ export class FuriRequest extends IncomingMessage {
 
 /**
  * HTTP Response object extending Node.js ServerResponse.
+ *
+ * Ref: http.createServer([options][, requestListener]
+ *      https://nodejs.org/docs/latest/api/http.html#httpcreateserveroptions-requestlistener
+ *
+ * Ref: Class http.ServerResponse
+ *      https://nodejs.org/docs/latest/api/http.html#class-httpserverresponse
  */
 export class FuriResponse extends ServerResponse<IncomingMessage> {
 }
