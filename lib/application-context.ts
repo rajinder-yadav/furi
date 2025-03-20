@@ -283,4 +283,18 @@ export class ApplicationContext {
     }
   }
 
+  /**
+   * Cause a retirect to another URL with an optional HTTP status code.
+   * Default is 302 (Found).
+   *
+   * @param url The URL to redirect to.
+   * @param status The HTTP status code for the redirect.
+   * @return void.
+   */
+  redirect(url: string, status?: number): void {
+    const statusCode = status ?? 302;
+    this.response.writeHead(statusCode, { Location: url });
+    this.response.end();
+  }
+
 };
