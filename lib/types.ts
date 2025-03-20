@@ -246,6 +246,10 @@ export type RouterHanderConstructor<T> = {
 
 /**
  * Router request handler definition.
+ *
+ * @property path - The route path.
+ * @property method - The HTTP method (GET, POST, PUT, etc.).
+ * @property controller - The handler function or array of handler functions to be executed when the route is matched.
  */
 export type Route = {
   path: string;
@@ -255,6 +259,10 @@ export type Route = {
 
 /**
  * Router configuration.
+ *
+ * At least one of the properties 'middleware' or 'routes' must be provided.
+ * @property middleware - Aarray of middleware functions to be executed before route handlers.
+ * @property routes - Aarray of Route objects defining the routes and their corresponding handlers.
  */
 export type RouterConfig = {
   middleware?: ContextHandler[];
