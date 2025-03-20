@@ -28,7 +28,7 @@ import {
 import { ApplicationContext } from './application-context.ts';
 import { Furi } from './furi.ts';
 
-const TopLevelMiddleware: string = '/';
+const TopLevelMiddlewareUrl: string = '/';
 
 /**
  * The FuriRouter class is responsible for two things:
@@ -97,7 +97,7 @@ export class FuriRouter {
 
       // Add top-level middleswares.
       if (routerConfig?.middleware && routerConfig.middleware.length > 0) {
-        this.buildRequestMap(HttpMapIndex.MIDDLEWARE, TopLevelMiddleware, routerConfig.middleware);
+        this.buildRequestMap(HttpMapIndex.MIDDLEWARE, TopLevelMiddlewareUrl, routerConfig.middleware);
       }
 
       // Add route handlers.
@@ -192,7 +192,7 @@ export class FuriRouter {
     }
 
     // Top level based middleware.
-    return this.buildRequestMap(HttpMapIndex.MIDDLEWARE, TopLevelMiddleware, Array.from(arguments));
+    return this.buildRequestMap(HttpMapIndex.MIDDLEWARE, TopLevelMiddlewareUrl, Array.from(arguments));
   }
 
   /**
@@ -583,7 +583,7 @@ export class FuriRouter {
 
     // Set up callback chain for top-level middleware and route callbacks.
     const middlewareMap = this.httpMethodMap[HttpMapIndex.MIDDLEWARE];
-    const toplevelMiddlewareCallbacks = middlewareMap.staticRouteMap[TopLevelMiddleware]?.callbacks ?? [];
+    const toplevelMiddlewareCallbacks = middlewareMap.staticRouteMap[TopLevelMiddlewareUrl]?.callbacks ?? [];
     const staticRouteCallbacks = routeMap.staticRouteMap[URL]?.callbacks ?? [];
     let callback_chain: ContextHandler[] = [...toplevelMiddlewareCallbacks, ...staticRouteCallbacks];
 
