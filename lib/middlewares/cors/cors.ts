@@ -69,7 +69,10 @@ export function Cors(options?: CorsOptions): ContextHandler {
     ctx.response.setHeader('Access-Control-Max-Age', maxAge.toString());
 
     next();
-    if (ctx.response.writable && ctx.request.method === 'OPTIONS') {
+    if (!ctx.response.writableEnded &&
+      ctx.response.writable &&
+      ctx.request.method === 'OPTIONS'
+    ) {
       // LOG_DEBUG('CorsMiddleware OPTIONS enter');
       ctx.response.writeHead(200);
       ctx.response.end();
