@@ -192,7 +192,7 @@ export function Web(webOptions?: WebOptions): ContextHandler {
       ctx.stopAsyncResponseTimer();
 
       // TODO: Should we end the response here?
-      if (ctx.response.writable) {
+      if (!ctx.response.writableEnded && ctx.response.writable) {
         ctx.response.writeHead(404, { 'Content-Type': 'text/html' });
         ctx.response.end();
       }
