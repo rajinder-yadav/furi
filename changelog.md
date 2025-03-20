@@ -2,6 +2,10 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.11.1 (2025-03-20)
+
+- BREAKING CHANGE on logger YAML property, renamed "enabled" to "enable".
+
 ## v0.11.0 (2025-03-20)
 
 - Improved lookup time for log levels, changed mapping function to map.
