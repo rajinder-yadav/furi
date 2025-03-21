@@ -6,11 +6,30 @@ Currently I am the only Software Developer working on this project in my free ti
 
 ![Image](./images/dolphin.jpeg)
 
+## FEATURE UPDATES 🚨
+
+![image sqlite3](./images/sqlite.svg)
+
+- New embedded Sqlite3 support for in-memory application state management.
+- Minor breaking-change with logger configuration and code refactoring.
+
+Planned work for Sqlite3 and state management. 🎯
+
+1. Allow state management to persiste on disk.
+1. Add configuration to choose betweek in-memory and disk-based state management.
+1. Add seamless caching support to speed response time for web pages and REST APIs.
+1. Add an application cache store, for custom caching logic and data retrieval.
+1. Add schema support to declare the structure of the application store database table.
+1. Add new accessor methods to allow for flexible types when using the state management system.
+
+Always check the changelog before pulling updates to see what changed. Furi is in early preview mode, so expect rapid changes, some breaking.
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
 - [Furi - Fast HTTP/HTTPS Server framework](#furi---fast-httphttps-server-framework)
+  - [FEATURE UPDATES 🚨](#feature-updates-)
   - [A Return to Simplicity ✅](#a-return-to-simplicity-)
   - [BOM - Bill of Material](#bom---bill-of-material)
   - [Example source code](#example-source-code)
