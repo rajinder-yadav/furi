@@ -201,14 +201,14 @@ export class Furi extends FuriRouter {
           LOG_DEBUG(`${JSON.stringify(this.furiConfig.cert)}`);
 
           if (key && cert) {
-            LOG_INFO('SSL key file propertey provided.');
-            LOG_INFO('SSL cert file propertey provided.');
+            LOG_INFO('Furi::constructor SSL key file propertey provided.');
+            LOG_INFO('Furi::constructor SSL cert file propertey provided.');
           }
           if (passphrase) {
-            LOG_INFO('SSL passphrase propertey provided.');
+            LOG_INFO('Furi::constructor SSL passphrase propertey provided.');
           }
           if (ca) {
-            LOG_INFO('SSL CA file(s) propertey provided.');
+            LOG_INFO('Furi::constructor SSL CA file(s) propertey provided.');
           }
 
         }
@@ -258,25 +258,29 @@ export class Furi extends FuriRouter {
    */
   static shutDown(exitTimer: number) {
     console.log();
-    LOG_INFO('SIGINT signal received, goodbye!');
-    LOG_INFO('Shutdown started...');
+    LOG_INFO('Furi::shutDown SIGINT signal received, goodbye!');
+    LOG_INFO('Furi::shutDown Shutdown started...');
     // Close the HTTP server.
+
+    LOG_INFO('Furi::shutDown StoreState shutting down...');
+    Furi.appStore.shutDown();
+    LOG_INFO('Furi::shutDown StoreState stopped.');
 
     // Close all Furi applications and their HTTP servers gracefully.
     Furi.httpServer.forEach((serverRef) => {
-      LOG_INFO('Furi server shutting down...');
+      LOG_INFO('Furi::shutDown server shutting down...');
       if (serverRef.app.cleanupHandler) {
-        LOG_INFO('Cleanup started...');
+        LOG_INFO('Furi::shutDown Cleanup started...');
         serverRef.app.cleanupHandler();
-        LOG_INFO('Cleanup completed.');
+        LOG_INFO('Furi::shutDown Cleanup completed.');
       }
-      LOG_INFO('HTTP connection closing...');
+      LOG_INFO('Furi::shutDown HTTP connection closing...');
       serverRef.http.close();
-      LOG_INFO('HTTP connection closed.');
-      LOG_INFO('Furi server shutdown completed.');
+      LOG_INFO('Furi::shutDown HTTP connection closed.');
+      LOG_INFO('Furi::shutDown server shutdown completed.');
     });
 
-    LOG_INFO('Shutdown completed.');
+    LOG_INFO('Furi::shutDown Shutdown completed.');
     if (Furi.fastLogger) {
       Furi.fastLogger.close();
     }
@@ -326,22 +330,22 @@ export class Furi extends FuriRouter {
       if (key && cert) {
         sslKey = fs.readFileSync(key);
         sslCert = fs.readFileSync(cert);
-        LOG_INFO(`Read SSL key and certificate successfully.`);
+        LOG_INFO(`Furi::listen Read SSL key and certificate successfully.`);
 
         if (ca) {
           if (typeof ca === 'string') {
             sslCA = fs.readFileSync(ca);
-            LOG_INFO(`Read SSL CA certificate successfully.`);
+            LOG_INFO(`Furi::listen Read SSL CA certificate successfully.`);
           } else if (Array.isArray(ca)) {
             sslCA = ca.map(caPath => fs.readFileSync(caPath));
-            LOG_INFO(`Read ${sslCA.length} SSL CA certificates successfully.`);
+            LOG_INFO(`Furi::listen Read ${sslCA.length} SSL CA certificates successfully.`);
           }
         }
         // Only set secure to true if both key and certs have been loaded successfully.
         this.furiConfig.server.secure = true;
       }
     } catch (error) {
-      LOG_ERROR(`Failed to read SSL key or certificate: ${error}`);
+      LOG_ERROR(`Furi::listen Failed to read SSL key or certificate: ${error}`);
       this.furiConfig.server.secure = false;
       sslKey = null;
       sslCert = null;
@@ -362,20 +366,20 @@ export class Furi extends FuriRouter {
     if (sslKey && sslCert) {
       if (passphrase && passphrase.length > 0) {
         // Signed SSL key and certificate with passphrase.
-        LOG_INFO(`Creating a secure HTTPS server with SSL certificate with passphrase.`);
+        LOG_INFO(`Furi::listen Creating a secure HTTPS server with SSL certificate with passphrase.`);
         server = https.createServer({ key: sslKey, cert: sslCert, passphrase }, this.handler());
       } else if (sslCA) {
         // SSL key, certificate and CA certificate.
-        LOG_INFO('Creating a secure HTTPS server with SSL CA certificate.');
+        LOG_INFO('Furi::listen Creating a secure HTTPS server with SSL CA certificate.');
         server = https.createServer({ key: sslKey, cert: sslCert, ca: sslCA }, this.handler())
       } else {
         // SSL key and certificate.
-        LOG_INFO('Creating a secure HTTPS server with SSL certificate.');
+        LOG_INFO('Furi::listen Creating a secure HTTPS server with SSL certificate.');
         server = https.createServer({ key: sslKey, cert: sslCert }, this.handler())
       }
     } else {
       // No SSL key and certificate.
-      LOG_INFO('Creating a unsecure HTTP server.');
+      LOG_INFO('Furi::listen Creating a unsecure HTTP server.');
       server = http.createServer(this.handler());
     }
 
@@ -387,7 +391,7 @@ export class Furi extends FuriRouter {
           'HTTPS/1.1 400 Bad Request\r\n\r\n';
         socket.end(responseError);
       }
-      LOG_ERROR(`Furi::lister server::clientError ${err.message}`);
+      LOG_ERROR(`Furi::listen server::clientError ${err.message}`);
     });
 
     if (port && host && callback) {
