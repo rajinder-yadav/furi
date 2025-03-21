@@ -2,9 +2,14 @@
 
 Date in ISO format: YYYY-MM-DD
 
-## v0.11.1 (2025-03-20)
+## v0.12.0 (2025-03-20)
 
-- BREAKING CHANGE on logger YAML property, renamed "enabled" to "enable".
+- BREAKING CHANGE on logger YAML configuration property, renamed "enabled" to "enable".
+- Feat, added Etag support which can be enabled, by default it is disabled.
+- Feat, added redirect method to ContextApplication class.
+- Feat, Sqlite3 in-memory database support for state management.
+- Feat, helper methods for state management.
+- Test, new unit tests for state management methods.
 
 ## v0.11.0 (2025-03-20)
 
