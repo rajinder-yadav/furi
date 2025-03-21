@@ -59,12 +59,12 @@ export class FastLogger {
     });
 
     this.worker.on('error', (err) => {
-      console.error('Logger worker error:', err);
+      console.error('FastLogger::constructor Logger worker error:', err);
     });
 
     this.worker.on('exit', (code) => {
       if (code !== 0) {
-        console.error(`Logger worker stopped with exit code ${code}`);
+        console.error(`FastLogger::constructor Logger worker stopped with exit code ${code}`);
       }
     });
 
@@ -74,7 +74,7 @@ export class FastLogger {
     if (this.active) {
       // Send a null message to the worker to signal it to stop processing and exit.
       this.active = false;
-      this.info('Fast Logger closed.');
+      this.info('FastLogger::close Fast Logger closed.');
       this.info(null);
     }
   }
