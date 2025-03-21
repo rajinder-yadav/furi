@@ -146,7 +146,7 @@ export class ApplicationContext {
   }
   /**
    * Global Application state.
-   * Overloaded functions to read or set application state.
+   * Overloaded helper functions to read or set application state.
    *
    * Read application state data.
    * Set application state data.
@@ -163,6 +163,23 @@ export class ApplicationContext {
     } else {
       return this.appStore.storeState(key);
     }
+  }
+
+  /**
+   * Helper function to delete an entry from the store state.
+   *
+   * @param key The key of the entry to delete.
+   */
+  storeStateDelete(key: string): void {
+    this.appStore.storeStateDelete(key);
+  }
+
+  /**
+   * Helper function to reset the store state.
+   * This call will delete all entries in the store state.
+   */
+  storeStateReset(): any {
+    this.appStore.storeStateReset()
   }
 
   /**
