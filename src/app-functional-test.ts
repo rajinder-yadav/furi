@@ -22,8 +22,6 @@ import {
 const furi = Furi.create();
 const USER_AGENT: string = "FURI Node Server (v0.1)";
 
-Furi.appStore.storeState("db", { database: "Sqlite3" });
-
 /**
  * Perform cleanup
  */
@@ -519,7 +517,7 @@ furi.get('/all', (ctx: ApplicationContext) => {
  * Set middleware request session data.
  */
 furi.use((ctx: ApplicationContext, next) => {
-  ctx.storeState('msg', { message: 'Store data' });
+  ctx.storeState('msg', JSON.stringify({ message: 'Store data' }));
   ctx.sessionState('message', 'Root middleware session data');
   LOG_DEBUG('Root Middleware - pre');
   next();
