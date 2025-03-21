@@ -8,7 +8,7 @@ Currently I am the only Software Developer working on this project in my free ti
 
 ## FEATURE UPDATES 🚨
 
-![image sqlite3](./images/sqlite.svg)
+![image sqlite3](./images/sqlite-small.png)
 
 - New embedded Sqlite3 support for in-memory application state management.
 - Minor breaking-change with logger configuration and code refactoring.
