@@ -3,7 +3,14 @@
  * deno test -A --env-file test/application-context.test.ts
  */
 import { Socket } from "node:net";
-import { assertEquals, assertNotEquals, assertFalse, assertInstanceOf } from '@std/assert';
+import {
+  assertEquals,
+  assertNotEquals,
+  assertFalse,
+  assertInstanceOf,
+  assertObjectMatch,
+  assertExists
+} from '@std/assert';
 
 import {
   ApplicationContext,
@@ -53,6 +60,14 @@ Deno.test("ApplicationContext::queryStringToObject not simple", () => {
   assertEquals(result?.name, 'John');
   assertEquals(result?.age, 30);
   assertEquals(result?.hobbies, ['reading', 'traveling']);
+});
+
+Deno.test("ApplicationContext sessionData is empty", () => {
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
+  assertObjectMatch(appContext.request.sessionData, {});
 });
 
 Deno.test("ApplicationContext::sessionState string values", () => {
@@ -129,8 +144,8 @@ Deno.test("ApplicationContext::storeState values", () => {
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.storeState("count"));
-  appContext.storeState("count", 12);
-  assertEquals(appContext.storeState("count"), 12);
+  appContext.storeState("count", "12");
+  assertEquals(appContext.storeState("count"), "12");
 
   assertFalse(appContext.storeState("item"));
   appContext.storeState("item", "radio");
@@ -141,15 +156,152 @@ Deno.test("ApplicationContext::storeState across calls", () => {
   const httpRequest1 = new FuriRequest(new Socket());
   const httpResponse1 = new FuriResponse(httpRequest1);
 
-  const appContext1 = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
-  assertFalse(appContext1.storeState("count2"));
-  appContext1.storeState("count", 12);
-  assertEquals(appContext1.storeState("count"), 12);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertExists(appContext.storeState("count"));
+  assertEquals(appContext.storeState("count"), "12");
+  appContext.storeState("item", "radio");
+  assertEquals(appContext.storeState("item"), "radio");
+});
 
-  const httpRequest2 = new FuriRequest(new Socket());
-  const httpResponse2 = new FuriResponse(httpRequest1);
-  const appContext2 = new ApplicationContext(Furi.appStore, httpRequest2, httpResponse2);
-  assertEquals(appContext2.storeState("count"), 12);
+Deno.test("ApplicationContext::storeState delete value", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertExists(appContext.storeState("count"));
+  assertEquals(appContext.storeState("count"), "12");
+  appContext.appStore.storeStateDelete("count");
+  assertFalse(appContext.storeState("count"));
+
+  appContext.storeState("item", "radio");
+  assertEquals(appContext.storeState("item"), "radio");
+  appContext.appStore.storeStateDelete("item");
+  assertFalse(appContext.storeState("item"));
+});
+
+Deno.test("ApplicationContext::storeState delete value that does not exit", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertFalse(appContext.storeState("counter"));
+  appContext.appStore.storeStateDelete("counter");
+  assertFalse(appContext.storeState("counter"));
+});
+
+Deno.test("ApplicationContext::storeState double insert", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertFalse(appContext.storeState("count"));
+  appContext.storeState("count", "12");
+  assertEquals(appContext.storeState("count"), "12");
+  appContext.storeState("count", "1212");
+  assertEquals(appContext.storeState("count"), "1212");
+});
+
+Deno.test("ApplicationContext::storeState double delete", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertExists(appContext.storeState("count"));
+  appContext.storeState("count", "1212");
+  appContext.appStore.storeStateDelete("count");
+  appContext.appStore.storeStateDelete("count");
+  assertFalse(appContext.storeState("count"));
+});
+
+
+Deno.test("ApplicationContext::storeState reset and reset", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+  appContext.storeState("count", "12");
+  appContext.storeState("role", "admin");
+  assertEquals(appContext.storeState("count"), "12");
+  assertEquals(appContext.storeState("role"), "admin");
+
+  // Reset the state.
+  appContext.appStore.storeStateReset();
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+});
+
+Deno.test("ApplicationContext::storeState reset and double reset", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+  appContext.storeState("count", "12");
+  appContext.storeState("role", "admin");
+  assertEquals(appContext.storeState("count"), "12");
+  assertEquals(appContext.storeState("role"), "admin");
+
+  // Reset the state.
+  appContext.appStore.storeStateReset();
+  appContext.appStore.storeStateReset();
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+});
+
+Deno.test("ApplicationContext::storeState reset and double reset then delete", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+  appContext.storeState("count", "12");
+  appContext.storeState("role", "admin");
+  assertEquals(appContext.storeState("count"), "12");
+  assertEquals(appContext.storeState("role"), "admin");
+
+  // Reset the state.
+  appContext.appStore.storeStateReset();
+  appContext.appStore.storeStateReset();
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+
+  appContext.appStore.storeStateDelete("count");
+  appContext.appStore.storeStateDelete("role");
+});
+
+Deno.test("ApplicationContext::storeState user helper methods", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+  assertFalse(appContext.storeState("user"));
+  appContext.storeState("count", "12");
+  appContext.storeState("role", "admin");
+  appContext.storeState("user", "yadav");
+  assertEquals(appContext.storeState("count"), "12");
+  assertEquals(appContext.storeState("role"), "admin");
+  assertEquals(appContext.storeState("user"), "yadav");
+
+  appContext.storeStateDelete("user");
+  assertFalse(appContext.storeState("user"));
+
+  appContext.storeStateDelete("user");
+  appContext.storeStateDelete("user");
+
+  // Reset the state.
+  appContext.storeStateReset();
+  appContext.storeStateReset();
+  assertFalse(appContext.storeState("count"));
+  assertFalse(appContext.storeState("role"));
+
+  appContext.storeStateDelete("count");
+  appContext.storeStateDelete("role");
 });
 
 Deno.test("ApplicationContext::cookies", () => {
@@ -187,3 +339,29 @@ Deno.test("ApplicationContext::responseHeader", () => {
   assertEquals(appContext.responseHeader("content-type"), "application/json");
   assertEquals(appContext.responseHeader("authorization"), "Bearer token");
 });
+
+Deno.test("ApplicationContext asyncResponseTimerId", () => {
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
+  assertEquals(appContext.asyncResponseTimerId, null);
+});
+
+Deno.test("ApplicationContext stopAsyncResponseTimer", () => {
+  const httpRequest = new FuriRequest(new Socket());
+  const httpResponse = new FuriResponse(httpRequest);
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
+  assertEquals(appContext.asyncResponseTimerId, null);
+  appContext.startAsyncResponseTimer(1000);
+  assertNotEquals(appContext.asyncResponseTimerId, null);
+  appContext.stopAsyncResponseTimer();
+  assertEquals(appContext.asyncResponseTimerId, null);
+});
+
+// Deno.test("ApplicationContext getCookie", () => {
+//   const httpRequest = new FuriRequest(new Socket());
+//   const httpResponse = new FuriResponse(httpRequest);
+//   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
+
+//   assertEquals (appContext.getCookie(), undefined);
+// });
