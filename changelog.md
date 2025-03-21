@@ -2,6 +2,13 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.12.1 (2025-03-20)
+
+- Fix, binding type error for store state.
+- Feat, shut down method for StoreState.
+- Feat, added call for graceful shutdown of StoreState.
+- Added prefix to log messages to identify the source of log message.
+
 ## v0.12.0 (2025-03-20)
 
 - BREAKING CHANGE on logger YAML configuration property, renamed "enabled" to "enable".
