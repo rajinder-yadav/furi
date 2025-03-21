@@ -9,6 +9,7 @@
  */
 
 // deno-lint-ignore-file no-explicit-any
+import { LOG_INFO } from "./furi.ts";
 import { LOG_DEBUG, LOG_ERROR } from "./types.ts";
 
 import { DatabaseSync, StatementSync } from "node:sqlite";
@@ -18,7 +19,7 @@ import { DatabaseSync, StatementSync } from "node:sqlite";
  * Provides a global state management system for the application.
  */
 export class StoreState {
-  private readonly db: DatabaseSync = new DatabaseSync(":memory:");
+  private readonly db: DatabaseSync | null = null;
 
   private readonly sqlInsert: StatementSync | null = null;
   private readonly sqlFind: StatementSync | null = null;
@@ -26,9 +27,14 @@ export class StoreState {
   private readonly sqlDelete: StatementSync | null = null;
   private readonly sqlDeleteAll: StatementSync | null = null;
 
-  constructor() {
+  constructor(dbFilename?: string) {
     // Create a SQLite database table for storing application state.
+    if(!dbFilename) {
+      dbFilename = ":memory:";
+    }
+
     try {
+      this.db = new DatabaseSync(":memory:");
       this.db.exec(`
       CREATE TABLE IF NOT EXISTS FuriStateStore (
         key TEXT PRIMARY KEY,
@@ -80,7 +86,7 @@ export class StoreState {
           this.sqlUpdate.run(value, key);
         }
       } catch (error) {
-        LOG_ERROR(`StoreState::storeState Exception caught, state: ${error}`);
+        LOG_ERROR(`StoreState::storeState Exception caught, error: ${error}`);
       }
     } else {
       // Read mode endered.
@@ -129,6 +135,17 @@ export class StoreState {
       }
     } catch (error) {
       LOG_ERROR(`StoreState::storeStateReset Exception caught, state: ${error}`);
+    }
+  }
+
+  /**
+   * Close Sqlite3 database for a gracefully shutdown.
+   */
+  shutDown() {
+    if(this.db){
+      LOG_INFO(`StoreState::shutDown Closing database connection...`);
+      this.db.close();
+      LOG_INFO(`StoreState::shutDown Database connection closed.`);
     }
   }
 }
