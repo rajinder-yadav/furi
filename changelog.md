@@ -2,7 +2,12 @@
 
 Date in ISO format: YYYY-MM-DD
 
-## v0.13.1(2025-03-22)
+## v0.13.2 (2025-03-22)
+
+- Fix, Improved parameter checking for overloaded function.
+- Edit, Added Optional chain check in router code.
+
+## v0.13.1 (2025-03-22)
 
 - Fix, null access violation.
 
