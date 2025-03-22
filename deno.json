@@ -1,31 +1,8 @@
 {
   "tasks": {
-    "build": "deno run -A npm-package/build_npm.ts 0.9.1",
-    "pub": "npm publish --access public dist/",
-    "app": "deno run --watch --allow-all ./src/app.ts",
-    "appd": "deno run --inspect-wait --watch --allow-all ./src/app.ts",
     "dev": "deno run --watch --allow-all ./src/app-functional-test.ts",
-    "debug": "deno run --inspect-wait --watch --allow-all ./src/app-functional-test.ts",
-    "testf": "deno test --allow-all --no-check ./test/functional-test/",
     "test": "deno test --allow-all --no-check ./test/unit-test/",
-    "testd": "deno test --inspect-wait --allow-all --no-check ./test/unit-test/",
-    "testw": "deno test --allow-all --no-check --watch ./test/unit-test/",
-    "time": "deno run --allow-all ./sandbox/time-it.ts",
-    "d": "deno run --inspect --watch --allow-all ./src/server.ts",
-    "dd": "deno run --inspect-wait --watch --allow-all ./src/server.ts",
-    "play": "deno run --watch --allow-all ./sandbox/play.ts",
-    "playd": "deno run --inspect-wait --watch --allow-all ./sandbox/play.ts",
-    "bench": "deno -A ./benchmark/bench.ts",
-    "testff": "deno test --inspect-wait --allow-all ./test/functional-test/",
-    "s": "deno test --allow-all --watch ./test/unit-test/furi-router.static-routes.test.ts",
-    "ss": "deno test --inspect-wait --allow-all --watch ./test/unit-test/furi-router.static-routes.test.ts",
-    "n": "deno test --allow-all --watch ./test/unit-test/furi-router.named-routers.test.ts",
-    "nn": "deno test --inspect-wait --allow-all --watch ./test/unit-test/furi-router.named-routers.test.ts",
-    "a": "deno test --allow-all --watch ./test/unit-test/application-context.test.ts",
-    "aa": "deno test --inspect-wait --allow-all --watch ./test/unit-test/application-context.test.ts",
-    "r": "deno test --allow-all --watch ./test/unit-test/debug.test.ts",
-    "rr": "deno test --inspect-wait --allow-all --watch ./test/unit-test/debug.test.ts",
-    "out": "deno outdated --update --latest"
+    "testff": "deno test --inspect-wait --allow-all ./test/functional-test/"
   },
   "imports": {
     "@deno/dnt": "jsr:@deno/dnt@^0.41.3",
