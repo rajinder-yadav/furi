@@ -9,7 +9,8 @@ import {
   assertFalse,
   assertInstanceOf,
   assertObjectMatch,
-  assertExists
+  assertExists,
+  assertArrayIncludes
 } from '@std/assert';
 
 import {
@@ -144,8 +145,8 @@ Deno.test("ApplicationContext::storeState values", () => {
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest, httpResponse);
   assertFalse(appContext.storeState("count"));
-  appContext.storeState("count", "12");
-  assertEquals(appContext.storeState("count"), "12");
+  appContext.storeState("count", 12);
+  assertEquals(appContext.storeState("count"), 12);
 
   assertFalse(appContext.storeState("item"));
   appContext.storeState("item", "radio");
@@ -158,7 +159,7 @@ Deno.test("ApplicationContext::storeState across calls", () => {
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
   assertExists(appContext.storeState("count"));
-  assertEquals(appContext.storeState("count"), "12");
+  assertEquals(appContext.storeState("count"), 12);
   appContext.storeState("item", "radio");
   assertEquals(appContext.storeState("item"), "radio");
 });
@@ -169,7 +170,7 @@ Deno.test("ApplicationContext::storeState delete value", () => {
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
   assertExists(appContext.storeState("count"));
-  assertEquals(appContext.storeState("count"), "12");
+  assertEquals(appContext.storeState("count"), 12);
   appContext.appStore.storeStateDelete("count");
   assertFalse(appContext.storeState("count"));
 
@@ -195,10 +196,10 @@ Deno.test("ApplicationContext::storeState double insert", () => {
 
   const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
   assertFalse(appContext.storeState("count"));
-  appContext.storeState("count", "12");
-  assertEquals(appContext.storeState("count"), "12");
-  appContext.storeState("count", "1212");
-  assertEquals(appContext.storeState("count"), "1212");
+  appContext.storeState("count", 12);
+  assertEquals(appContext.storeState("count"), 12);
+  appContext.storeState("count", 1212);
+  assertEquals(appContext.storeState("count"), 1212);
 });
 
 Deno.test("ApplicationContext::storeState double delete", () => {
@@ -302,6 +303,295 @@ Deno.test("ApplicationContext::storeState user helper methods", () => {
 
   appContext.storeStateDelete("count");
   appContext.storeStateDelete("role");
+});
+
+Deno.test("ApplicationContext::storeState save string", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", "12");
+  assertEquals(appContext.storeState("value"), "12");
+});
+
+Deno.test("ApplicationContext::storeState save number hex", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", 0x12ae);
+  assertEquals(appContext.storeState("value"), 0x12ae);
+});
+
+Deno.test("ApplicationContext::storeState save number octal", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", 0o435);
+  assertEquals(appContext.storeState("value"), 0o435);
+});
+
+Deno.test("ApplicationContext::storeState save number binary", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", 0b10101010);
+  assertEquals(appContext.storeState("value"), 0b10101010);
+});
+
+Deno.test("ApplicationContext::storeState save number integer positve", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", 12);
+  assertEquals(appContext.storeState("value"), 12);
+});
+
+Deno.test("ApplicationContext::storeState save number integer negative", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", -12);
+  assertEquals(appContext.storeState("value"), -12);
+});
+
+Deno.test("ApplicationContext::storeState save number float positive", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", 12.345);
+  assertEquals(appContext.storeState("value"), 12.345);
+});
+
+Deno.test("ApplicationContext::storeState save number float negative", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", -12.345);
+  assertEquals(appContext.storeState("value"), -12.345);
+});
+
+Deno.test("ApplicationContext::storeState save number Infinity", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", Infinity);
+  assertEquals(appContext.storeState("value"), Infinity);
+});
+
+Deno.test("ApplicationContext::storeState save number -Infinity", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", -Infinity);
+  assertEquals(appContext.storeState("value"), -Infinity);
+});
+
+Deno.test("ApplicationContext::storeState save number NaN", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", NaN);
+  assertEquals(appContext.storeState("value"), NaN);
+});
+
+Deno.test("ApplicationContext::storeState save number BigInt", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", BigInt(9007199254740991n));
+  assertEquals(appContext.storeState("value"), BigInt(9007199254740991n));
+});
+
+Deno.test("ApplicationContext::storeState save BigInt as string", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", BigInt("9007199254740991"));
+  assertEquals(appContext.storeState("value"), BigInt(9007199254740991));
+});
+
+Deno.test("ApplicationContext::storeState save BigInt as octal", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", BigInt("0o377777777777777777"));
+  assertEquals(appContext.storeState("value"), BigInt(0o377777777777777777));
+});
+
+Deno.test("ApplicationContext::storeState save BigInt as binary", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", BigInt("0b11111111111111111111111111111111111111111111111111111"));
+  assertEquals(appContext.storeState("value"), BigInt("0b11111111111111111111111111111111111111111111111111111"));
+});
+
+Deno.test("ApplicationContext::storeState save BigInt as binary", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", BigInt("0b11111111111111111111111111111111111111111111111111111"));
+  assertEquals(appContext.storeState("value"), BigInt(0b11111111111111111111111111111111111111111111111111111));
+});
+
+Deno.test("ApplicationContext::storeState save BigInt as hex", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", BigInt("0x1fffffffffffff"));
+  assertEquals(appContext.storeState("value"), BigInt(0x1fffffffffffff));
+});
+
+Deno.test("ApplicationContext::storeState save boolean true", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", true);
+  assertEquals(appContext.storeState("value"), true);
+});
+
+Deno.test("ApplicationContext::storeState save boolean false", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", false);
+  assertEquals(appContext.storeState("value"), false);
+});
+
+Deno.test("ApplicationContext::storeState save undefined", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", undefined);
+  assertEquals(appContext.storeState("value"), undefined);
+});
+
+Deno.test("ApplicationContext::storeState save null", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", null);
+  assertEquals(appContext.storeState("value"), null);
+});
+
+Deno.test("ApplicationContext::storeState save null", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+  appContext.storeState("value", null);
+  assertEquals(appContext.storeState("value"), null);
+});
+
+Deno.test("ApplicationContext::storeState save null", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+
+  const obj = { string: "string", number: 12.12, arr: [1, "moo", 54.3]};
+  appContext.storeState("value", obj);
+  const readObj = appContext.storeState("value");
+  assertEquals(readObj.string, "string");
+  assertEquals(readObj.number, 12.12);
+  assertArrayIncludes(readObj.arr, [1, "moo", 54.3]);
+});
+
+Deno.test("ApplicationContext::storeState save array", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+
+  const obj = [1, "moo", 54.3, {name: "test", value: 567}];
+  appContext.storeState("value", obj);
+  const readObj = appContext.storeState("value");
+  assertEquals(readObj.length, 4);
+  assertArrayIncludes(readObj, [1, "moo", 54.3]);
+  assertArrayIncludes(readObj, [{name: "test", value: 567}]);
+});
+
+Deno.test("ApplicationContext::storeState save Date", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+
+  const obj = Date.now();
+  appContext.storeState("value", obj);
+  const readObj = appContext.storeState("value");
+  assertEquals(readObj, obj);
+});
+
+Deno.test("ApplicationContext::storeState save Date from a value", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+
+  const obj = new Date(8.64e15);
+  appContext.storeState("value", obj);
+  const readObj = appContext.storeState("value");
+  assertEquals(readObj, obj);
+});
+
+Deno.test("ApplicationContext::storeState save Date from a string", () => {
+  const httpRequest1 = new FuriRequest(new Socket());
+  const httpResponse1 = new FuriResponse(httpRequest1);
+
+  const appContext = new ApplicationContext(Furi.appStore, httpRequest1, httpResponse1);
+  appContext.storeStateReset();
+
+  const obj = new Date("December 17, 1995 03:24:00");
+  appContext.storeState("value", obj);
+  const readObj = appContext.storeState("value");
+  assertEquals(readObj, obj);
 });
 
 Deno.test("ApplicationContext::cookies", () => {
