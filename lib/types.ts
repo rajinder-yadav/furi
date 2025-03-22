@@ -215,6 +215,7 @@ export interface FuriConfig {
     enable: boolean;              // Enable file logging.
     terminal: boolean;            // Enable terminal logging.
     flushPeriod: number;          // Period in milliseconds between log flushes.
+    logDir: string;               // Path to log directory.
     logFile: string;              // Path to log file, if logging mode is "stream".
     maxCount: number;             // Maximum number of log entries before flushing.
     mode: LoggerMode;             // Log mode, "buffer" or "stream".
