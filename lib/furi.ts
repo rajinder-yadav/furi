@@ -159,7 +159,7 @@ export class Furi extends FuriRouter {
         }
 
         // EXPERIMENTAL CODE: Log roll over.
-        if (this.properties.logger.rollover) {
+        if (this.properties.logger?.rollover) {
           try {
             if (fs.existsSync(logFile)) {
               const date = new Date();
