@@ -9,7 +9,8 @@
  */
 
 // deno-lint-ignore-file no-explicit-any
-import * as fs from 'node:fs';
+import fs from 'node:fs';
+import path from 'node:path';
 import zlib from 'node:zlib';
 import * as http from 'node:http';
 import * as https from 'node:https';
@@ -113,6 +114,7 @@ export class Furi extends FuriRouter {
       enable: false,
       terminal: false,
       flushPeriod: 1000,
+      logDir: './logs',
       logFile: 'furi.log',
       maxCount: 100,
       mode: 'stream' as const,
@@ -126,7 +128,7 @@ export class Furi extends FuriRouter {
     // Read default configuration values.
     let { env, port, host, callback, secure } = this.furiConfig.server;
 
-    let { enable, terminal, flushPeriod, maxCount, mode, logFile, level } = this.furiConfig.logger;
+    let { enable, terminal, flushPeriod, maxCount, mode, logDir, logFile, level } = this.furiConfig.logger;
 
     /**
      * Read server configuration properties from furi.yaml or furi.yml file.
@@ -154,6 +156,7 @@ export class Furi extends FuriRouter {
           flushPeriod = this.properties.logger.flushPeriod ?? flushPeriod;
           maxCount = this.properties.logger.maxCount ?? maxCount;
           mode = this.properties.logger.mode as LoggerMode ?? mode as LoggerMode;
+          logDir = this.properties.logger.logDir ?? logDir;
           logFile = this.properties.logger.logFile ?? logFile;
           level = this.properties.logger.level?.toUpperCase() ?? level;
         }
@@ -188,7 +191,7 @@ export class Furi extends FuriRouter {
         // Kick start the logger, so we can start logging.
         try {
           Furi.fastLogger = new FastLogger(
-            process.cwd(),
+            path.join(process.cwd(), logDir),
             logFile,
             enable,
             terminal,
