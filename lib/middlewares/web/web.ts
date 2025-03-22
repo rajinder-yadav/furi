@@ -189,6 +189,9 @@ export function Web(webOptions?: WebOptions): ContextHandler {
             // LOG_DEBUG(`Middleware::Web sent gzip compressed file response.`);
             // Reset async mode flag, since the operation has completed.
             ctx.stopAsyncResponseTimer();
+            // Cleanup resources.
+            gzip.close();
+            readStream.close();
           });
         } else {
           // LOG_DEBUG(`Middleware::Web reading file: ${fileName}`);
