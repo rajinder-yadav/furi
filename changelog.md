@@ -2,9 +2,23 @@
 
 Date in ISO format: YYYY-MM-DD
 
-## v0.12.2 (2025-03-20)
+## v0.13.0 (2025-03-22)
+
+- Feat, State management store now saves and read value by their type.
+  - Types supported:
+    - string
+    - number (integers, floats, +/- Infinity, NaN)
+    - bigint
+    - boolean
+    - Date
+    - object
+    - array
+    - null
+    - undefined
 
 - Fix, possibly resource leak in Web middleware for gzip and brotli compression streams.
+- Refactor, class, file name change for state management store.
+- Test, unit test for StoreState to test saving and reading values by their types.
 
 ## v0.12.1 (2025-03-20)
 
