@@ -10,7 +10,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { Furi } from './furi.ts'
-import { StoreState } from "./state.ts";
+import { GlobalStore } from "./global-store.ts";
 import {
   FuriRequest,
   FuriResponse,
@@ -42,7 +42,7 @@ export class ApplicationContext {
   asyncResponseTimerId: number | null = null;
 
   constructor(
-    public appStore: StoreState,
+    public appStore: GlobalStore,
     public request: FuriRequest,
     public response: FuriResponse
   ) {
@@ -158,7 +158,7 @@ export class ApplicationContext {
   storeState(key: string): any;
   storeState(key: string, value: any): void;
   storeState(key: string, value?: any): any {
-    if (value) {
+    if (arguments.length === 2) {
       this.appStore.storeState(key, value);
     } else {
       return this.appStore.storeState(key);

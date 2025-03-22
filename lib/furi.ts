@@ -41,7 +41,7 @@ import {
   UrlEncodedParserFn,
 } from './middlewares/body-parser/body-parser.ts';
 
-import { StoreState } from './state.ts';
+import { GlobalStore } from './global-store.ts';
 import { FastLogger } from './utils/fast-logger.ts';
 
 
@@ -85,7 +85,7 @@ export class Furi extends FuriRouter {
 
   static fastLogger: FastLogger | null = null;
 
-  static readonly appStore: StoreState = new StoreState();
+  static readonly appStore: GlobalStore = new GlobalStore();
   static readonly httpServer: { app: Furi, http: Server | ServerSecure }[] = [];
 
   static readonly BodyParser: (options?: BodyParserOptions) => any = BodyParserFn;
