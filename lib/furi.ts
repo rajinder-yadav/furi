@@ -10,6 +10,7 @@
 
 // deno-lint-ignore-file no-explicit-any
 import * as fs from 'node:fs';
+import zlib from 'node:zlib';
 import * as http from 'node:http';
 import * as https from 'node:https';
 import { Buffer } from 'node:buffer';
@@ -157,6 +158,33 @@ export class Furi extends FuriRouter {
           level = this.properties.logger.level?.toUpperCase() ?? level;
         }
 
+        // EXPERIMENTAL CODE: Log roll over.
+        if (this.properties.logger.rollover) {
+          try {
+            if (fs.existsSync(logFile)) {
+              const date = new Date();
+              const yyyy = date.getFullYear();
+              const mm = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+              const dd = String(date.getDate()).padStart(2, '0');
+              const h = String(date.getHours()).padStart(2, '0');
+              const m = String(date.getMinutes()).padStart(2, '0');
+              const s = String(date.getSeconds()).padStart(2, '0');
+
+              // Peroform log rollover.
+              const src = fs.createReadStream(logFile);
+              const dest = fs.createWriteStream(`${logFile}.${yyyy}-${mm}-${dd}+${h}${m}${s}.log.gz`);
+              const gzip = zlib.createGzip();
+              src.pipe(gzip).pipe(dest);
+              dest.on('finish', () => {
+                src.close();
+                dest.close();
+                gzip.close();
+              });
+            }
+          } catch (error) {
+            // CONTINUE
+          }
+        }
         // Kick start the logger, so we can start logging.
         try {
           Furi.fastLogger = new FastLogger(

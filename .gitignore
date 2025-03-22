@@ -1,10 +1,16 @@
 # Files
 .env
+*.log
+app.ts
+cert.pem
+furi.yaml
+key.pem
+npm-up.sh
 package.json.deno
 tsconfig.json
-npm-up.sh
-furi.yaml
-*.log
+package.json.original
+tsconfig.json.original
+pub-npm.sh
 
 # Folders
 .vscode/
@@ -18,7 +24,9 @@ node_modules/
 npm-package/
 sandbox/
 server.ts
+ssl/
 tools/
+typescript-build/
 
 # Deno
 deno.lock

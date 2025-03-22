@@ -2,6 +2,10 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.12.2 (2025-03-20)
+
+- Fix, possibly resource leak in Web middleware for gzip and brotli compression streams.
+
 ## v0.12.1 (2025-03-20)
 
 - Fix, binding type error for store state.
