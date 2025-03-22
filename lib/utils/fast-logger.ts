@@ -9,6 +9,7 @@
  */
 
 import path from "node:path";
+import fs from "node:fs";
 import { Worker } from 'node:worker_threads';
 
 import {
@@ -17,6 +18,7 @@ import {
   LogLevelOrdinal,
   mapToLogLevelRank
 } from '../types.ts';
+import { LOG_DEBUG } from "../furi.ts";
 
 /**
  * Stream logging class that uses a worker thread for asynchronous logging.
@@ -43,6 +45,11 @@ export class FastLogger {
     protected logLevel: string
   ) {
     this.logLevelRank = mapToLogLevelRank[logLevel];
+
+    if(this.enable && !fs.existsSync(this.logDirectory)){
+      LOG_DEBUG(`Creating log directory ${this.logDirectory}`);
+      fs.mkdirSync(this.logDirectory, { recursive: true });
+    }
 
     const filename = path.join(this.logDirectory, this.logFileName);
 
