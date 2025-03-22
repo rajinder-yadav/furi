@@ -2,6 +2,10 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.13.1(2025-03-22)
+
+- Fix, null access violation.
+
 ## v0.13.0 (2025-03-22)
 
 - Feat, State management store now saves and read value by their type.

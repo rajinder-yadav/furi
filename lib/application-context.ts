@@ -138,7 +138,7 @@ export class ApplicationContext {
   sessionState(key: string): any;
   sessionState(key: string, value: any): void;
   sessionState(key: string, value?: any): any {
-    if (value) {
+    if (arguments.length === 2) {
       this.request.sessionData[key] = value;
     } else {
       return this.request.sessionData[key];
@@ -222,7 +222,7 @@ export class ApplicationContext {
   requestHeader(name: string): string | string[] | undefined;
   requestHeader(name: string, value: string): void;
   requestHeader(name: string, value?: string): any {
-    if (value) {
+    if (arguments.length === 2) {
       this.request.headers[name] = value;
     } else {
       return this.request.headers[name];
@@ -291,7 +291,7 @@ export class ApplicationContext {
   end(data: string): void;
   end(data: object): void;
   end(data?: unknown): void {
-    if (!data) {
+    if (arguments.length === 0) {
       this.response.end();
     } else if (typeof data === 'string') {
       this.response.end(data);

@@ -109,7 +109,7 @@ export class HttpCookiesStore {
       LOG_ERROR(`HttpCookiesStore::expires Cookie ${name} does not exist`);
       return null;
     }
-    if (value === undefined) {
+    if (arguments.length === 1) {
       return this.cookies[name].options!['Expires'] as string;
     } else if (typeof value === 'number') {
       this.cookies[name].options!['Expires'] = new Date(value).toUTCString();
