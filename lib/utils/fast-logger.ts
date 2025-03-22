@@ -47,7 +47,7 @@ export class FastLogger {
     this.logLevelRank = mapToLogLevelRank[logLevel];
 
     if(this.enable && !fs.existsSync(this.logDirectory)){
-      LOG_DEBUG(`Creating log directory ${this.logDirectory}`);
+      // LOG_DEBUG(`Creating log directory ${this.logDirectory}`);
       fs.mkdirSync(this.logDirectory, { recursive: true });
     }
 

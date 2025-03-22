@@ -25,7 +25,7 @@ import { FuriRouter } from './furi-router.ts';
 import {
   API_VERSION,
   FuriConfig,
-  LOG_DEBUG,
+  // LOG_DEBUG,
   LOG_ERROR,
   LOG_INFO,
   LoggerMode,
@@ -229,7 +229,7 @@ export class Furi extends FuriRouter {
           requestCert = this.properties.cert.requestCert;
 
           this.furiConfig.cert = { key, cert, passphrase, ca, rejectUnauthorized, requestCert };
-          LOG_DEBUG(`${JSON.stringify(this.furiConfig.cert)}`);
+          // LOG_DEBUG(`${JSON.stringify(this.furiConfig.cert)}`);
 
           if (key && cert) {
             LOG_INFO('Furi::constructor SSL key file propertey provided.');

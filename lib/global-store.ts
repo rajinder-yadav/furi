@@ -78,7 +78,7 @@ export class GlobalStore {
       if (typeof value === 'string') {
         valueType = 'string';
         textValue = value;
-        LOG_DEBUG(`StoreState::storeState saving string ${textValue}`);
+        // LOG_DEBUG(`StoreState::storeState saving string ${textValue}`);
       } else if (typeof value === 'number') {
         valueType = 'number';
         if (value === Infinity) {
@@ -91,19 +91,19 @@ export class GlobalStore {
         } else {
           textValue = value.toString();
         }
-        LOG_DEBUG(`StoreState::storeState saving number ${textValue}`);
+        // LOG_DEBUG(`StoreState::storeState saving number ${textValue}`);
       } else if (typeof value === 'boolean') {
         valueType = 'boolean';
         textValue = value ? 'true' : 'false';
-        LOG_DEBUG(`StoreState::storeState saving boolean ${textValue}`);
+        // LOG_DEBUG(`StoreState::storeState saving boolean ${textValue}`);
       } else if (typeof value === 'undefined') {
         valueType = 'undefined';
         textValue = 'undefined';
-        LOG_DEBUG(`StoreState::storeState saving undefined ${textValue}`);
+        // LOG_DEBUG(`StoreState::storeState saving undefined ${textValue}`);
       } else if (Array.isArray(value)) {
         valueType = 'array';
         textValue = JSON.stringify(value);
-        LOG_DEBUG(`StoreState::storeState saving Array ${textValue}`);
+        // LOG_DEBUG(`StoreState::storeState saving Array ${textValue}`);
       } else if (typeof value === 'object') {
         valueType = 'object';
         if (value === null) {
@@ -115,11 +115,11 @@ export class GlobalStore {
         } else {
           textValue = JSON.stringify(value);
         }
-        LOG_DEBUG(`StoreState::storeState saving object ${textValue}`);
+        // LOG_DEBUG(`StoreState::storeState saving object ${textValue}`);
       } else if (typeof value === 'bigint') {
         valueType = 'bigint';
         textValue = value.toString();
-        LOG_DEBUG(`StoreState::storeState saving bigint ${textValue}`);
+        // LOG_DEBUG(`StoreState::storeState saving bigint ${textValue}`);
       } else {
         valueType = 'unknown';
         textValue = JSON.stringify(value);
