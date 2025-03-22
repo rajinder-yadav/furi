@@ -185,7 +185,7 @@ export class FuriRouter {
       // Route based middleware.
       const uri = arguments[0];
       const callbacks: ContextHandler[] = Array.from(arguments).slice(1);
-      if (callbacks.length === 0) {
+      if (callbacks?.length === 0) {
         throw new Error('FuriRouter::use No middleware callback function provided');
       }
       return this.all(uri, ...callbacks);
