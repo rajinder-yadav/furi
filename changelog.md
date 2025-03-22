@@ -2,6 +2,11 @@
 
 Date in ISO format: YYYY-MM-DD
 
+## v0.13.3 (2025-03-??)
+
+- Feat, logger directory can be specified.
+- Feat, create log directory if it does not exist.
+
 ## v0.13.2 (2025-03-22)
 
 - Fix, Improved parameter checking for overloaded function.

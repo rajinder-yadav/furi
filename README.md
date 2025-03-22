@@ -515,6 +515,7 @@ If you do not declare any logger settings, the following are the default setting
 logger:
   enable: false
   flushPeriod: 1000
+  logDir: logs
   logFile: furi.log
   maxCount: 100
   mode: buffer
