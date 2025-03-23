@@ -220,6 +220,7 @@ export interface FuriConfig {
     maxCount: number;             // Maximum number of log entries before flushing.
     mode: LoggerMode;             // Log mode, "buffer" or "stream".
     level: string;                // Log level, debug, info, warn, error.
+    rollover: number;             // Rollover interval in minutes.
   },
   cert?: {
     key: string;                    // Path to SSL key file.
