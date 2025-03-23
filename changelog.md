@@ -2,10 +2,15 @@
 
 Date in ISO format: YYYY-MM-DD
 
-## v0.13.3 (2025-03-??)
+## v0.14.0 (2025-03-23)
 
 - Feat, logger directory can be specified.
 - Feat, create log directory if it does not exist.
+- Feat, log rollover with old log getting gzip.
+- Feat, log rollover interval configuration, multiple of hours.
+- Feat, log rollover interval shown in output and log.
+- Feat, log dir+filename shown in output and log.
+- Deleted experimental log rollover code.
 
 ## v0.13.2 (2025-03-22)
 

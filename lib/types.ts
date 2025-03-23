@@ -18,7 +18,7 @@ import { Furi } from './furi.ts';
 /**
  * API Version.
  */
-export const API_VERSION: string = '0.13.3';
+export const API_VERSION: string = '0.14.0';
 
 /**
  * Logging helper functions.
