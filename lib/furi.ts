@@ -119,6 +119,7 @@ export class Furi extends FuriRouter {
       maxCount: 100,
       mode: 'stream' as const,
       level: LogLevel.INFO,
+      rollover: 24 * 60 * 60 * 1000,
     },
   };
 
@@ -128,7 +129,17 @@ export class Furi extends FuriRouter {
     // Read default configuration values.
     let { env, port, host, callback, secure } = this.furiConfig.server;
 
-    let { enable, terminal, flushPeriod, maxCount, mode, logDir, logFile, level } = this.furiConfig.logger;
+    let {
+      enable,
+      flushPeriod,
+      level,
+      logDir,
+      logFile,
+      maxCount,
+      mode,
+      rollover,
+      terminal,
+    } = this.furiConfig.logger;
 
     /**
      * Read server configuration properties from furi.yaml or furi.yml file.
@@ -159,6 +170,9 @@ export class Furi extends FuriRouter {
           logDir = this.properties.logger.logDir ?? logDir;
           logFile = this.properties.logger.logFile ?? logFile;
           level = this.properties.logger.level?.toUpperCase() ?? level;
+          rollover = this.properties.logger.rollover
+            ? this.properties.logger.rollover * 60 * 60 * 1000
+            : rollover;
         }
 
         // EXPERIMENTAL CODE: Log roll over.
@@ -198,7 +212,8 @@ export class Furi extends FuriRouter {
             flushPeriod,
             maxCount,
             mode,
-            level
+            level,
+            rollover,
           );
         }
         catch (error) {
@@ -209,7 +224,7 @@ export class Furi extends FuriRouter {
         // Update configuration values.
         this.furiConfig = {
           server: { env, port, host, callback, secure },
-          logger: { enable, terminal, flushPeriod, logFile, maxCount, mode, level },
+          logger: { enable, terminal, flushPeriod, logDir, logFile, maxCount, mode, level, rollover },
         };
 
         // SSL Certificate values.
@@ -477,8 +492,8 @@ export class Furi extends FuriRouter {
    * @returns Logger configuration string.
    */
   private getLoggerInfoMessage() {
-    const { enable, flushPeriod, logFile, maxCount, mode, level } = this.furiConfig.logger;
-    return `Logger  { enable: ${enable}, level: ${level}, logFile: ${logFile}, mode: ${mode}, flushPeriod: ${flushPeriod}ms, maxCount: ${maxCount} }`;
+    const { enable, flushPeriod, logDir, logFile, maxCount, mode, level, rollover } = this.furiConfig.logger;
+    return `Logger  { enable: ${enable}, level: ${level}, logFile: ${logDir}/${logFile}, mode: ${mode}, flushPeriod: ${flushPeriod}ms, maxCount: ${maxCount}, rollover: ${rollover / (60 * 60 * 1000)}h }`;
   }
 
   /**
