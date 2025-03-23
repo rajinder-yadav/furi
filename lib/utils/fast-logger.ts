@@ -42,7 +42,8 @@ export class FastLogger {
     protected flushPeriod: number,
     protected logMaxCount: number,
     protected logMode: LoggerMode,
-    protected logLevel: string
+    protected logLevel: string,
+    protected rollover: number,
   ) {
     this.logLevelRank = mapToLogLevelRank[logLevel];
 
@@ -61,7 +62,8 @@ export class FastLogger {
         enable: this.enable,
         flushPeriod: this.flushPeriod,
         logMaxCount: this.logMaxCount,
-        logMode: this.logMode
+        logMode: this.logMode,
+        rollover: this.rollover,
       },
     });
 
