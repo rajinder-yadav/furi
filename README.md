@@ -502,10 +502,14 @@ Note file logging is disabled by default, you must enable it in Furi YAML config
 
 Here are the configurable logging options:
 
+- __enable__: Turn logging on or off.
 - __flushPeriod__: Control time to flush buffered log messages.
 - __maxCount__: Maximum number of log messages before flushing.
 - __mode__: Can be one of "stream" or "buffer".
 - __level__: Can be one of "debug", "info", "log", "warn", "error", "critical" or "fatal".
+- __logDir__: Log directory, will be created if it does not exist.
+- __logFile__: Log filename.
+- __rollover__: Maximum number of days before log file is rolled over.
 
 The level is used to filter log messages based on their severity. Only messages at or above the configured level will be logged.
 
@@ -520,6 +524,7 @@ logger:
   maxCount: 100
   mode: buffer
   level: info
+  rollover: 24
 ```
 
 To enable logging you only need to change one setting:
@@ -583,24 +588,25 @@ cert:
 When Furi is running under HTTPS, it will shows in the log and startup message. You will see "__mode: https" under Server.
 
 ```sh
-Furi Server (v0.8.0) started.
-Server  { mode: https, host: localhost, port: 3030, env: development }
-Runtime { deno: 2.2.4, v8: 13.4.114.11-rusty, typescript: 5.7.3 }
-Logger  { enable: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+Furi Server (v0.14.0) started.
+Server  { mode: http, host: localhost, port: 3030, env: development }
+Runtime { deno: 2.2.5, v8: 13.5.212.4-rusty, typescript: 5.7.3 }
+Logger  { enable: true, level: INFO, logFile: ./logs/furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100, rollover: 24h }
 ```
 
 ### Sample log output
 
 ```txt
-2025-03-02T21:33:03.426Z, INFO, Furi Server (v0.2.4) started.
-2025-03-02T21:33:03.427Z, INFO, Server { host: localhost, port: 3030, mode: development }
-2025-03-02T21:33:03.427Z, INFO, Runtime { deno: 2.2.2, v8: 13.4.114.9-rusty, typescript: 5.7.3 }
-2025-03-02T21:33:03.428Z, INFO, Logger { enable: true, level: INFO, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
-2025-03-02T21:33:12.216Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47052, http: 1.1, method: GET, url: /
-2025-03-02T21:33:12.230Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47056, http: 1.1, method: GET, url: /
-2025-03-02T21:33:12.232Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47068, http: 1.1, method: GET, url: /about
-2025-03-02T21:33:12.233Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47070, http: 1.1, method: GET, url: /about/
-2025-03-02T21:33:12.234Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 47072, http: 1.1, method: GET, url: /about/raj12
+2025-03-23T04:11:05.018Z, INFO, Furi::listen Creating a unsecure HTTP server.
+2025-03-23T04:11:05.019Z, INFO, Furi Server (v0.13.3) started.
+2025-03-23T04:11:05.019Z, INFO, Server  { mode: http, host: localhost, port: 3030, env: development }
+2025-03-23T04:11:05.019Z, INFO, Runtime { deno: 2.2.5, v8: 13.5.212.4-rusty, typescript: 5.7.3 }
+2025-03-23T04:11:05.020Z, INFO, Logger  { enable: true, level: INFO, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+2025-03-23T04:11:09.343Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 60452, http: 1.1, method: GET, url: /
+2025-03-23T04:11:09.363Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 60466, http: 1.1, method: GET, url: /
+2025-03-23T04:11:09.368Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 60478, http: 1.1, method: GET, url: /about
+2025-03-23T04:11:09.373Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 60488, http: 1.1, method: GET, url: /about/
+2025-03-23T04:11:09.377Z, INFO, host: localhost:3030, remote-ip: 127.0.0.1, remote-port: 60504, http: 1.1, method: GET, url: /about/raj12
 ```
 
 ## Motivation
