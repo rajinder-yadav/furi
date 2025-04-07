@@ -1,10 +1,19 @@
 # Furi - Fast HTTP/HTTPS Server framework
 
-This project makes use of "DevContainers" to make on boarding new developers a snap! A DevContainers is a requirement to setup a CI/CD pipeline on GitHub. This feature was added by [Martial Rioux](https://www.linkedin.com/in/martialrioux/) as future proofing. Reach out to him for Devops and Cloud solutions needs.
+## Benchmarks 🚀
 
-Currently I am the only Software Developer working on this project in my free time as I seek work. If you are hiring or know someone is, please reach out to me at: <rajinder.yadav@hotmail.com>, or connect with me on [Linkedin](https://www.linkedin.com/in/rajinderyadav/). I am available both in a full-time capacity or as a Consultant (Corp to Corp) for your project needs. I reside in Toronto, Ontario, Canada! 🇨🇦
+Furi outperformed both Fastify and Express.js 5.0 in a benchmark test.
+Below are the benchmarks results.
 
-![Image](./images/dolphin.jpeg)
+1. Number of requests made: 100,000
+1. Total time taken in seconds.
+1. Requests handled in 1 second.
+
+Framework | Requests | Total Time | Requests handled / sec
+-|-|-|-
+Furi | 100,000 | 11.569 s | 8643.74
+Fastify | 100,000 | 13.847 s | 7221.62
+Express.js v5.0 | 100,000 | 18.020 s | 5549.29
 
 ## FEATURE UPDATES 🚨
 
