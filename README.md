@@ -2,18 +2,18 @@
 
 ## Benchmarks 🚀
 
-Furi outperformed both Fastify and Express.js 5.0 in a benchmark test.
+Furi outperforms both Fastify and Express.js 5.0 in a benchmark test.
 Below are the benchmarks results.
 
 1. Number of requests made: 100,000
 1. Total time taken in seconds.
 1. Requests handled in 1 second.
 
-Framework | Requests | Total Time | Requests handled / sec
--|-|-|-
-Furi | 100,000 | 11.569 s | 8643.74
-Fastify | 100,000 | 13.847 s | 7221.62
-Express.js v5.0 | 100,000 | 18.020 s | 5549.29
+Framework | Requests | Total Time | Requests/Seconds| Built with TypeScript
+-|-|-|-|-
+Furi | 100,000 | 11.569 s | 8643.74| ✅
+Fastify | 100,000 | 13.847 s | 7221.62| ❌
+Express.js v5.0 | 100,000 | 18.020 s | 5549.29| ❌
 
 ## FEATURE UPDATES 🚨
 
@@ -38,6 +38,7 @@ Always check the changelog before pulling updates to see what changed. Furi is i
 <!-- code_chunk_output -->
 
 - [Furi - Fast HTTP/HTTPS Server framework](#furi---fast-httphttps-server-framework)
+  - [Benchmarks 🚀](#benchmarks-)
   - [FEATURE UPDATES 🚨](#feature-updates-)
   - [A Return to Simplicity ✅](#a-return-to-simplicity-)
   - [BOM - Bill of Material](#bom---bill-of-material)
@@ -68,7 +69,7 @@ Always check the changelog before pulling updates to see what changed. Furi is i
     - [Sample log output](#sample-log-output)
   - [Motivation](#motivation)
   - [Why](#why)
-  - [Benchmarks 🚀](#benchmarks-)
+  - [Benchmarks 🚀](#benchmarks--1)
     - [Furi Benchmark](#furi-benchmark)
     - [Fastify Benchmark](#fastify-benchmark)
     - [Express Benchmark](#express-benchmark)
@@ -641,11 +642,11 @@ Below are the benchmarks results.
 1. Total time taken in seconds.
 1. Requests handled in 1 second.
 
-Framework | Requests | Total Time | Requests handled / sec
--|-|-|-
-Furi | 100,000 | 11.569 s | 8643.74
-Fastify | 100,000 | 13.847 s | 7221.62
-Express.js v5.0 | 100,000 | 18.020 s | 5549.29
+Framework | Requests | Total Time | Requests/Seconds| Built with TypeScript
+-|-|-|-|-
+Furi | 100,000 | 11.569 s | 8643.74| ✅
+Fastify | 100,000 | 13.847 s | 7221.62| ❌
+Express.js v5.0 | 100,000 | 18.020 s | 5549.29| ❌
 
 ### Furi Benchmark
 
