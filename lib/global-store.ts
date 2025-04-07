@@ -2,39 +2,46 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
 // deno-lint-ignore-file no-explicit-any
-import { LOG_INFO } from "./furi.ts";
-import { LOG_DEBUG, LOG_ERROR, LOG_WARN } from "./types.ts";
+import { LOG_INFO } from './furi';
+import {
+  // LOG_DEBUG,
+  LOG_ERROR,
+  LOG_WARN
+} from './types';
 
-import { DatabaseSync, StatementSync } from "node:sqlite";
+// TODO: Revisit build-in Sqlite3 support with it is ready.
+// import { DatabaseSync, Statement } from 'node:sqlite';
+import SqliteDB, { Statement, Database } from 'better-sqlite3';
 
 /**
  * State Management for Furi.
  * Provides a global state management system for the application.
  */
 export class GlobalStore {
-  private readonly db: DatabaseSync | null = null;
+  private readonly db: Database | null = null;
 
-  private readonly sqlInsert: StatementSync | null = null;
-  private readonly sqlFind: StatementSync | null = null;
-  private readonly sqlUpdate: StatementSync | null = null;
-  private readonly sqlDelete: StatementSync | null = null;
-  private readonly sqlDeleteAll: StatementSync | null = null;
+  private readonly sqlInsert: Statement | null = null;
+  private readonly sqlFind: Statement | null = null;
+  private readonly sqlUpdate: Statement | null = null;
+  private readonly sqlDelete: Statement | null = null;
+  private readonly sqlDeleteAll: Statement | null = null;
 
   constructor(dbFilename?: string) {
     // Create a SQLite database table for storing application state.
     if (!dbFilename) {
-      dbFilename = ":memory:";
+      dbFilename = ':memory:';
     }
 
     try {
-      this.db = new DatabaseSync(":memory:");
+      this.db = new SqliteDB(':memory:');
+      this.db.pragma('journal_mode = WAL');
       this.db.exec(`
       CREATE TABLE IF NOT EXISTS FuriStateStore (
         key TEXT PRIMARY KEY,
