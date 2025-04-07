@@ -2,7 +2,7 @@
  * FURI - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
@@ -17,10 +17,12 @@ import {
   HttpCookiesStore,
   LOG_DEBUG,
   LOG_INFO,
-} from "../lib/furi.ts";
+} from "../lib/furi";
+
+import {API_VERSION} from '../lib/types';
 
 const furi = Furi.create();
-const USER_AGENT: string = "FURI Node Server (v0.1)";
+const USER_AGENT: string = `Furi HTTP Node.js Server v${API_VERSION}`;
 
 /**
  * Perform cleanup

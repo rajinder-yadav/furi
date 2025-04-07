@@ -2,24 +2,24 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
 // deno-lint-ignore-file no-explicit-any
-import { Furi } from './furi.ts'
-import { GlobalStore } from "./global-store.ts";
+import { Furi } from './furi'
+import { GlobalStore } from './global-store';
 import {
   FuriRequest,
   FuriResponse,
   MapOf,
   QueryParamTypes,
   // LOG_DEBUG,
-  LOG_ERROR,
-  LOG_WARN,
-} from './types.ts';
+  // LOG_ERROR,
+  // LOG_WARN,
+} from './types';
 
 
 /**
@@ -39,7 +39,7 @@ export class ApplicationContext {
    *
    * TODO: Maybe add a timeout for async operations?
    */
-  asyncResponseTimerId: number | null = null;
+  asyncResponseTimerId: NodeJS.Timeout | null = null;
 
   constructor(
     public appStore: GlobalStore,

@@ -2,7 +2,7 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
@@ -10,10 +10,10 @@
 
 // deno-lint-ignore-file no-explicit-any
 import { IncomingMessage, ServerResponse, } from 'node:http';
-import { Socket } from "node:net";
+import { Socket } from 'node:net';
 
-import { ApplicationContext } from './application-context.ts';
-import { Furi } from './furi.ts';
+import { ApplicationContext } from './application-context';
+import { Furi } from './furi';
 
 /**
  * API Version.
@@ -34,9 +34,10 @@ export type LoggerMode = 'buffer' | 'stream';
 /**
  * Map types for different indexed access.
  */
-export interface MapOf<T1> {
-  [key: string]: T1;
-}
+export type MapOf<T> = Record<string, T>;
+// export interface MapOf<T1> {
+//   [key: string]: T1;
+// }
 
 /**
  * Query parameter types.
@@ -79,6 +80,7 @@ export interface StaticRouteCallback {
  */
 export interface NamedRouteCallback {
   useRegex: boolean;           // Use regex for path matching.
+  uri: string;             // URI with named segments. e.g., /user/:id
   pathNames: string[];         // Path segment names.
   key: string;                 // RegEx URI string.
   params: string[];            // URI named segments.
@@ -168,7 +170,7 @@ export const mapToLogLevelRank: MapOf<number> = {
  *      https://nodejs.org/docs/latest/api/http.html#class-httpincomingmessage
  */
 export class FuriRequest extends IncomingMessage {
-  public params: MapOf<string | number> = {};
+  public params: MapOf<string | undefined> = {};
   public query: URLSearchParams | null = null;
   public sessionData: MapOf<any> = {};
   public body: any = null;
@@ -305,6 +307,6 @@ export function ClassHandler(ClassRef: unknown): ContextHandler | null {
     const instanceRef = new ClassRouterHandlerRef();
     return instanceRef.handle.bind(instanceRef);
   }
-  LOG_ERROR("Invalid class reference. Please provide a valid class that extends BaseRouterHandler.");
+  LOG_ERROR('Invalid class reference. Please provide a valid class that extends BaseRouterHandler.');
   return null;
 }

@@ -2,14 +2,14 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
-import path from "node:path";
-import fs from "node:fs";
+import path from 'node:path';
+import fs from 'node:fs';
 import { Worker } from 'node:worker_threads';
 
 import {
@@ -17,8 +17,8 @@ import {
   LogLevel,
   LogLevelOrdinal,
   mapToLogLevelRank
-} from '../types.ts';
-import { LOG_DEBUG } from "../furi.ts";
+} from '../types';
+// import { LOG_DEBUG } from '../furi';
 
 /**
  * Stream logging class that uses a worker thread for asynchronous logging.
@@ -54,7 +54,9 @@ export class FastLogger {
 
     const filename = path.join(this.logDirectory, this.logFileName);
 
-    const dirName = (import.meta || globalThis.Deno) ? import.meta.dirname ?? '' : path.dirname(__filename);
+    // TODO: Fix
+    // const dirName = (import.meta || globalThis.Deno) ? import.meta.dirname ?? '' : path.dirname(__filename);
+    const dirName = path.dirname(__filename);
     this.worker = new Worker(path.join(dirName, 'worker-logger.js'), {
       workerData: {
         filename: filename,

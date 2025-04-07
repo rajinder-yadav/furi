@@ -2,26 +2,30 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
  */
 
 // deno-lint-ignore-file no-explicit-any
+
+// TODO: Cluserting support for Node.js, not supported in Deno.
+// import cluster from 'node:cluster';
+// import { availableParallelism } from 'node:os'
+
 import fs from 'node:fs';
 import path from 'node:path';
-import zlib from 'node:zlib';
 import * as http from 'node:http';
 import * as https from 'node:https';
 import { Buffer } from 'node:buffer';
 import { Server } from 'node:http';
 import { Stream } from 'node:stream';
 import { Server as ServerSecure } from 'node:https';
-import process from "node:process";
+import process from 'node:process';
 import YAML from 'yaml';
 
-import { FuriRouter } from './furi-router.ts';
+import { FuriRouter } from './furi-router';
 import {
   API_VERSION,
   FuriConfig,
@@ -31,29 +35,29 @@ import {
   LoggerMode,
   LogLevel,
   MapOf,
-} from './types.ts';
+} from './types';
 
-import { Web, WebOptions } from './middlewares/web/web.ts';
-import { Cors, CorsOptions } from './middlewares/cors/cors.ts';
+import { Web, WebOptions } from './middlewares/web/web';
+import { Cors, CorsOptions } from './middlewares/cors/cors';
 import {
   BodyParserFn,
   BodyParserOptions,
   JSONBodyParserFn,
   UrlEncodedParserFn,
-} from './middlewares/body-parser/body-parser.ts';
+} from './middlewares/body-parser/body-parser';
 
-import { GlobalStore } from './global-store.ts';
-import { FastLogger } from './utils/fast-logger.ts';
+import { GlobalStore } from './global-store';
+import { FastLogger } from './utils/fast-logger';
 
 
 // Re-export types and classes for applications
-export * from './application-context.ts';
-export * from './furi-router.ts';
-export * from './middlewares/cors/cors.ts';
-export * from './middlewares/web/web.ts'
-export * from './types.ts';
-export * from './utils/http-cookies-store.ts';
-export * from './utils/time-period.ts';
+export * from './application-context';
+export * from './furi-router';
+export * from './middlewares/cors/cors';
+export * from './middlewares/web/web'
+export * from './types';
+export * from './utils/http-cookies-store';
+export * from './utils/time-period';
 
 type CleanupHandler = () => void;
 
@@ -324,7 +328,7 @@ export class Furi extends FuriRouter {
    * @returns API version as a string.
    */
   static getApiVersion(): string {
-    return `Furi (v${API_VERSION})`;
+    return `Furi HTTP Node.js Server v${API_VERSION}`;
   }
 
   /**
@@ -380,6 +384,23 @@ export class Furi extends FuriRouter {
     if (!callback) {
       callback = this.furiConfig.server.callback;
     }
+
+    // TODO: Add support for clustering in development mode.
+    // BUG: This is not supported in Deno.
+    // const cpuCores = availableParallelism();
+    // if (cluster.isPrimary && cpuCores > 1) {
+
+    //   for (let i = 0; i < cpuCores; i++) {
+    //     cluster.fork();
+    //     LOG_INFO(`Furi::listen forked worker ${i + 1} of ${cpuCores}`);
+    //   }
+
+    //   cluster.on('exit', (worker, code, signal) => {
+    //     LOG_INFO(`Furi Worker ${worker.process.pid} shutdown successfully.`);
+    //   });
+
+    //   return;
+    // }
 
     let server: Server | ServerSecure | null = null;
     if (sslKey && sslCert) {
@@ -475,14 +496,18 @@ export class Furi extends FuriRouter {
    * @returns Runtime info string.
    */
   private getRuntimeMessage() {
-    let runtimeMessage: string;
-    if (globalThis.Deno) {
-      const { deno, v8, typescript } = globalThis.Deno.version;
-      runtimeMessage = `Runtime { deno: ${deno}, v8: ${v8}, typescript: ${typescript} }`;
-    } else {
-      const { node, v8 } = process.versions;
-      runtimeMessage = `Runtime { node: ${node}, v8: ${v8} }`;
-    }
+    // TODO: Fix
+    // let runtimeMessage: string;
+    // if (globalThis.Deno) {
+    //   const { deno, v8, typescript } = globalThis.Deno.version;
+    //   runtimeMessage = `Runtime { deno: ${deno}, v8: ${v8}, typescript: ${typescript} }`;
+    // } else {
+    //   const { node, v8 } = process.versions;
+    //   runtimeMessage = `Runtime { node: ${node}, v8: ${v8} }`;
+    // }
+
+    const { node, v8 } = process.versions;
+    const runtimeMessage = `Runtime { node: ${node}, v8: ${v8} }`;
     return runtimeMessage;
   }
 

@@ -2,7 +2,7 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
@@ -23,10 +23,10 @@ import {
   RouteMap,
   RouterConfig,
   RouterHanderConstructor,
-} from './types.ts';
+} from './types';
 
-import { ApplicationContext } from './application-context.ts';
-import { Furi } from './furi.ts';
+import { ApplicationContext } from './application-context';
+import { Furi } from './furi';
 
 const TopLevelMiddlewareUrl: string = '/';
 
@@ -502,9 +502,9 @@ export class FuriRouter {
       // LOG_DEBUG(`FuriRouter:: buildRequestMap bucket: ${bucket}, key: ${key}, params: ${params}`);
 
       if (!routeMap.namedRoutePartitionMap[bucket]) {
-        routeMap.namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, useRegex }];
+        routeMap.namedRoutePartitionMap[bucket] = [{ key, params, callbacks, pathNames, uri, useRegex }];
       } else {
-        routeMap.namedRoutePartitionMap[bucket].push({ key, params, callbacks, pathNames, useRegex });
+        routeMap.namedRoutePartitionMap[bucket].push({ key, params, callbacks, pathNames, uri, useRegex });
       }
     }
     return this;
@@ -519,7 +519,7 @@ export class FuriRouter {
    * @param request   HttpRequest object.
    * @returns boolean True if all tokens match, otherwise false.
    */
-  protected fastPathMatch(
+  protected namedPathMatch(
     pathNames: string[],
     keyNames: string[],
     request: FuriRequest
@@ -601,6 +601,7 @@ export class FuriRouter {
         // LOG_DEBUG(`FuriRouter::processHTTPMethod pathNames: ${pathNames}`);
         // LOG_DEBUG(`FuriRouter::processHTTPMethod bucket: ${bucket}`);
 
+
         if (routeMap.namedRoutePartitionMap[bucket]) {
           if (!request.params) { request.params = {}; }
 
@@ -608,7 +609,25 @@ export class FuriRouter {
           if (!namedRouteBucket || namedRouteBucket?.length === 0) { return; }
 
           for (const namedRouteHandlers of namedRouteBucket) {
-            if (!namedRouteHandlers.useRegex && this.fastPathMatch(pathNames, namedRouteHandlers.pathNames, request) ||
+
+            // TODO: New URLPattern Node v.23.8.0
+            // let namedPathMatch = false;
+            // if (globalThis.Deno) {
+            //   const pattern = new URLPattern({ pathname: namedRouteHandlers.uri });
+            //   const match = pattern.exec(URL);
+            //   if (match?.pathname.groups) {
+            //     namedPathMatch = true;
+            //     request.params = match.pathname.groups;
+            //   } else {
+            //     namedPathMatch = false;
+            //   }
+            // } else {
+            //   namedPathMatch = this.fastPathMatch(pathNames, namedRouteHandlers.pathNames, request);
+            // }
+
+            const namedPathMatch = this.namedPathMatch(pathNames, namedRouteHandlers.pathNames, request);
+
+            if (!namedRouteHandlers.useRegex && namedPathMatch ||
               namedRouteHandlers.useRegex && this.regexPathMatch(URL, namedRouteHandlers, request)) {
               // LOG_DEBUG(`FuriRouter::processHTTPMethod params: ${JSON.stringify(request.params)}`);
               callback_chain = [...toplevelMiddlewareCallbacks, ...namedRouteHandlers.callbacks ?? []];

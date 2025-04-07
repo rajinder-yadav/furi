@@ -2,7 +2,7 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
@@ -45,7 +45,7 @@ class WorkerLogger {
   static enable = workerData?.enable ?? false;
   static terminal = workerData.terminal ?? false;
 
-  static logStream = workerData?.enable ? fs.createWriteStream(workerData.filename, { flags: 'a' }) : null;
+  static logStream: fs.WriteStream | null  = workerData?.enable ? fs.createWriteStream(workerData.filename, { flags: 'a' }) : null;
 
   static bufferHighMark = WorkerLogger.logMaxCount * 100;
   static bufferMaxSize = WorkerLogger.bufferHighMark * 1.25;
@@ -53,8 +53,8 @@ class WorkerLogger {
   static logBuffer = Buffer.alloc(WorkerLogger.bufferMaxSize);
   static bufferOffset = 0;
 
-  static timerId = null;
-  static timerIdLogRollover = null;
+  static timerId: NodeJS.Timeout | number | null = null;
+  static timerIdLogRollover: NodeJS.Timeout | number | null = null;
 
   // Start log rollover timer.
   static {
@@ -64,7 +64,7 @@ class WorkerLogger {
     }, workerData.rollover);
   }
 
-  static log({ level, message }) {
+  static log({ level, message }: { level: string, message: string }) {
     const timestamp = new Date().toISOString();
     const logEntry = `${timestamp}, ${level}, ${message}`;
 
@@ -78,7 +78,7 @@ class WorkerLogger {
       if (WorkerLogger.timerId === null) {
         WorkerLogger.startTimer();
       }
-    } else if (WorkerLogger.enable) {
+    } else if (WorkerLogger.enable && WorkerLogger.logStream) {
       WorkerLogger.logStream.write(`${logEntry}\n`);
     }
     if (WorkerLogger.terminal) {
@@ -93,7 +93,7 @@ class WorkerLogger {
   }
   static clearTimer() {
     if (WorkerLogger.timerId !== null) {
-      clearTimeout(WorkerLogger.timerId);
+      clearTimeout(WorkerLogger.timerId as number);
       WorkerLogger.timerId = null;
     }
   }
@@ -103,7 +103,7 @@ class WorkerLogger {
   }
   static flush() {
     // Only write the final valid data in the buffer.
-    if (WorkerLogger.enable) {
+    if (WorkerLogger.enable && WorkerLogger.logStream) {
       WorkerLogger.logStream.write(WorkerLogger.logBuffer.toString().slice(0, WorkerLogger.bufferOffset));
       WorkerLogger.clearTimer();
       WorkerLogger.resetBuffer();
@@ -112,10 +112,10 @@ class WorkerLogger {
   static stop() {
     if (WorkerLogger.timerIdLogRollover) {
       console.log('Stopping timer');
-      clearInterval(WorkerLogger.timerIdLogRollover);
+      clearInterval(WorkerLogger.timerIdLogRollover as number);
       WorkerLogger.timerIdLogRollover = null;
     }
-    if (WorkerLogger.enable) {
+    if (WorkerLogger.enable && WorkerLogger.logStream) {
       WorkerLogger.flush();
       WorkerLogger.logStream.close();
     }
@@ -139,7 +139,7 @@ class WorkerLogger {
           fs.renameSync(workerData.filename, rolledFilename);
 
           WorkerLogger.logStream = fs.createWriteStream(workerData.filename, { flags: 'a' });
-          WorkerLogger.logStream.write("--Furi log rollover continuation--\n");
+          WorkerLogger.logStream.write('--Furi log rollover continuation--\n');
 
           // Peroform log rollover.
           const src = fs.createReadStream(rolledFilename);
@@ -153,7 +153,7 @@ class WorkerLogger {
               src.close();
               dest.close();
               gzip.close();
-              fs.unlink(rolledFilename, () =>{/* NOP */});
+              fs.unlink(rolledFilename, () => {/* NOP */ });
             }
           });
         }

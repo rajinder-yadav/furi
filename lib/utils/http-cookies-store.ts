@@ -2,7 +2,7 @@
  * Furi - Fast Uniform Resource Identifier.
  *
  * The Fast and Furious Node.js Router.
- * Copyright(c) 2016, 2025 Rajinder Yadav.
+ * Copyright(c) 2016 - 2025 Rajinder Yadav.
  *
  * Labs DevMentor.org Corp. <info@devmentor.org>
  * This code is released as-is without warranty under the "GNU GENERAL PUBLIC LICENSE".
@@ -19,9 +19,9 @@
 // deno-lint-ignore-file no-explicit-any
 import { createHmac } from 'node:crypto';
 
-import { ApplicationContext } from '../application-context.ts';
-import { MapOf, LOG_ERROR, LOG_WARN } from '../types.ts';
-import { TimePeriod } from './time-period.ts';
+import { ApplicationContext } from '../application-context';
+import { MapOf, LOG_ERROR, LOG_WARN } from '../types';
+import { TimePeriod } from './time-period';
 
 /**
  * Cookie defined types.
