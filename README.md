@@ -100,14 +100,10 @@ The following tools, technologies and software was used in the development of Fu
 
 Item | Version | Description
 --- | --- | ---
-TypeScript | 5.7.3 | A super-set of JavaScript that adds static typing and other features to the language.
+TypeScript | 5.8.3 | A superset of JavaScript that adds static typing and other features to the language.
 node | 22 LTS | Node.js core APIs.
-yaml | 2.7.0 | A library for parsing YAML used to read Furi configuration file.
-mime-types|2.1.35| The ultimate javascript content-type utility.
-@deno/dnt | 0.41.3 | A tool for building NPM packages.
-@std/assert | 1.0.11 | Deno standard library for assertions, used in test code.
-Deno | 2.2.1 | A runtime environment for JavaScript that aims to be secure and fast.
-Node.js | 20.18.3 LTS | The runtime environment for JavaScript.
+yaml | 2.7.1 | A library for parsing YAML used to read FURI configuration file.
+better-sqlite3 | 7.6.13 | A library for interacting with SQLite databases.
 Linux | 6.13.1-1-default | openSUSE Tumbleweed with KDE desktop
 
 __NOTE__: See Changelog for additional details on changes and updates. ✅
@@ -124,7 +120,7 @@ git clone https://github.com/rajinder-yadav/furi-examples.git
 
 The examples are easy to follow and should give you to a good understanding of how to use the Furi framework.
 
-Most of the Typescript examples will require you to install and use Deno to run them.
+For more the Typescript examples and can install and use Deno.
 The first example in directory, "01-simple-js-node" shows you how to use Node.js with plain JavaScript.
 The examples are number to help you quick start from basic and move to advanced usage.
 
@@ -183,10 +179,12 @@ deno add npm:@furi-server/furi
 When you run the server application, you will see a similar output in your terminal:
 
 ```sh
-Furi Server (v0.8.0) started.
-Server  { mode: http, host: localhost, port: 3030, env: development }
-Runtime { deno: 2.2.4, v8: 13.4.114.11-rusty, typescript: 5.7.3 }
-Logger  { enable: true, level: DEBUG, logFile: furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100 }
+INFO, Furi::listen Creating a unsecure HTTP server.
+INFO, Furi Server (v0.14.0) started.
+INFO, Server  { mode: http, host: localhost, port: 3030, env: development }
+INFO, Runtime { node: 22.14.0, v8: 12.4.254.21-node.22 }
+INFO, Logger  { enable: true, level: INFO, logFile: ./logs/furi.log, mode: stream, flushPeriod: 1000ms, maxCount: 100, rollover: 24h }
+
 ```
 
 This can help you quickly identify that your server is running, configuration settings and the runtime environment details.
