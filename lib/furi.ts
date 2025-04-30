@@ -131,7 +131,8 @@ export class Furi extends FuriRouter {
     super();
 
     // Read default configuration values.
-    let { env, port, host, callback, secure } = this.furiConfig.server;
+    let { env, port, host } = this.furiConfig.server;
+    const { callback, secure } = this.furiConfig.server;
 
     let {
       enable,
