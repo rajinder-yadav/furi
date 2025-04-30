@@ -114,7 +114,8 @@
   // "files": [],
   // Filenames or patterns to include, path relative to location of this config file.
   "include": [
-    "lib/**/*"
+    "lib/**/*",
+    "test/**/*"
   ],
   // Filenames or patterns to be excluded from being included.
   "exclude": [
@@ -124,7 +125,6 @@
     "docs/**/*",
     "log/*",
     "node_modules/**/*",
-    "test/**/*",
     "web/**/*",
     "tools/**/*",
     "ssl/**/*",

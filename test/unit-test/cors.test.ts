@@ -1,8 +1,7 @@
 import { Socket } from "node:net";
 
-import {
-  assertEquals,
-} from '@std/assert';
+import test from 'node:test';
+import assert from 'node:assert/strict'
 
 import {
   ApplicationContext,
@@ -11,11 +10,11 @@ import {
   Furi,
   FuriRequest,
   FuriResponse,
-} from '../../lib/furi.ts';
+} from '../../lib/furi';
 
 
 
-Deno.test('Cors default values', () => {
+test('Cors default values', (t) => {
   const corsMiddleware = Cors();
   const httpRequest = new FuriRequest(new Socket());
   const httpResponse = new FuriResponse(httpRequest);
@@ -29,14 +28,14 @@ Deno.test('Cors default values', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "*");
-  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "*");
+  assert.equal(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set origin', () => {
+test('Cors set origin', (t) => {
   const corsOptions:CorsOptions = {
     origin: "https://example.com",
   };
@@ -54,14 +53,14 @@ Deno.test('Cors set origin', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "https://example.com");
-  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "https://example.com");
+  assert.equal(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set two origins', () => {
+test('Cors set two origins', (t) => {
   const corsOptions:CorsOptions = {
     origin: ["http://localhost:3030", "https://example.com"],
   };
@@ -79,15 +78,15 @@ Deno.test('Cors set two origins', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1.includes("https://example.com"), true);
-  assertEquals(c1.includes("http://localhost:3030"), true);
-  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1.includes("https://example.com"), true);
+  assert.equal(c1.includes("http://localhost:3030"), true);
+  assert.equal(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set origin, methods', () => {
+test('Cors set origin, methods', (t) => {
   const corsOptions:CorsOptions = {
     origin: "https://example.com",
     methods: ["GET", "POST"],
@@ -106,14 +105,14 @@ Deno.test('Cors set origin, methods', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "https://example.com");
-  assertEquals(c2, "GET, POST");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "https://example.com");
+  assert.equal(c2, "GET, POST");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set origin, methods, headers', () => {
+test('Cors set origin, methods, headers', (t) => {
   const corsOptions:CorsOptions = {
     origin: "https://example.com",
     methods: ["GET", "PUT"],
@@ -133,14 +132,14 @@ Deno.test('Cors set origin, methods, headers', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "https://example.com");
-  assertEquals(c2, "GET, PUT");
-  assertEquals(c3, "Content-Type");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "https://example.com");
+  assert.equal(c2, "GET, PUT");
+  assert.equal(c3, "Content-Type");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set methods', () => {
+test('Cors set methods', (t) => {
   const corsOptions:CorsOptions = {
     methods: ["GET", "PUT"],
   };
@@ -158,14 +157,14 @@ Deno.test('Cors set methods', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "*");
-  assertEquals(c2, "GET, PUT");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "*");
+  assert.equal(c2, "GET, PUT");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set headers', () => {
+test('Cors set headers', (t) => {
   const corsOptions:CorsOptions = {
     headers: ["Authorization"],
   };
@@ -183,14 +182,14 @@ Deno.test('Cors set headers', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "*");
-  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  assertEquals(c3, "Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "*");
+  assert.equal(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assert.equal(c3, "Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set credentials true', () => {
+test('Cors set credentials true', (t) => {
   const corsOptions:CorsOptions = {
     credentials: true
   };
@@ -208,14 +207,14 @@ Deno.test('Cors set credentials true', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "*");
-  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "true");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "*");
+  assert.equal(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "true");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set credentials false', () => {
+test('Cors set credentials false', (t) => {
   const corsOptions:CorsOptions = {
     credentials: false
   };
@@ -233,14 +232,14 @@ Deno.test('Cors set credentials false', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "*");
-  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "86400");
+  assert.equal(c1, "*");
+  assert.equal(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "86400");
 });
 
-Deno.test('Cors set credentials max age', () => {
+test('Cors set credentials max age', (t) => {
   const corsOptions:CorsOptions = {
     maxAge: 1212
   };
@@ -258,9 +257,9 @@ Deno.test('Cors set credentials max age', () => {
   const c4 = ctx.response.getHeader("Access-Control-Allow-Credentials");
   const c5 = ctx.response.getHeader("Access-Control-Max-Age");
 
-  assertEquals(c1, "*");
-  assertEquals(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  assertEquals(c3, "Content-Type, Authorization");
-  assertEquals(c4, "false");
-  assertEquals(c5, "1212");
+  assert.equal(c1, "*");
+  assert.equal(c2, "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  assert.equal(c3, "Content-Type, Authorization");
+  assert.equal(c4, "false");
+  assert.equal(c5, "1212");
 });

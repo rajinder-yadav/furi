@@ -1,15 +1,12 @@
-import {
-  assertEquals,
-  assertFalse,
-  assertExists
-} from '@std/assert';
+import test from 'node:test';
+import assert from 'node:assert/strict'
 
 import {
   ApplicationContext,
   FuriRouter,
   RouteMap,
   HttpMapIndex,
-} from '../../lib/furi.ts';
+} from '../../lib/furi';
 
 
 class TestFuriRouter extends FuriRouter {
@@ -18,7 +15,7 @@ class TestFuriRouter extends FuriRouter {
   }
 }
 
-Deno.test('FuriRouter: add router with middleware to another router', () => {
+test('FuriRouter: add router with middleware to another router', (t) => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
@@ -33,24 +30,24 @@ Deno.test('FuriRouter: add router with middleware to another router', () => {
 
   // Make sure route1 map in unaffected.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap1.staticRouteMap['/']);
+  assert.ok(!httpMap1.staticRouteMap['/']);
   const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap2.staticRouteMap['/']);
+  assert.ok(!httpMap2.staticRouteMap['/']);
 
 
   const count = Object.keys(HttpMapIndex).length;
   for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
     const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
-    assertExists(httpMap1.namedRoutePartitionMap[2]);
-    assertEquals(httpMap1.namedRoutePartitionMap[2].length, 2);
+    assert.ok(httpMap1.namedRoutePartitionMap[2]);
+    assert.equal(httpMap1.namedRoutePartitionMap[2].length, 2);
 
     const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
-    assertExists(httpMap2.namedRoutePartitionMap[2]);
-    assertEquals(httpMap2.namedRoutePartitionMap[2].length, 2);
+    assert.ok(httpMap2.namedRoutePartitionMap[2]);
+    assert.equal(httpMap2.namedRoutePartitionMap[2].length, 2);
   }
 });
 
-Deno.test('FuriRouter: add router with middleware to another router', () => {
+test('FuriRouter: add router with middleware to another router', (t) => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
@@ -65,23 +62,23 @@ Deno.test('FuriRouter: add router with middleware to another router', () => {
 
   // Make sure route1 map in unaffected.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap1.staticRouteMap['/']);
+  assert.ok(!httpMap1.staticRouteMap['/']);
   const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap2.staticRouteMap['/']);
+  assert.ok(!httpMap2.staticRouteMap['/']);
 
   const count = Object.keys(HttpMapIndex).length;
   for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
     const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
-    assertExists(httpMap1.namedRoutePartitionMap[2]);
-    assertEquals(httpMap1.namedRoutePartitionMap[2].length, 2);
+    assert.ok(httpMap1.namedRoutePartitionMap[2]);
+    assert.equal(httpMap1.namedRoutePartitionMap[2].length, 2);
 
     const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
-    assertExists(httpMap2.namedRoutePartitionMap[4]);
-    // assertEquals(httpMap2.namedRoutePartitionMap[4].length, 2);
+    assert.ok(httpMap2.namedRoutePartitionMap[4]);
+    assert.equal(httpMap2.namedRoutePartitionMap[4].length, 2);
   }
 });
 
-Deno.test('FuriRouter: add router with middleware to another router', () => {
+test('FuriRouter: add router with middleware to another router', (t) => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
@@ -103,25 +100,25 @@ Deno.test('FuriRouter: add router with middleware to another router', () => {
 
   // Make sure route1 map in unaffected.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap1.staticRouteMap['/']);
+  assert.ok(!httpMap1.staticRouteMap['/']);
   const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap2.staticRouteMap['/']);
+  assert.ok(!httpMap2.staticRouteMap['/']);
 
   const count = Object.keys(HttpMapIndex).length;
   for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
     const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
-    assertExists(httpMap1.namedRoutePartitionMap[2]);
-    assertEquals(httpMap1.namedRoutePartitionMap[2].length, 2);
+    assert.ok(httpMap1.namedRoutePartitionMap[2]);
+    assert.equal(httpMap1.namedRoutePartitionMap[2].length, 2);
 
     const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
-    assertExists(httpMap2.namedRoutePartitionMap[2]);
-    assertEquals(httpMap2.namedRoutePartitionMap[2].length, 2);
-    assertExists(httpMap2.namedRoutePartitionMap[4]);
-    assertEquals(httpMap2.namedRoutePartitionMap[4].length, 2);
+    assert.ok(httpMap2.namedRoutePartitionMap[2]);
+    assert.equal(httpMap2.namedRoutePartitionMap[2].length, 2);
+    assert.ok(httpMap2.namedRoutePartitionMap[4]);
+    assert.equal(httpMap2.namedRoutePartitionMap[4].length, 2);
   }
 });
 
-Deno.test('FuriRouter: add router with middleware to another router', () => {
+test('FuriRouter: add router with middleware to another router', (t) => {
   const router1 = new TestFuriRouter();
   const router2 = new TestFuriRouter();
 
@@ -143,18 +140,18 @@ Deno.test('FuriRouter: add router with middleware to another router', () => {
 
   // Make sure route1 map in unaffected.
   const httpMap1: RouteMap = router1.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap1.staticRouteMap['/']);
+  assert.ok(!httpMap1.staticRouteMap['/']);
   const httpMap2: RouteMap = router2.getRouteMap()[HttpMapIndex.MIDDLEWARE];
-  assertFalse(httpMap2.staticRouteMap['/']);
+  assert.ok(!httpMap2.staticRouteMap['/']);
 
   const count = Object.keys(HttpMapIndex).length;
   for (let mapIndex = 1; mapIndex < count; ++mapIndex) {
     const httpMap1: RouteMap = router1.getRouteMap()[mapIndex];
-    assertExists(httpMap1.namedRoutePartitionMap[2]);
-    assertEquals(httpMap1.namedRoutePartitionMap[2].length, 2);
+    assert.ok(httpMap1.namedRoutePartitionMap[2]);
+    assert.equal(httpMap1.namedRoutePartitionMap[2].length, 2);
 
     const httpMap2: RouteMap = router2.getRouteMap()[mapIndex];
-    assertExists(httpMap2.namedRoutePartitionMap[4]);
-    assertEquals(httpMap2.namedRoutePartitionMap[4].length, 4);
+    assert.ok(httpMap2.namedRoutePartitionMap[4]);
+    assert.equal(httpMap2.namedRoutePartitionMap[4].length, 4);
   }
 });

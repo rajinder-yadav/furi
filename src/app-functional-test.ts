@@ -314,20 +314,20 @@ furi.use("/middleware", (ctx: ApplicationContext, next) => {
 });
 //
 furi.use("/middleware", (ctx: ApplicationContext) => {
-  ctx.response.writeHead(200, {
-    "Content-Type": "text/plain",
-    "User-Agent": USER_AGENT
-  });
+  // ctx.response.writeHead(200, {
+  //   "Content-Type": "text/plain",
+  //   "User-Agent": USER_AGENT
+  // });
   ctx.send("About page Middleware 2\n");
   ctx.end();
 });
 
 furi.get("/middleware", (ctx: ApplicationContext) => {
 
-  ctx.response.writeHead(200, {
-    "Content-Type": "text/html",
-    "User-Agent": USER_AGENT
-  });
+  // ctx.response.writeHead(200, {
+  //   "Content-Type": "text/html",
+  //   "User-Agent": USER_AGENT
+  // });
 
   ctx.send("<h1>About FURI</h1>\nThis is the about page.\n");
 });
@@ -348,20 +348,20 @@ furi.get("/middleware2", (ctx: ApplicationContext, next) => {
 });
 furi.get("/middleware2", (ctx: ApplicationContext, next) => {
 
-  ctx.response.writeHead(200, {
-    "Content-Type": "text/html",
-    "User-Agent": USER_AGENT
-  });
+  // ctx.response.writeHead(200, {
+  //   "Content-Type": "text/html",
+  //   "User-Agent": USER_AGENT
+  // });
 
   ctx.send("<p>Middleware 2 GET </p>\n");
   next();
 });
 furi.get("/middleware2", (ctx: ApplicationContext) => {
 
-  ctx.response.writeHead(200, {
-    "Content-Type": "text/html",
-    "User-Agent": USER_AGENT
-  });
+  // ctx.response.writeHead(200, {
+  //   "Content-Type": "text/html",
+  //   "User-Agent": USER_AGENT
+  // });
 
   ctx.end("<p>Middleware 2 post </p>\n");
 
@@ -507,10 +507,10 @@ furi.all('/all', (ctx: ApplicationContext, next) => {
 });
 
 furi.get('/all', (ctx: ApplicationContext) => {
-  ctx.response.writeHead(200, {
-    "Content-Type": "text/html",
-    "User-Agent": USER_AGENT
-  });
+  // ctx.response.writeHead(200, {
+  //   "Content-Type": "text/html",
+  //   "User-Agent": USER_AGENT
+  // });
   ctx.end("<p>A paragraph all about nothing.\n");
 
 });
