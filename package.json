@@ -1,24 +1,12 @@
 {
   "name": "@furi-server/furi",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "description": "Furi - The Fast HTTP/S Node.js Server Framework",
   "main": "./build/furi.js",
   "files": [
     "./build/**/*"
   ],
   "scripts": {
-    "f": "run-s clean dev:build f:app",
-    "f:app": "node build/src/app-functional-test.js",
-    "ff": "node build/test/functional-test/furi.test.js",
-    "t": "run-s clean dev:build t1 t2 t3 t4 t5 t6",
-    "t1": "node build/test/unit-test/application-context.test.js",
-    "t2": "node build/test/unit-test/cors.test.js",
-    "t3": "node build/test/unit-test/debug.test.js",
-    "t4": "node build/test/unit-test/furi-router.named-routers.test.js",
-    "t5": "node build/test/unit-test/furi-router.static-routes.test.js",
-    "t6": "node build/test/unit-test/http-cookies-store.test.js",
-    "d": "run-s clean dev:build dd",
-    "dd": "node --inspect-brk /mnt/WD4TB/dev/projects/furi/furi/build/test/functional-test/furi.test.js",
     "build": "tsc",
     "browser": "/usr/bin/google-chrome-stable --new-window || /usr/bin/brave-browser --new-window",
     "check": "tsc --noEmit",
@@ -70,11 +58,11 @@
     "css",
     "sass"
   ],
-  "author": "[Fullname] <your-email>",
+  "author": "Rajinder Yadav <devguy.ca@gmail.com>",
   "license": "GPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/<github-user-id>/<project-name>"
+    "url": "https://github.com/rajinder-yadav/furi"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
