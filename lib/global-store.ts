@@ -17,21 +17,21 @@ import {
 } from './types';
 
 // TODO: Revisit build-in Sqlite3 support with it is ready.
-// import { DatabaseSync, Statement } from 'node:sqlite';
-import SqliteDB, { Statement, Database } from 'better-sqlite3';
+import { DatabaseSync, StatementSync } from 'node:sqlite';
+// import Sqlite3, { Statement, Database } from 'better-sqlite3';
 
 /**
  * State Management for Furi.
  * Provides a global state management system for the application.
  */
 export class GlobalStore {
-  private readonly db: Database | null = null;
+  private readonly db: DatabaseSync | null = null;
 
-  private readonly sqlInsert: Statement | null = null;
-  private readonly sqlFind: Statement | null = null;
-  private readonly sqlUpdate: Statement | null = null;
-  private readonly sqlDelete: Statement | null = null;
-  private readonly sqlDeleteAll: Statement | null = null;
+  private readonly sqlInsert: StatementSync | null = null;
+  private readonly sqlFind: StatementSync | null = null;
+  private readonly sqlUpdate: StatementSync | null = null;
+  private readonly sqlDelete: StatementSync | null = null;
+  private readonly sqlDeleteAll: StatementSync | null = null;
 
   constructor(dbFilename?: string) {
     // Create a SQLite database table for storing application state.
@@ -40,8 +40,8 @@ export class GlobalStore {
     }
 
     try {
-      this.db = new SqliteDB(':memory:');
-      this.db.pragma('journal_mode = WAL');
+      this.db = new DatabaseSync(dbFilename);
+      // this.db.pragma('journal_mode = WAL');
       this.db.exec(`
       CREATE TABLE IF NOT EXISTS FuriStateStore (
         key TEXT PRIMARY KEY,
