@@ -1,6 +1,29 @@
 # Change Log
 
-Date in ISO format: YYYY-MM-DD
+## Date format: YYYY-MM-DD
+
+## v0.14.1 (2025-04-30)
+
+Furi, the Fast HTTPS Node.js framework 🚀
+is officially back on Node.js development and testing and off Dino! 🦖
+
+Why it matters. No more Node.js compatibility issues of me wasting my time looking for work-arounds each time. Entering bugs for Dino that don't seem to be addressed, other times being told its a TypeScript error.
+
+Dino doesn't support tsconfig ❌ and has its own limited TypeScript configurations. I didn't like this, I wanted complete control.
+
+Now I have both TypeScript typechecking and ESLint+TypeScript linting. 💯
+
+- ✅ Furi now builds from TypeScript to JavaScript.
+- ✅ All Deno Unit tests migrated to Node unit testing.
+- ✅ All Deno Function tests migrated to Node functional testing.
+- ✅ Furi NPM Package now builds using NPM.
+- ✅ DevContainers updated to use TypeScript + Node.
+
+All tests first compile to JavaScript and then run on Node.js. No more Dino type-stripping to run TS as JS. This means all NPM node modules will just work.
+
+In the migration process, some erroneour test code was discoved and fixed. Glad to say, zero bugs popped up for Furi. ✅
+
+Moving forward I can get back to working on Furi and adding new features. 💪🏾
 
 ## v0.14.0 (2025-03-23)
 
